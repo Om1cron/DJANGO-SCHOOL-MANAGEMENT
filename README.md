@@ -8,4 +8,5 @@ It is provided with no warranty, it is assumed that the user understands what th
 ## History
 
 This is a tool built during the development of the FIO chain by Dapix. Originally it was developed for security testing
-of contracts. M
+of contracts. Most of the attack capabilities have been removed and the FIO Foundation has graciously allowed me to
+release the project for the FIO co
