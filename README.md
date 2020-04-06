@@ -14,4 +14,7 @@ release the project for the FIO community.
 ## Features
 
  * connects to a server, and pulls a list of all accounts with an ABI
- * provides a list of these on the left side
+ * provides a list of these on the left side of the window
+ * selecting an action will retrieve the abi for the account
+ * presents an editor
+ * in many cases has sensibl
