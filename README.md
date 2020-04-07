@@ -17,4 +17,10 @@ release the project for the FIO community.
  * provides a list of these on the left side of the window
  * selecting an action will retrieve the abi for the account
  * presents an editor
- * in many cases has sensibl
+ * in many cases has sensible default values
+ * submission as a msig-proposal
+ * a viewer pops up to see both the request and response.
+
+Other useful abilities:
+
+ * retrieves a lis
