@@ -23,4 +23,6 @@ release the project for the FIO community.
 
 Other useful abilities:
 
- * retrieves a lis
+ * retrieves a list of available api endpoints, and presents a form for sending requests directly
+ * a key generator, with vanity key generation
+ * some limit
