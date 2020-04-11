@@ -34,4 +34,8 @@ Other useful abilities:
 
 **Advanced-mode offers additional functionality when sending actions.**
 
- *Using the advanced features will not normally b
+ *Using the advanced features will not normally be useful for sending transactions and is disabled by default.*
+
+ * The editor has additional options
+   - changing abi field types
+   - using 
