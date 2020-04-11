@@ -30,4 +30,8 @@ Other useful abilities:
  * table browser for viewing data
  * abi viewer
  * bp voting tool
- * ability to view pending FIO requests, reject, respond, or request funds. (Handling sent requests 
+ * ability to view pending FIO requests, reject, respond, or request funds. (Handling sent requests is not yet available.)
+
+**Advanced-mode offers additional functionality when sending actions.**
+
+ *Using the advanced features will not normally b
