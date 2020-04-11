@@ -25,4 +25,6 @@ Other useful abilities:
 
  * retrieves a list of available api endpoints, and presents a form for sending requests directly
  * a key generator, with vanity key generation
- * some limited msig functionality, for now only a form for update-auth to create and ability to propose. viewing, rejecting, approving and cancel abilitie
+ * some limited msig functionality, for now only a form for update-auth to create and ability to propose. viewing, rejecting, approving and cancel abilities are planned
+ * account lookup, by pub key, fio address, fio domain, private key, or account
+ * table browser for viewi
