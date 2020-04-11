@@ -27,4 +27,7 @@ Other useful abilities:
  * a key generator, with vanity key generation
  * some limited msig functionality, for now only a form for update-auth to create and ability to propose. viewing, rejecting, approving and cancel abilities are planned
  * account lookup, by pub key, fio address, fio domain, private key, or account
- * table browser for viewi
+ * table browser for viewing data
+ * abi viewer
+ * bp voting tool
+ * ability to view pending FIO requests, reject, respond, or request funds. (Handling sent requests 
