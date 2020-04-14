@@ -38,4 +38,5 @@ Other useful abilities:
 
  * The editor has additional options
    - changing abi field types
-   - using 
+   - using various fuzzers to generate data
+   - performs as little error checking as possible (within limitations of being able to se
