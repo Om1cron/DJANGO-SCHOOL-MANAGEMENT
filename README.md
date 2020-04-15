@@ -39,4 +39,7 @@ Other useful abilities:
  * The editor has additional options
    - changing abi field types
    - using various fuzzers to generate data
-   - performs as little error checking as possible (within limitations of being able to se
+   - performs as little error checking as possible (within limitations of being able to serialize)
+   - includes many features to modify the request
+ * requests can be sent in batches/loops. WARNING: this can quickly deplete funds.
+
