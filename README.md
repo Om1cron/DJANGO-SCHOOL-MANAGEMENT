@@ -43,3 +43,16 @@ Other useful abilities:
    - includes many features to modify the request
  * requests can be sent in batches/loops. WARNING: this can quickly deplete funds.
 
+
+
+### Action Editor
+
+![editor](doc/action-editor.png)
+
+### API
+
+![API requests](doc/api-request.png)
+
+### FIO Requests
+
+![respond to request](doc/
