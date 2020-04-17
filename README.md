@@ -55,4 +55,12 @@ Other useful abilities:
 
 ### FIO Requests
 
-![respond to request](doc/
+![respond to request](doc/respond-request.png)
+
+### Voting
+
+![vote for producers](doc/vote-producer.png)
+
+## Note on building ...
+
+* Requires Go v1.14 or hi
