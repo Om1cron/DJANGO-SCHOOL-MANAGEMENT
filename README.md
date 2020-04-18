@@ -63,4 +63,6 @@ Other useful abilities:
 
 ## Note on building ...
 
-* Requires Go v1.14 or hi
+* Requires Go v1.14 or higher.
+* This is built with the Fyne windowing toolkit, which requires several libraries to be installed:
+  - [Fyne Requirements](http
