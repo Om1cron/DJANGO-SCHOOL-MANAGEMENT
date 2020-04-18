@@ -72,3 +72,98 @@ func GetAbiViewer(w int, h int, api *fio.API) (tab *widget.Box, ok bool) {
 				actions.SetText(s)
 			}
 		}(txt)
+		actions.SetText(txt)
+
+		var yTables []byte
+		if asJson.Checked {
+			yTables, err = json.MarshalIndent(abiOut.ABI.Tables, "", "  ")
+		} else {
+			yTables, err = yaml.Marshal(abiOut.ABI.Tables)
+		}
+		if err != nil {
+			errs.ErrChan <- err.Error()
+			return
+		}
+		txt = r.ReplaceAllString(string(yTables), "\n-")
+		func(s string) {
+			tables.OnChanged = func(string) {
+				tables.SetText(s)
+			}
+		}(txt) // deref
+		tables.SetText(txt)
+
+		layoutActions.Content.Resize(actions.MinSize())
+		layoutStructs.Content.Resize(structs.MinSize())
+		layoutTables.Content.Resize(tables.MinSize())
+		layoutActions.Content.Refresh()
+		layoutStructs.Content.Refresh()
+		layoutTables.Content.Refresh()
+		scrollViews.Refresh()
+		tables.Refresh()
+		actions.Refresh()
+		structs.Refresh()
+	}
+
+	abis := &widget.Select{}
+
+	asJson = widget.NewCheck("Display Json", func(b bool) {
+		structs.SetText("")
+		actions.SetText("")
+		tables.SetText("")
+		getAbi(abis.Selected)
+	})
+
+	abis = widget.NewSelect(TableIndex.List(), func(s string) {
+		structs.SetText("")
+		actions.SetText("")
+		tables.SetText("")
+		getAbi(abis.Selected)
+	})
+
+	tabHeight := int(math.Round(float64(H) * .65))
+	layoutStructs = widget.NewTabItem("Structs",
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(RWidth(), tabHeight)),
+			fyne.NewContainerWithLayout(layout.NewMaxLayout(),
+				widget.NewScrollContainer(
+					structs,
+				),
+			),
+		),
+	)
+	layoutActions = widget.NewTabItem("Actions",
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(RWidth(), tabHeight)),
+			fyne.NewContainerWithLayout(layout.NewMaxLayout(),
+				widget.NewScrollContainer(
+					actions,
+				),
+			),
+		),
+	)
+	layoutTables = widget.NewTabItem("Tables",
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(RWidth(), tabHeight)),
+			fyne.NewContainerWithLayout(layout.NewMaxLayout(),
+				widget.NewScrollContainer(
+					tables,
+				),
+			),
+		),
+	)
+
+	scrollViews = fyne.NewContainer(
+		widget.NewTabContainer(
+			layoutStructs,
+			layoutActions,
+			layoutTables,
+		),
+	)
+	viewAbiLayout := widget.NewVBox(
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(200, 30)),
+			widget.NewHBox(
+				abis,
+				asJson,
+			),
+		),
+		scrollViews,
+	)
+	return viewAbiLayout, true
+}
