@@ -73,4 +73,5 @@ To build and install, clone this repo, and run ...
 cryptonym$ go install ./...
 ```
 
-And the binary `cr
+And the binary `cryptonym-wallet` will be placed inside `$GOPATH/bin` (most likely `~/go/bin`)
+
