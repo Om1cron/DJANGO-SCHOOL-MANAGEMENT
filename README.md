@@ -65,4 +65,12 @@ Other useful abilities:
 
 * Requires Go v1.14 or higher.
 * This is built with the Fyne windowing toolkit, which requires several libraries to be installed:
-  - [Fyne Requirements](http
+  - [Fyne Requirements](https://developer.fyne.io/started/#prerequisites)
+
+To build and install, clone this repo, and run ...
+
+```
+cryptonym$ go install ./...
+```
+
+And the binary `cr
