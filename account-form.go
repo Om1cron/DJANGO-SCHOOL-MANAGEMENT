@@ -325,3 +325,35 @@ func (as *AccountInformation) report() (*widget.Box, error) {
 	if len(as.MsigOwners) != 0 {
 		msigContainer.Show()
 		msig.SetText(fmt.Sprintf("Required Threshold: %d\nOwners:\n - %s", as.MsigThresh, strings.Join(as.MsigOwners, "\n - ")))
+		msig.OnChanged = func(string) {
+			msig.SetText(fmt.Sprintf("Required Threshold: %d\nOwners:\n - %s", as.MsigThresh, strings.Join(as.MsigOwners, "\n - ")))
+		}
+		msig.Refresh()
+	}
+
+	report = widget.NewVBox(
+		fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(3),
+			widget.NewLabelWithStyle("Actor: ", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+			entryActor,
+			layout.NewSpacer(),
+		),
+		fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(3),
+			widget.NewLabelWithStyle("Public Key: ", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+			entryPub,
+			layout.NewSpacer(),
+		),
+		fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(3),
+			widget.NewLabelWithStyle("Balance: ", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+			entryBal,
+			layout.NewSpacer(),
+		),
+		ramContainer,
+		msigContainer,
+		domains,
+
+		names,
+	)
+	report.Refresh()
+
+	return report, nil
+}
