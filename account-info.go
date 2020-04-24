@@ -248,3 +248,134 @@ func (as *AccountInformation) getFioNames() {
 		errs.ErrChan <- err.Error()
 		return
 	}
+	name := fmt.Sprintf("%d", n)
+	row, err := as.api.GetTableRows(eos.GetTableRowsRequest{
+		Code:       "fio.address",
+		Scope:      "fio.address",
+		Table:      "fionames",
+		LowerBound: name,
+		UpperBound: name,
+		Limit:      limit,
+		KeyType:    "i64",
+		Index:      "4",
+		JSON:       true,
+	})
+	if err != nil {
+		errs.ErrChan <- err.Error()
+		return
+	}
+	if len(row.Rows) > 2 {
+		fNames := make([]FioAddressStruct, 0)
+		err = json.Unmarshal(row.Rows, &fNames)
+		if err != nil {
+			errs.ErrChan <- err.Error()
+			return
+		}
+		as.FioNames = append(as.FioNames, fNames...)
+	}
+	if row.More {
+		errs.ErrChan <- fmt.Sprintf("truncated results to first %d addresses", limit)
+	}
+}
+
+func (as *AccountInformation) getFioDomains() {
+	const limit = 20
+	row, err := as.api.GetTableRows(eos.GetTableRowsRequest{
+		Code:       "fio.address",
+		Scope:      "fio.address",
+		Table:      "domains",
+		LowerBound: as.Actor,
+		UpperBound: as.Actor,
+		Limit:      limit,
+		KeyType:    "name",
+		Index:      "2",
+		JSON:       true,
+	})
+	if err != nil {
+		errs.ErrChan <- err.Error()
+		return
+	}
+	if len(row.Rows) > 2 {
+		fDoms := make([]FioDomainStruct, 0)
+		err = json.Unmarshal(row.Rows, &fDoms)
+		if err != nil {
+			errs.ErrChan <- err.Error()
+			return
+		}
+	doms:
+		for _, fDom := range fDoms {
+			for _, existing := range as.FioDomains {
+				if existing.Name == fDom.Name {
+					continue doms
+				}
+			}
+			as.FioDomains = append(as.FioDomains, fDom)
+		}
+	}
+	if row.More {
+		errs.ErrChan <- fmt.Sprintf("truncated results to first %d domains", limit)
+	}
+}
+
+// only works on >= v0.9.0
+func (as *AccountInformation) searchForDom(s string) error {
+	ss := FioDomainNameHash(s)
+	resp, err := as.api.GetTableRows(eos.GetTableRowsRequest{
+		Code:       "fio.address",
+		Scope:      "fio.address",
+		Table:      "domains",
+		LowerBound: ss,
+		UpperBound: ss,
+		Limit:      1,
+		KeyType:    "i128",
+		Index:      "4",
+		JSON:       true,
+	})
+	if err != nil {
+		return err
+	}
+	if len(resp.Rows) > 2 {
+		d := make([]FioDomainStruct, 0)
+		err = json.Unmarshal(resp.Rows, &d)
+		if err != nil {
+			return err
+		}
+		as.FioDomains = append(as.FioDomains, d...)
+		if as.Actor == "" && len(d) > 0 && d[0].Account != "" {
+			return as.searchForActor(string(d[0].Account))
+		}
+	}
+	return nil
+}
+
+func (as *AccountInformation) getExtra() {
+	if as.Actor != "" {
+		acc, err := as.api.GetFioAccount(as.Actor)
+		if err != nil {
+			return
+		}
+		as.RamUsed = int64(acc.RAMUsage)
+		for _, a := range acc.Permissions {
+			if a.PermName == "active" && a.RequiredAuth.Accounts != nil && len(a.RequiredAuth.Accounts) > 0 {
+				as.MsigThresh = a.RequiredAuth.Threshold
+				for _, owner := range a.RequiredAuth.Accounts {
+					as.MsigOwners = append(as.MsigOwners, fmt.Sprintf("%s (weight: %d)", owner.Permission.Actor, owner.Weight))
+				}
+			}
+		}
+	}
+}
+
+func FioDomainNameHash(s string) string {
+	sha := sha1.New()
+	sha.Write([]byte(s))
+	// last 16 bytes of sha1-sum, as big-endian
+	return "0x" + hex.EncodeToString(FlipEndian(sha.Sum(nil)))[8:]
+}
+
+func FlipEndian(orig []byte) []byte {
+	flipped := make([]byte, len(orig))
+	for i := range orig {
+		flipped[len(flipped)-i-1] = orig[i]
+	}
+	return flipped
