@@ -379,3 +379,17 @@ func FlipEndian(orig []byte) []byte {
 		flipped[len(flipped)-i-1] = orig[i]
 	}
 	return flipped
+}
+
+func appendUniq(oldSlice []string, add ...string) (newSlice []string) {
+	u := make(map[string]bool)
+	oldSlice = append(oldSlice, add...)
+	for _, v := range oldSlice {
+		u[v] = true
+	}
+	for k := range u {
+		newSlice = append(newSlice, k)
+	}
+	sort.Strings(newSlice)
+	return
+}
