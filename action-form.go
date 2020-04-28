@@ -22,3 +22,11 @@ var (
 	FormState    = NewAbi(0)
 	bombsAway    = &widget.Button{}
 	txWindowOpts = &txResultOpts{
+		gone:   true,
+	}
+)
+
+func ResetTxResult() {
+	if txWindowOpts.window != nil {
+		txWindowOpts.window.Hide()
+		txWindowOpts.window.C
