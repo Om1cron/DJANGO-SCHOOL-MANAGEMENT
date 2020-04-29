@@ -29,4 +29,9 @@ var (
 func ResetTxResult() {
 	if txWindowOpts.window != nil {
 		txWindowOpts.window.Hide()
-		txWindowOpts.window.C
+		txWindowOpts.window.Close()
+	}
+	txWindowOpts.window = App.NewWindow("Tx Results")
+	txWindowOpts.gone = true
+	txWindowOpts.window.SetContent(layout.NewSpacer())
+	txWindow
