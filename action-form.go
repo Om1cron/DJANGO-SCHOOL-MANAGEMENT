@@ -34,4 +34,9 @@ func ResetTxResult() {
 	txWindowOpts.window = App.NewWindow("Tx Results")
 	txWindowOpts.gone = true
 	txWindowOpts.window.SetContent(layout.NewSpacer())
-	txWindow
+	txWindowOpts.window.Show()
+	go func() {
+		for {
+			time.Sleep(10 * time.Millisecond)
+			if txWindowOpts.window.Content().Visible() {
+				txWindowOpts.wi
