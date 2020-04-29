@@ -39,4 +39,12 @@ func ResetTxResult() {
 		for {
 			time.Sleep(10 * time.Millisecond)
 			if txWindowOpts.window.Content().Visible() {
-				txWindowOpts.wi
+				txWindowOpts.window.Hide()
+				return
+			}
+		}
+	}()
+}
+
+// GetAbiForm returns the fyne form for editing the request, it also handles state tracking via
+// the 
