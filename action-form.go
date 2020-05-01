@@ -47,4 +47,5 @@ func ResetTxResult() {
 }
 
 // GetAbiForm returns the fyne form for editing the request, it also handles state tracking via
-// the 
+// the FormState which is later used to build the transaction.
+func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.
