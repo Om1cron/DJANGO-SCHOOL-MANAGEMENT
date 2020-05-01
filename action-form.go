@@ -48,4 +48,8 @@ func ResetTxResult() {
 
 // GetAbiForm returns the fyne form for editing the request, it also handles state tracking via
 // the FormState which is later used to build the transaction.
-func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.
+func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxOptions) (fyne.CanvasObject, error) {
+	if api.HttpClient == nil {
+		return widget.NewVBox(), nil
+	}
+	accountAction := strings.Split(act
