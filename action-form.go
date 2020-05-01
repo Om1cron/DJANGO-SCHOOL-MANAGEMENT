@@ -52,4 +52,8 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	if api.HttpClient == nil {
 		return widget.NewVBox(), nil
 	}
-	accountAction := strings.Split(act
+	accountAction := strings.Split(action, "::")
+	if len(accountAction) != 2 {
+		e := "couldn't parse account and action for " + action
+		errs.ErrChan <- e
+		retur
