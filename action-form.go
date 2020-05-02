@@ -56,4 +56,8 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	if len(accountAction) != 2 {
 		e := "couldn't parse account and action for " + action
 		errs.ErrChan <- e
-		retur
+		return nil, errors.New(e)
+	}
+	abi, err := api.GetABI(eos.AccountName(accountAction[0]))
+	if err != nil {
+		errs.ErrChan <- err.Err
