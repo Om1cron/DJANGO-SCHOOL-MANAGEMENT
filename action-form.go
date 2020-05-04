@@ -66,4 +66,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	abiStruct := abi.ABI.StructForName(accountAction[1])
 	form := widget.NewForm()
 
-	abiState := NewAbi(len(abiStruct
+	abiState := NewAbi(len(abiStruct.Fields))
+	abiState.Contract = accountAction[0]
+	abiState.Action = accountAction[1]
+	for i, deRef := range abiStruct.Fields {
+		fieldRef := &deRef
+		f
