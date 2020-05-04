@@ -60,4 +60,10 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	}
 	abi, err := api.GetABI(eos.AccountName(accountAction[0]))
 	if err != nil {
-		errs.ErrChan <- err.Err
+		errs.ErrChan <- err.Error()
+		return nil, err
+	}
+	abiStruct := abi.ABI.StructForName(accountAction[1])
+	form := widget.NewForm()
+
+	abiState := NewAbi(len(abiStruct
