@@ -71,4 +71,11 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	abiState.Action = accountAction[1]
 	for i, deRef := range abiStruct.Fields {
 		fieldRef := &deRef
-		f
+		field := *fieldRef
+
+		// input field
+		inLabel := widget.NewLabel("Input:")
+		if os.Getenv("ADVANCED") == "" {
+			inLabel.Hide()
+		}
+		in := widget.NewEnt
