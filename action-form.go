@@ -78,4 +78,6 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		if os.Getenv("ADVANCED") == "" {
 			inLabel.Hide()
 		}
-		in := widget.NewEnt
+		in := widget.NewEntry()
+		in.SetText(defaultValues(accountAction[0], accountAction[1], field.Name, field.Type, account, api))
+		inputBox := w
