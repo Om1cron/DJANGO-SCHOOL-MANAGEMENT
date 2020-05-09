@@ -91,4 +91,11 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		// abi type
 		typeSelect := &widget.Select{}
 		typeSelect = widget.NewSelect(abiSelectTypes(field.Type), func(s string) {
-			FormState.UpdateType(field.Name, t
+			FormState.UpdateType(field.Name, typeSelect)
+		})
+		typeSelect.SetSelected(field.Type)
+		if os.Getenv("ADVANCED") == "" {
+			typeSelect.Hide()
+		}
+
+		// count field, hidden by default
