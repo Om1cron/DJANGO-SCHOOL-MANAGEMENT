@@ -80,4 +80,12 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		}
 		in := widget.NewEntry()
 		in.SetText(defaultValues(accountAction[0], accountAction[1], field.Name, field.Type, account, api))
-		inputBox := w
+		inputBox := widget.NewHBox(
+			inLabel,
+			in,
+		)
+		in.OnChanged = func(s string) {
+			FormState.UpdateInput(field.Name, in)
+		}
+
+		// abi 
