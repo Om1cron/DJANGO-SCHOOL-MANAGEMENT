@@ -88,4 +88,7 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			FormState.UpdateInput(field.Name, in)
 		}
 
-		// abi 
+		// abi type
+		typeSelect := &widget.Select{}
+		typeSelect = widget.NewSelect(abiSelectTypes(field.Type), func(s string) {
+			FormState.UpdateType(field.Name, t
