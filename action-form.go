@@ -99,3 +99,8 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		}
 
 		// count field, hidden by default
+		num := &widget.Select{}
+		num = widget.NewSelect(bytesLen, func(s string) {
+			FormState.UpdateLen(field.Name, num)
+		})
+		num.Hid
