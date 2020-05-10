@@ -103,4 +103,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		num = widget.NewSelect(bytesLen, func(s string) {
 			FormState.UpdateLen(field.Name, num)
 		})
-		num.Hid
+		num.Hide()
+
+		// variant field
+		variation := &widget.Select{}
+		variation = widget.NewSelect(formVar, func(s string) {
+			showNum, numVals, sel := getLeng
