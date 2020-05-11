@@ -116,4 +116,10 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			}
 			num.Options = numVals
 			num.SetSelected(sel)
-			FormState.UpdateL
+			FormState.UpdateLen(field.Name, num)
+			FormState.UpdateVariation(field.Name, variation)
+		})
+		if os.Getenv("ADVANCED") == "" {
+			variation.Hide()
+		}
+
