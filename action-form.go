@@ -108,4 +108,12 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		// variant field
 		variation := &widget.Select{}
 		variation = widget.NewSelect(formVar, func(s string) {
-			showNum, numVals, sel := getLeng
+			showNum, numVals, sel := getLength(s)
+			if showNum {
+				num.Show()
+			} else {
+				num.Hide()
+			}
+			num.Options = numVals
+			num.SetSelected(sel)
+			FormState.UpdateL
