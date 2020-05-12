@@ -159,4 +159,10 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			Name:      &field.Name,
 			Type:      typeSelect,
 			SendAs:    sendAs,
-			Variation: va
+			Variation: variation,
+			Input:     in,
+			Len:       num,
+			Order:     i,
+		})
+		if strings.HasPrefix(in.Text, "{") || strings.HasPrefix(in.Text, "[{") {
+			variation.Se
