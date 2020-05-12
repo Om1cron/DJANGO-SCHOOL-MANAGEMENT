@@ -137,4 +137,11 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			FormState.UpdateSendAs(field.Name, sendAs)
 		})
 		sendAs.SetSelected("form value")
-		if os.Getenv("ADVANCED") 
+		if os.Getenv("ADVANCED") == "" {
+			sendAs.Hide()
+		}
+
+		form.Append(field.Name,
+			widget.NewVBox(
+				fyne.NewContainerWithLayout(layout.NewGridLayout(5),
+					typeSelec
