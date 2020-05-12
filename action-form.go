@@ -133,3 +133,8 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			}
 			var sel string
 			variation.Options, sel = sendAsVariant(send)
+			variation.SetSelected(sel)
+			FormState.UpdateSendAs(field.Name, sendAs)
+		})
+		sendAs.SetSelected("form value")
+		if os.Getenv("ADVANCED") 
