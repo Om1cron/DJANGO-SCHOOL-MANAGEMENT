@@ -126,4 +126,10 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		// options for fuzzer
 		sendAs := &widget.Select{}
 		sendAs = widget.NewSelect(sendAsSelectTypes, func(send string) {
-			if !strings.Contains(sen
+			if !strings.Contains(send, "form value") {
+				inputBox.Hide()
+			} else {
+				inputBox.Show()
+			}
+			var sel string
+			variation.Options, sel = sendAsVariant(send)
