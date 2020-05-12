@@ -144,4 +144,14 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		form.Append(field.Name,
 			widget.NewVBox(
 				fyne.NewContainerWithLayout(layout.NewGridLayout(5),
-					typeSelec
+					typeSelect,
+					sendAs,
+					variation,
+					num,
+				),
+				inputBox,
+			),
+		)
+		//name := field.Name
+		abiState.Update(&i, AbiFormItem{
+			Con
