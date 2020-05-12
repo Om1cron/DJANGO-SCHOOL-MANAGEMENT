@@ -154,4 +154,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		)
 		//name := field.Name
 		abiState.Update(&i, AbiFormItem{
-			Con
+			Contract:  accountAction[0],
+			Action:    accountAction[1],
+			Name:      &field.Name,
+			Type:      typeSelect,
+			SendAs:    sendAs,
+			Variation: va
