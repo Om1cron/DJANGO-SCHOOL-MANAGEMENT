@@ -165,4 +165,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			Order:     i,
 		})
 		if strings.HasPrefix(in.Text, "{") || strings.HasPrefix(in.Text, "[{") {
-			variation.Se
+			variation.SetSelected("json -> struct")
+			//in.Lock()
+			in.MultiLine = true
+			//in.Unlock()
+		}
+		if field.Name == "amount" || 
