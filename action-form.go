@@ -170,4 +170,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			in.MultiLine = true
 			//in.Unlock()
 		}
-		if field.Name == "amount" || 
+		if field.Name == "amount" || field.Name == "max_fee" {
+			variation.SetSelected("FIO -> suf")
+			if !strings.Contains(in.Text, ".") {
+				in.SetText("10,000.00")
+			}
+		}
