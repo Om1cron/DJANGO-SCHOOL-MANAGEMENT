@@ -181,4 +181,6 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		}
 	}
 
-	hideFailed := widget.NewCheck("Hide Failed", func
+	hideFailed := widget.NewCheck("Hide Failed", func(b bool) {})
+	hideSuccess := widget.NewCheck("Hide Successful", func(b bool) {})
+	zlibPack := widget.NewCheck("Pack Wi
