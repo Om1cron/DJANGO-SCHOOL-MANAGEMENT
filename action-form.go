@@ -188,4 +188,7 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	})
 	zlibPack.Checked = useZlib
 	zlibPack.Refresh()
-	threadLabel := widget.NewLabel("Worker Count: "
+	threadLabel := widget.NewLabel("Worker Count: ")
+	threadLabel.Hide()
+	threads := widget.NewSelect([]string{"1", "2", "4", "6", "8", "12", "16"}, func(s string) {})
+	threads.Se
