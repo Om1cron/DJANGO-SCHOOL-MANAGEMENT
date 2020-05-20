@@ -183,4 +183,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 
 	hideFailed := widget.NewCheck("Hide Failed", func(b bool) {})
 	hideSuccess := widget.NewCheck("Hide Successful", func(b bool) {})
-	zlibPack := widget.NewCheck("Pack Wi
+	zlibPack := widget.NewCheck("Pack With ZLib", func(b bool) {
+		useZlib = b
+	})
+	zlibPack.Checked = useZlib
+	zlibPack.Refresh()
+	threadLabel := widget.NewLabel("Worker Count: "
