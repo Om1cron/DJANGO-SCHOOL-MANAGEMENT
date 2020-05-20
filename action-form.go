@@ -191,4 +191,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	threadLabel := widget.NewLabel("Worker Count: ")
 	threadLabel.Hide()
 	threads := widget.NewSelect([]string{"1", "2", "4", "6", "8", "12", "16"}, func(s string) {})
-	threads.Se
+	threads.SetSelected("1")
+	threads.Hide()
+	count := widget.NewEntry()
+	count.SetText("1")
+	delaySec := widget.NewEntry()
+	delaySec.SetText(fmt.Sprintf("%d", 
