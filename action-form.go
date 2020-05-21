@@ -196,4 +196,11 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	count := widget.NewEntry()
 	count.SetText("1")
 	delaySec := widget.NewEntry()
-	delaySec.SetText(fmt.Sprintf("%d", 
+	delaySec.SetText(fmt.Sprintf("%d", delayTxSec))
+	if !deferTx {
+		delaySec.Hide()
+	}
+	delaySec.OnChanged = func(s string) {
+		i, err := strconv.Atoi(s)
+		if err != nil {
+			er
