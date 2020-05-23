@@ -203,4 +203,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	delaySec.OnChanged = func(s string) {
 		i, err := strconv.Atoi(s)
 		if err != nil {
-			er
+			errs.ErrChan <- "error converting delay time to int, setting to 0!"
+			delayTxSec = 0
+			delaySec.SetText("0")
+			delaySec.Refresh()
+		}
+	
