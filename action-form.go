@@ -220,3 +220,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			return
 		}
 		deferCheck.Text = "Delay Transaction"
+		deferCheck.Refresh()
+		deferTx = false
+		delaySec.Hide()
+	})
+	if deferTx {
+		deferCheck.Text = "Delay Transaction (seconds:)"
