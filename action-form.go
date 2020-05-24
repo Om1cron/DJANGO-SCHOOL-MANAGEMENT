@@ -208,4 +208,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			delaySec.SetText("0")
 			delaySec.Refresh()
 		}
-	
+		delayTxSec = i
+	}
+	deferCheck := &widget.Check{}
+	deferCheck = widget.NewCheck("Delay Transaction", func(b bool) {
+		if b {
+			deferCheck.Text = "Delay 
