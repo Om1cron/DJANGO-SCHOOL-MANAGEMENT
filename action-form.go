@@ -226,3 +226,10 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	})
 	if deferTx {
 		deferCheck.Text = "Delay Transaction (seconds:)"
+		deferCheck.Refresh()
+	}
+	deferCheck.Checked = deferTx
+	deferCheck.Refresh()
+	infinite := widget.NewCheck("Loop", func(b bool) {
+		if b {
+			count.Disa
