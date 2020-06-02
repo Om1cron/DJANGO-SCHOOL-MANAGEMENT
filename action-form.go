@@ -232,4 +232,12 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	deferCheck.Refresh()
 	infinite := widget.NewCheck("Loop", func(b bool) {
 		if b {
-			count.Disa
+			count.Disable()
+			threadLabel.Show()
+			threads.Show()
+			return
+		}
+		count.Enable()
+		threadLabel.Hide()
+		threads.Hide()
+		threads.SetSe
