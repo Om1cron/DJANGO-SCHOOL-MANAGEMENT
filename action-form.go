@@ -249,4 +249,12 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	}
 	actionEndPointActive = "/v1/chain/push_transaction"
 	apiEndpoint := widget.NewSelect(EndPoints.Apis, func(s string) {
-		actionEndPointActive = 
+		actionEndPointActive = s
+	})
+	apiEndpoint.SetSelected("/v1/chain/push_transaction")
+	apiEndpoint.Refresh()
+
+	// multisig options:
+	randProposal := func() string {
+		var s string
+	
