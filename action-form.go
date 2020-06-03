@@ -247,3 +247,6 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	if err != nil {
 		errs.ErrChan <- "Could not update api endpoint list: " + err.Error()
 	}
+	actionEndPointActive = "/v1/chain/push_transaction"
+	apiEndpoint := widget.NewSelect(EndPoints.Apis, func(s string) {
+		actionEndPointActive = 
