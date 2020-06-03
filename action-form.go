@@ -240,4 +240,10 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		count.Enable()
 		threadLabel.Hide()
 		threads.Hide()
-		threads.SetSe
+		threads.SetSelected("1")
+	})
+
+	err = EndPoints.Update(Uri, true)
+	if err != nil {
+		errs.ErrChan <- "Could not update api endpoint list: " + err.Error()
+	}
