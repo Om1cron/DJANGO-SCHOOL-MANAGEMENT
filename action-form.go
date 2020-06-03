@@ -257,4 +257,10 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	// multisig options:
 	randProposal := func() string {
 		var s string
-	
+		for i := 0; i < 12; i++ {
+			b := []byte{uint8(rand.Intn(26) + 97)}
+			s = s + string(b)
+		}
+		return s
+	}
+	requested := widget.NewEntry(
