@@ -268,4 +268,8 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	msig := &widget.Box{}
 	wrap := &widget.Box{}
 	proposer := widget.NewEntry()
-	p
+	proposer.SetText(Settings.MsigAccount)
+	innerActionActor := widget.NewEntry()
+	innerActionActor.SetText("eosio")
+	innerActionActor.Hide()
+	innerActio
