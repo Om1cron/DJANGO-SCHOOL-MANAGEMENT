@@ -263,4 +263,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		}
 		return s
 	}
-	requested := widget.NewEntry(
+	requested := widget.NewEntry()
+	requested.SetText(getSigners(Settings.MsigAccount, api))
+	msig := &widget.Box{}
+	wrap := &widget.Box{}
+	proposer := widget.NewEntry()
+	p
