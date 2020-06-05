@@ -276,3 +276,10 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	innerActionLabel.Hide()
 	wrapCheck := widget.NewCheck("Wrap Msig", func(b bool) {
 		if b {
+			innerActionActor.Show()
+			innerActionLabel.Show()
+			proposer.SetText("eosio.wrap")
+			return
+		}
+		proposer.SetText(Settings.MsigAccount)
+		
