@@ -272,4 +272,7 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	innerActionActor := widget.NewEntry()
 	innerActionActor.SetText("eosio")
 	innerActionActor.Hide()
-	innerActio
+	innerActionLabel := widget.NewLabel("Actor for inner action: ")
+	innerActionLabel.Hide()
+	wrapCheck := widget.NewCheck("Wrap Msig", func(b bool) {
+		if b {
