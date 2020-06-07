@@ -282,4 +282,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			return
 		}
 		proposer.SetText(Settings.MsigAccount)
-		
+		innerActionActor.Hide()
+		innerActionLabel.Hide()
+	})
+	proposer.OnChanged = func(s string) {
+		requested.SetText(getSigners(s, api))
+		if 
