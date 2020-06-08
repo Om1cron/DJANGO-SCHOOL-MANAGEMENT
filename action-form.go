@@ -315,4 +315,8 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	})
 	proposalRand.SetChecked(true)
 
-	msig = widget.NewHBox
+	msig = widget.NewHBox(
+		widget.NewLabelWithStyle("Proposal Name: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+		proposalRand,
+		proposalName,
+		widget.NewLabelWi
