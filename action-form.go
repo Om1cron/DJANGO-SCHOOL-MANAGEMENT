@@ -306,4 +306,13 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	proposalName := widget.NewEntry()
 	proposalName.SetText(randProposal())
 	proposalName.Hide()
-	proposalRand := widget.NewCheck("Rando
+	proposalRand := widget.NewCheck("Random Name", func(b bool) {
+		if b {
+			proposalName.Hide()
+		} else {
+			proposalName.Show()
+		}
+	})
+	proposalRand.SetChecked(true)
+
+	msig = widget.NewHBox
