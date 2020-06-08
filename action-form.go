@@ -319,4 +319,6 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		widget.NewLabelWithStyle("Proposal Name: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 		proposalRand,
 		proposalName,
-		widget.NewLabelWi
+		widget.NewLabelWithStyle("Multi-Sig Account: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+		proposer,
+		widget.NewLabelWithStyle("R
