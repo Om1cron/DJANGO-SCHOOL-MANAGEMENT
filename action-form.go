@@ -321,4 +321,5 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		proposalName,
 		widget.NewLabelWithStyle("Multi-Sig Account: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 		proposer,
-		widget.NewLabelWithStyle("R
+		widget.NewLabelWithStyle("Requested Signers: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(3
