@@ -287,4 +287,10 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	})
 	proposer.OnChanged = func(s string) {
 		requested.SetText(getSigners(s, api))
-		if 
+		if wrapCheck.Checked {
+			s = innerActionActor.Text
+		}
+		for _, row := range FormState.Rows {
+			if *row.Name == "actor" {
+				row.Input.SetText(s)
+				row.Input
