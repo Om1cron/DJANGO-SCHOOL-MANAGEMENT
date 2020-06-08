@@ -303,4 +303,7 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			msig.Refresh()
 		}()
 	}
-	proposalNa
+	proposalName := widget.NewEntry()
+	proposalName.SetText(randProposal())
+	proposalName.Hide()
+	proposalRand := widget.NewCheck("Rando
