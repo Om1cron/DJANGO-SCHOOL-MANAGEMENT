@@ -293,4 +293,14 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		for _, row := range FormState.Rows {
 			if *row.Name == "actor" {
 				row.Input.SetText(s)
-				row.Input
+				row.Input.Refresh()
+				break
+			}
+		}
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			requested.Refresh()
+			msig.Refresh()
+		}()
+	}
+	proposalNa
