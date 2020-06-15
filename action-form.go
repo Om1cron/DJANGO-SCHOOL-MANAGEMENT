@@ -322,4 +322,11 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		widget.NewLabelWithStyle("Multi-Sig Account: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 		proposer,
 		widget.NewLabelWithStyle("Requested Signers: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
-		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(3
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(380, 44)),
+			widget.NewScrollContainer(requested),
+		),
+		layout.NewSpacer(),
+	)
+	msig.Hide()
+	forcedSpace := widget.NewHBox(
+		fyne.N
