@@ -329,4 +329,11 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	)
 	msig.Hide()
 	forcedSpace := widget.NewHBox(
-		fyne.N
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(20, 100)),
+			layout.NewSpacer(),
+		),
+	)
+
+	wrap = widget.NewHBox(
+		wrapCheck,
+		innerActi
