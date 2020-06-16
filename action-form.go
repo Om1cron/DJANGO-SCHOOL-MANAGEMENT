@@ -343,4 +343,11 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	proposeCheck := widget.NewCheck("Propose", func(b bool) {
 		if b {
 			msig.Show()
-			//wrap.
+			//wrap.Show()
+		} else {
+			msig.Hide()
+			wrap.Hide()
+		}
+	})
+
+	bombsAway = widget.NewButtonWithIcon("Send", fioassets.NewFioLogoResource(
