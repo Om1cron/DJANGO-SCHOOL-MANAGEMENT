@@ -359,4 +359,7 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		}
 		txWindowOpts.msig = proposeCheck.Checked
 		txWindowOpts.msigSigners = requested.Text
-		txWindowOp
+		txWindowOpts.msigAccount = proposer.Text
+		txWindowOpts.repeat = repeat
+		txWindowOpts.loop = infinite.Checked
+		txWindowOpts.threads 
