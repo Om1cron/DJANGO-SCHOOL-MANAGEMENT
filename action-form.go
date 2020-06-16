@@ -354,4 +354,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		fuzzer.ResetIncrement()
 		errs.ErrChan <- "generating transaction"
 		repeat, err := strconv.Atoi(count.Text)
-		if 
+		if err != nil {
+			repeat = 1
+		}
+		txWindowOpts.msig = proposeCheck.Checked
+		txWindowOpts.msigSigners = requested.Text
+		txWindowOp
