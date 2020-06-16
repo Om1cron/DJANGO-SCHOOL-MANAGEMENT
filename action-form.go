@@ -374,4 +374,11 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 				return proposalName.Text
 			}
 		}
-		TxResultsWindow(txWindowOpts, api, opts, acc
+		TxResultsWindow(txWindowOpts, api, opts, account)
+	})
+
+	reqToSend := widget.NewLabel("Requests to send")
+	if os.Getenv("ADVANCED") == "" {
+		reqToSend.Hide()
+		count.Hide()
+		infinite
