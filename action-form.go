@@ -369,4 +369,9 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		txWindowOpts.wrapActor = innerActionActor.Text
 		if proposalRand.Checked {
 			txWindowOpts.msigName = randProposal
-		} else
+		} else {
+			txWindowOpts.msigName = func() string {
+				return proposalName.Text
+			}
+		}
+		TxResultsWindow(txWindowOpts, api, opts, acc
