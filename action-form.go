@@ -350,4 +350,8 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		}
 	})
 
-	bombsAway = widget.NewButtonWithIcon("Send", fioassets.NewFioLogoResource(
+	bombsAway = widget.NewButtonWithIcon("Send", fioassets.NewFioLogoResource(), func() {
+		fuzzer.ResetIncrement()
+		errs.ErrChan <- "generating transaction"
+		repeat, err := strconv.Atoi(count.Text)
+		if 
