@@ -336,4 +336,11 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 
 	wrap = widget.NewHBox(
 		wrapCheck,
-		innerActi
+		innerActionLabel,
+		innerActionActor,
+	)
+	wrap.Hide()
+	proposeCheck := widget.NewCheck("Propose", func(b bool) {
+		if b {
+			msig.Show()
+			//wrap.
