@@ -381,4 +381,13 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	if os.Getenv("ADVANCED") == "" {
 		reqToSend.Hide()
 		count.Hide()
-		infinite
+		infinite.Hide()
+		threadLabel.Hide()
+		threads.Hide()
+		hideFailed.Hide()
+		hideSuccess.Hide()
+		zlibPack.Hide()
+		deferCheck.Hide()
+		delaySec.Hide()
+	}
+	bott
