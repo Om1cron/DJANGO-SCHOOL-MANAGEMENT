@@ -390,4 +390,13 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		deferCheck.Hide()
 		delaySec.Hide()
 	}
-	bott
+	bottom := widget.NewHBox(
+		widget.NewLabel(" "),
+		bombsAway,
+		reqToSend,
+		count,
+		infinite,
+		threadLabel,
+		threads,
+		hideFailed,
+		hideSucc
