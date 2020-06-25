@@ -407,4 +407,7 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	)
 	newRowName := widget.NewEntry()
 	newRowName.SetPlaceHolder("New Row Name")
-	label
+	label := widget.NewLabel(action)
+	label.TextStyle = fyne.TextStyle{Bold: true, Monospace: true}
+	apiEndLabel := widget.NewLabel("API Endpoint")
+	ad
