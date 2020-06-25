@@ -410,4 +410,6 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 	label := widget.NewLabel(action)
 	label.TextStyle = fyne.TextStyle{Bold: true, Monospace: true}
 	apiEndLabel := widget.NewLabel("API Endpoint")
-	ad
+	addRowButton := abiState.AddNewRowButton(newRowName, account, form)
+	//topSpace := layout.NewSpacer()
+	if os.Getenv("ADVANCED") == "" {
