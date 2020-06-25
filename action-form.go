@@ -399,4 +399,12 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		threadLabel,
 		threads,
 		hideFailed,
-		hideSucc
+		hideSuccess,
+		zlibPack,
+		deferCheck,
+		delaySec,
+		proposeCheck,
+	)
+	newRowName := widget.NewEntry()
+	newRowName.SetPlaceHolder("New Row Name")
+	label
