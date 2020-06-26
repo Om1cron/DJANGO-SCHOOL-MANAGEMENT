@@ -429,4 +429,15 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 			msig,
 			wrap,
 			widget.NewHBox(
-				ap
+				apiEndLabel,
+				apiEndpoint,
+				layout.NewSpacer(),
+				addRowButton,
+				newRowName,
+				layout.NewSpacer(),
+			),
+			forcedSpace,
+		),
+	)
+
+	
