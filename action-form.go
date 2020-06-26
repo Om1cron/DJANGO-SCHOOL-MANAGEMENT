@@ -419,4 +419,14 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		newRowName.Hide()
 		//topSpace.Hide()
 	}
-	content := widget.NewVScrollC
+	content := widget.NewVScrollContainer(
+		widget.NewVBox(
+			label,
+			layout.NewSpacer(),
+			form,
+			layout.NewSpacer(),
+			bottom,
+			msig,
+			wrap,
+			widget.NewHBox(
+				ap
