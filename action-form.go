@@ -440,4 +440,8 @@ func GetAbiForm(action string, account *fio.Account, api *fio.API, opts *fio.TxO
 		),
 	)
 
-	
+	abiState.mux.Lock()
+	FormState = abiState
+	abiState.mux.Unlock()
+	return content, nil
+}
