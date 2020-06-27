@@ -196,3 +196,153 @@ func sendAsVariant(kind string) (options []string, selected string) {
 	case "form value":
 		return formVar, "as is"
 	case "actor":
+		return actorVar, "mine"
+	case "pub key":
+		return actorVar, "mine"
+	case "number":
+		return numericVar, "random int"
+	case "bytes/string":
+		return bytesVar, "string"
+	case "fio types":
+		return fioVar, "invalid fio domain"
+	}
+	return []string{}, "--"
+}
+
+func getLength(what string) (show bool, values []string, selected string) {
+	switch {
+	case what == "random float":
+		return true, floatLen, "32"
+	case what == "variable length addaddress.public_addresses":
+		return true, numAddresses, "1"
+	case what == "random int":
+		return true, intLen, "32"
+	case what == "overflow int":
+		return true, overflowLen, "16"
+	case what == "max int":
+		return true, maxIntVar, "int32"
+	case what == "random number (mixed)":
+		return false, []string{""}, ""
+	case strings.HasPrefix(what, "string") ||
+		strings.HasPrefix(what, "bytes") ||
+		strings.HasPrefix(what, "nop") ||
+		strings.HasPrefix(what, "many"):
+		return true, bytesLen, "64"
+	}
+	return
+}
+
+func defaultValues(contract string, action string, fieldName string, fieldType string, account *fio.Account, api *fio.API) string {
+	var returnValue string
+	switch {
+	case fieldName == "amount":
+		return "1,000.00"
+	case fieldName == "bundled_transactions":
+		return "100"
+	case fieldName == "max_fee":
+		api2, _, err := fio.NewConnection(nil, api.BaseURL)
+		if err != nil {
+			return "0"
+		}
+		api2.Header.Set("User-Agent", "fio-cryptonym-wallet")
+		fio.UpdateMaxFees(api2)
+		fee := fio.GetMaxFeeByAction(action)
+		if fee == 0 {
+			// as expensive as it gets ... pretty safe to return
+			fee = fio.GetMaxFee("register_fio_domain")
+		}
+		returnValue = p.Sprintf("%.9f", fee)
+	case fieldName == "can_vote":
+		returnValue = "1"
+	case fieldName == "is_public":
+		returnValue = "1"
+	case fieldType == "tokenpubaddr[]":
+		a, t := fuzzer.NewPubAddress(account)
+		returnValue = fmt.Sprintf(`[{
+    "token_code": "%s",
+    "chain_code": "%s",
+    "public_address": "%s"
+}]`, t, t, a)
+	case fieldName == "url":
+		returnValue = "https://fioprotocol.io"
+	case fieldName == "location":
+		returnValue = "80"
+	case fieldName == "fio_domain":
+		returnValue = "cryptonym"
+	case fieldType == "bool":
+		returnValue = "true"
+	case fieldType == "authority":
+		returnValue = `{
+    "threshold": 2,
+    "keys": [],
+    "waits": [],
+    "accounts": [
+      {
+        "permission": {
+          "actor": "npe3obkgoteh",
+          "permission": "active"
+        },
+        "weight": 1
+      },
+      {
+        "permission": {
+          "actor": "extjnqh3j3gt",
+          "permission": "active"
+        },
+        "weight": 1
+      }
+    ]
+  }`
+	case strings.HasSuffix(fieldType, "int128"):
+		i28 := eos.Uint128{
+			Lo: uint64(rand.Int63n(math.MaxInt64)),
+			Hi: uint64(rand.Int63n(math.MaxInt64)),
+		}
+		j, _ := json.Marshal(i28)
+		returnValue = strings.Trim(string(j), `"`)
+	case strings.HasPrefix(fieldType, "uint") || strings.HasPrefix(fieldType, "int"):
+		returnValue = strconv.Itoa(rand.Intn(256))
+	case strings.HasPrefix(fieldType, "float"):
+		returnValue = "3.14159265359"
+	case fieldName == "owner" || fieldName == "account" || fieldName == "actor" || fieldType == "authority" || fieldName == "proxy":
+		actor, _ := fio.ActorFromPub(account.PubKey)
+		returnValue = string(actor)
+	case strings.Contains(fieldName, "public") || strings.HasSuffix(fieldName, "_key"):
+		returnValue = account.PubKey
+	case fieldName == "tpid":
+		returnValue = Settings.Tpid
+	case strings.HasSuffix(fieldName, "_address") || strings.HasPrefix(fieldName, "pay"):
+		returnValue = DefaultFioAddress
+	case fieldName == "authority" || (fieldName == "permission" && fieldType == "name"):
+		returnValue = "active"
+	case fieldName == "producers":
+		returnValue = GetCurrentVotes(string(account.Actor), api)
+	case fieldType == "transaction":
+		returnValue = `{
+  "context_free_actions": [],
+  "actions": [
+    {
+      "signatures": [
+        "SIG_K1_..."
+      ],
+      "compression": "none",
+      "packed_context_free_data": "",
+      "packed_trx": "b474345e54..."
+    }
+  ],
+  "transaction_extensions": []
+}`
+	case fieldType == "asset":
+		returnValue = "100000.000000000 FIO"
+	case (fieldName == "to" || fieldName == "from") && fieldType == "name":
+		returnValue = string(account.Actor)
+	case fieldType == "permission_level":
+		returnValue = fmt.Sprintf(`{
+    "actor":"%s",
+    "permission":"active"
+}`, account.Actor)
+	case fieldName == "periods":
+		returnValue = `[
+    {
+        "duration": 86400,
+        "percent": 1.2
