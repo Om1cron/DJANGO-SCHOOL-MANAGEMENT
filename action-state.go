@@ -184,3 +184,85 @@ func (abi *Abi) UpdateValueWithConvert(index *int, value interface{}, isSlice bo
 }
 
 func (abi *Abi) UpdateValue(index *int, value interface{}, isSlice bool, noJsonEscape bool) {
+	if len(abi.Rows) == 0 {
+		return
+	}
+	abi.Rows[*index].noJsonEscape = noJsonEscape
+	abi.mux.Lock()
+	if !isSlice {
+		abi.Rows[*index].Value = &value
+	} else {
+		sl := make([]*interface{}, 0)
+		sl = append(sl, &value)
+		abi.Rows[*index].IsSlice = true
+		abi.Rows[*index].SliceValue = sl
+	}
+	abi.mux.Unlock()
+}
+
+func (abi *Abi) Update(index *int, abiForm AbiFormItem) {
+	abi.mux.Lock()
+	defer abi.mux.Unlock()
+	if len(abi.Rows) == 0 {
+		return
+	}
+	if index != nil {
+		abi.lookUp[*abiForm.Name] = *index
+	}
+	abi.Rows[abi.lookUp[*abiForm.Name]] = abiForm
+}
+
+func (abi *Abi) UpdateType(name string, t *widget.Select) {
+	if len(abi.Rows) == 0 {
+		return
+	}
+	abi.mux.Lock()
+	if abi.lookUp[name] != 0 || *abi.Rows[0].Name == name {
+		abi.Rows[abi.lookUp[name]].Type = t
+	}
+	abi.mux.Unlock()
+}
+
+func (abi *Abi) UpdateLen(name string, t *widget.Select) {
+	if len(abi.Rows) == 0 {
+		return
+	}
+	abi.mux.Lock()
+	if abi.lookUp[name] != 0 || *abi.Rows[0].Name == name {
+		abi.Rows[abi.lookUp[name]].Len = t
+	}
+	abi.mux.Unlock()
+}
+
+func (abi *Abi) UpdateVariation(name string, t *widget.Select) {
+	if len(abi.Rows) == 0 {
+		return
+	}
+	abi.mux.Lock()
+	if abi.lookUp[name] != 0 || *abi.Rows[0].Name == name {
+		abi.Rows[abi.lookUp[name]].Variation = t
+	}
+	abi.mux.Unlock()
+}
+
+func (abi *Abi) UpdateSendAs(name string, t *widget.Select) {
+	if len(abi.Rows) == 0 {
+		return
+	}
+	abi.mux.Lock()
+	if abi.lookUp[name] != 0 || *abi.Rows[0].Name == name {
+		abi.Rows[abi.lookUp[name]].SendAs = t
+	}
+	abi.mux.Unlock()
+}
+
+func (abi *Abi) UpdateInput(name string, t *widget.Entry) {
+	if len(abi.Rows) == 0 {
+		return
+	}
+	abi.mux.Lock()
+	if abi.lookUp[name] != 0 || *abi.Rows[0].Name == name {
+		abi.Rows[abi.lookUp[name]].Input = t
+	}
+	abi.mux.Unlock()
+}
