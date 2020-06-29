@@ -191,3 +191,28 @@ func NewApiRequestTab(container chan fyne.Container) {
 	epbFilter.OnChanged = func(string) {
 		hide(hideSigned.Checked)
 	}
+	hideSigned.SetChecked(true)
+	apiTabs = widget.NewTabContainer(inputTab, outputTab)
+	container <- *fyne.NewContainerWithLayout(layout.NewMaxLayout(), apiTabs)
+}
+
+func isSigned(s string) bool {
+	switch {
+	case strings.Contains(s, "get_"):
+		return false
+	case strings.Contains(s, "_to_"):
+		return false
+	case strings.Contains(s, "_json"):
+		return false
+	case strings.Contains(s, "_check"):
+		return false
+	case strings.Contains(s, "db_size/"):
+		return false
+	case strings.Contains(s, "history/"):
+		return false
+	case strings.Contains(s, "connections"):
+		return false
+	}
+
+	return true
+}
