@@ -492,3 +492,76 @@ func (abi *Abi) DeriveJsonAbi() (abiJson []byte) {
 		Fields: make([]abiField, 0),
 	}
 	for _, field := range abi.Rows {
+		t := field.Type.Selected
+		if field.typeOverride != "" {
+			t = field.typeOverride
+		}
+		a.Fields = append(a.Fields, abiField{
+			Name: *field.Name,
+			Type: t,
+		},
+		)
+	}
+	j, e := json.MarshalIndent(a, "", "  ")
+	if e != nil {
+		errs.ErrChan <- "could not generate ABI json: " + e.Error()
+		return nil
+	}
+	return j
+}
+
+var PrivilegedActions = map[string]bool{
+	"eosio::addaction":           true,
+	"eosio::addlocked":           true,
+	"eosio::burnaction":          true,
+	"eosio::canceldelay":         true,
+	"eosio::crautoproxy":         true,
+	"eosio::incram":              true,
+	"eosio::inhibitunlck":        true,
+	"eosio::init":                true,
+	"eosio::setpriv":             true,
+	"eosio::newaccount":          true,
+	"eosio::onblock":             true,
+	"eosio::onerror":             true,
+	"eosio::resetclaim":          true,
+	"eosio::remaction":           true,
+	"eosio::rmvproducer":         true,
+	"eosio::setabi":              true,
+	"eosio::setautoproxy":        true,
+	"eosio::setcode":             true,
+	"eosio::setparams":           true,
+	"eosio::unlocktokens":        true,
+	"eosio::updatepower":         true,
+	"eosio::updlbpclaim":         true,
+	"eosio::updlocked":           true,
+	"eosio::updtrevision":        true,
+	"eosio.wrap::execute":        true,
+	"fio.address::bind2eosio":    true,
+	"fio.address::decrcounter":   true,
+	"fio.token::create":          true,
+	"fio.token::issue":           true,
+	"fio.token::mintfio":         true,
+	"fio.token::retire":          true,
+	"fio.token::transfer":        true,
+	"fio.tpid::rewardspaid":      true,
+	"fio.tpid::updatebounty":     true,
+	"fio.tpid::updatetpid":       true,
+	"fio.treasury::startclock":   true,
+	"fio.treasury::bppoolupdate": true,
+	"fio.treasury::bprewdupdate": true,
+	"fio.treasury::fdtnrwdupdat": true,
+}
+
+var ProducerActions = map[string]bool{
+	"fio.treasury::bpclaim":    true,
+	"fio.address::burnexpired": true,
+	"fio.fee::bundlevote":      true,
+	"fio.fee::bytemandfee":     true,
+	"fio.fee::createfee":       true,
+	"fio.fee::mandatoryfee":    true,
+	"fio.fee::setfeemult":      true,
+	"fio.fee::setfeevote":      true,
+	"fio.fee::updatefees":      true,
+	"eosio::regproducer":       true,
+	"eosio::unregprod":         true,
+}
