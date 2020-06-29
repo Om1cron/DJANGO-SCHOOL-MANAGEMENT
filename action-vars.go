@@ -346,3 +346,149 @@ func defaultValues(contract string, action string, fieldName string, fieldType s
     {
         "duration": 86400,
         "percent": 1.2
+    },
+    {
+        "duration": 172800,
+        "percent": 90.8
+    },
+    {
+        "duration": 259200,
+        "percent": 8.0
+    }
+]`
+	case fieldType == "permission_level[]":
+		returnValue = fmt.Sprintf(`[{
+        "actor":"%s",
+        "permission":"active"
+}]`, account.Actor)
+	case fieldType == "proposal":
+		returnValue = `{
+    "proposal_name":"proposal",
+    "packed_transaction":"0x0a0b0c0d0e0f"
+}`
+	case fieldType == "blockchain_parameters":
+		returnValue = `{
+    "max_block_net_usage": 1048576,
+    "target_block_net_usage_pct": 1000,
+    "max_transaction_net_usage": 524288,
+    "base_per_transaction_net_usage": 12,
+    "net_usage_leeway": 500,
+    "context_free_discount_net_usage_num": 20,
+    "context_free_discount_net_usage_den": 100,
+    "max_block_cpu_usage": 200000,
+    "target_block_cpu_usage_pct": 1000,
+    "max_transaction_cpu_usage": 150000,
+    "min_transaction_cpu_usage": 100,
+    "max_transaction_lifetime": 3600,
+    "deferred_trx_expiration_window": 600,
+    "max_transaction_delay": 3888000,
+    "max_inline_action_size": 4096,
+    "max_inline_action_depth": 4,
+    "max_authority_depth": 6,
+    "last_producer_schedule_update": 1580492400,
+    "last_pervote_bucket_fill": 1580492400,
+    "pervote_bucket": 0,
+    "perblock_bucket": 0,
+    "total_unpaid_blocks": 0,
+    "total_voted_fio": 76103319000000000,
+    "thresh_voted_fio_time": 1580492400,
+    "last_producer_schedule_size": 3,
+    "total_producer_vote_weight": "75000307600000000.00000000000000000",
+    "last_name_close": 1580492400,
+    "last_fee_update": 1580492400
+}`
+	case fieldType == "block_header":
+		returnValue = `{
+  "timestamp": 1580492400,
+  "producer": "eosio",
+  "confirmed": 1,
+  "previous": "0000000000000000000000000000000000000000000000000000000000000000",
+  "transaction_mroot": "0000000000000000000000000000000000000000000000000000000000000000",
+  "action_mroot": "0000000000000000000000000000000000000000000000000000000000000000",
+  "schedule_version": 0
+}`
+	case fieldName == "end_point":
+		returnValue = `auth_update`
+	case fieldType == "extension":
+		returnValue = `{"type": 1, "data": "0x0a0b0c0d0e0f"}`
+	case fieldType == "feevalue":
+		returnValue = `{
+    "end_point": "register_fio_domain",
+    "value": 8000000000
+}`
+	case fieldType == "feevalue[]":
+		returnValue = `[{
+    "end_point": "register_fio_domain",
+    "value": 8000000000
+  },
+  {
+    "end_point": "register_fio_address",
+    "value": 1000000000
+  }
+]`
+	case strings.HasPrefix(fieldType, "checksum256"):
+		rc := make([]byte, 32)
+		rand.Read(rc)
+		returnValue = hex.EncodeToString(rc)
+	default:
+		returnValue = ""
+	}
+	return returnValue
+}
+
+func getInterface(t string) interface{} {
+	types := map[string]interface{}{
+		"authority": eos.Authority{},
+		"bool":      eos.Bool(true),
+		"byte":      byte(0),
+		//"byte[]": make([]byte,0),
+		"byte[]":       "",
+		"checksum256":  eos.Checksum256{},
+		"checksum256$": eos.Checksum256{},
+		"float128":     eos.Float128{},
+		"float32":      float32(0),
+		"float64":      float64(0),
+		"hex_bytes":    eos.HexBytes{},
+		"int128":       eos.Int128{},
+		"int16":        int16(0),
+		"int32":        int32(0),
+		//"int64": eos.Int64(0),
+		"int64":      int64(0),
+		"int8":       int8(0),
+		"name":       "",
+		"public_key": "",
+		"signature":  eos.HexBytes{},
+		"string":     "",
+		"symbol":     eos.Symbol{},
+		"time":       eos.Tstamp{},
+		"timestamp":  eos.Tstamp{},
+		"uint128":    eos.Uint128{},
+		"uint16":     uint16(0),
+		"uint32":     uint32(0),
+		"uint64":     eos.Uint64(0),
+		"varint32":   eos.Varint32(0),
+		"varuint32":  eos.Varuint32(0),
+	}
+	if types[t] != nil {
+		return types[t]
+	}
+	return ""
+}
+
+type abiField struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+type abiStruct struct {
+	Name   string     `json:"name"`
+	Base   string     `json:"base"`
+	Fields []abiField `json:"fields"`
+}
+
+func (abi *Abi) DeriveJsonAbi() (abiJson []byte) {
+	a := abiStruct{
+		Name:   abi.Action,
+		Fields: make([]abiField, 0),
+	}
+	for _, field := range abi.Rows {
