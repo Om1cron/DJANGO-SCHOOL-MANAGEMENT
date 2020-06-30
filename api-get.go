@@ -89,3 +89,135 @@ func DefaultJsonFor(endpoint string) string {
   "table": "proposal",
   "lower_bound": "111111111111",
   "upper_bound": "zzzzzzzzzzzz",
+  "limit": 10
+}`
+	case "/v1/chain/get_required_keys":
+		return `{
+  "transaction": {
+    "actions": [{
+        "account": "fio.token",
+        "name": "trnsfiopubky",
+        "authorization": [{
+            "actor": "` + defaultActor() + `",
+            "permission": "active"
+          }
+        ],
+        "data": "00"
+      }
+    ],
+    "transaction_extensions": []
+  },
+  "available_keys": [
+    "` + defaultPub() + `"
+  ]
+}`
+	case "/v1/history/get_actions":
+		return `{
+  "account_name": "` + defaultActor() + `",
+  "pos": -1
+}`
+	case "/v1/history/get_block_txids":
+		return `{"block_num": 123}`
+	case "/v1/history/get_key_accounts":
+		return `{
+  "public_key": "` + defaultPub() + `"
+}`
+	case "/v1/history/get_controlled_accounts":
+		return `{
+  "controlling_account": "` + defaultActor() + `"
+}`
+	case "/v1/history/get_transaction":
+		return `{
+  "id": "1111111111111111111111111111111111111111111111111111111111111111"
+}`
+	case "/v1/chain/get_scheduled_transactions":
+		return `{"limit":1, "json": true}`
+	// TODO: update *_whitelist when API is defined.
+	case "/v1/chain/check_whitelist":
+		return `{"fio_address":"` + defaultAddress() + `"}`
+	case "/v1/chain/get_whitelist":
+		return `{"fio_address":"` + defaultAddress() + `"}`
+
+	case "/v1/chain/avail_check":
+		return `{
+  "fio_name": "` + defaultAddress() + `"
+}`
+	case "/v1/chain/get_abi":
+		return `{
+  "account_name": "fio.address"
+}`
+	case "/v1/chain/get_account":
+		return `{
+  "account_name": "` + defaultActor() + `"
+}`
+	case "/v1/chain/get_block":
+		return `{
+  "block_num_or_id": "123"
+}`
+	case "/v1/chain/get_block_header_state":
+		return `{
+  "block_num_or_id": "123"
+}`
+	case "/v1/chain/get_currency_balance":
+		return `{
+  "account": "` + defaultActor() + `",
+  "code": "fio.token",
+  "symbol": "FIO"
+}`
+	case "/v1/chain/get_currency_stats":
+		return `{
+  "json": false,
+  "code": "fio.token",
+  "symbol": "FIO"
+}`
+	case "/v1/chain/get_fee":
+		return `{
+  "end_point": "add_pub_address",
+  "fio_address": "` + defaultAddress() + `"
+}`
+	case "/v1/chain/get_fio_balance":
+		return `{
+  "fio_public_key": "` + defaultPub() + `"
+}`
+	case "/v1/chain/get_actor":
+		return `{
+  "fio_public_key": "` + defaultPub() + `"
+}`
+	case "/v1/chain/get_fio_addresses":
+		return `{
+  "fio_public_key": "` + defaultPub() + `"
+}`
+	case "/v1/chain/get_fio_domains":
+		return `{
+  "fio_public_key": "` + defaultPub() + `"
+}`
+	case "/v1/chain/get_fio_names":
+		return `{
+  "fio_public_key": "` + defaultPub() + `"
+}`
+	case "/v1/chain/get_obt_data":
+		return `{
+  "fio_public_key": "` + defaultPub() + `",
+  "limit": 100,
+  "offset": 0
+}`
+	case "/v1/chain/get_pending_fio_requests":
+		return `{
+  "fio_public_key": "` + defaultPub() + `",
+  "limit": 100,
+  "offset": 0
+}`
+	case "/v1/chain/get_cancelled_fio_requests":
+		return `{
+  "fio_public_key": "` + defaultPub() + `",
+  "limit": 100,
+  "offset": 0
+}`
+	case "/v1/chain/get_raw_abi":
+		return `{
+  "account_name": "fio.token"
+}`
+	case "/v1/chain/get_pub_address":
+		return `{
+  "fio_address": "` + defaultAddress() + `",
+  "token_code": "FIO",
