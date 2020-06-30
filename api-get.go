@@ -221,3 +221,145 @@ func DefaultJsonFor(endpoint string) string {
 		return `{
   "fio_address": "` + defaultAddress() + `",
   "token_code": "FIO",
+  "chain_code": "FIO"
+}`
+	case "/v1/chain/get_sent_fio_requests":
+		return `{
+  "fio_public_key": "` + defaultPub() + `",
+  "limit": 100,
+  "offset": 0
+}`
+	case "/v1/chain/get_code":
+		return `{
+  "account_name": "fio.address"
+}`
+	case "/v1/chain/get_code_hash":
+		return `{
+  "account_name": "fio.address"
+}`
+	case "/v1/chain/get_raw_code_and_abi":
+		return `{
+  "account_name": "fio.address"
+}`
+	case "/v1/chain/get_table_rows":
+		return `{
+  "json": true,
+  "code": "fio.address",
+  "scope": "fio.address",
+  "table": "domains",
+  "table_key": "",
+  "lower_bound": "` + defaultActor() + `",
+  "upper_bound": "` + defaultActor() + `",
+  "limit": 1,
+  "key_type": "name",
+  "index_position": "2",
+  "encode_type": "dec",
+  "reverse": false,
+  "show_payer": false
+}`
+	case "/v1/chain/serialize_json":
+		return `{
+  "action": "regdomain",
+  "json":   {
+    "fio_domain": "domain",
+    "owner_fio_public_key": "` + defaultPub() + `",
+    "max_fee": 40000000000,
+    "tpid": "` + defaultAddress() + `",
+    "actor": "` + defaultActor() + `"
+  }
+}`
+	case "/v1/net/status":
+		return `"localhost:9876"`
+	case "/v1/chain/add_pub_address":
+		return signedTx
+	case "/v1/chain/burn_expired":
+		return signedTx
+	case "/v1/chain/claim_bp_rewards":
+		return signedTx
+	case "/v1/chain/new_funds_request":
+		return signedTx
+	case "/v1/chain/pay_tpid_rewards":
+		return signedTx
+	case "/v1/chain/proxy_vote":
+		return signedTx
+	case "/v1/chain/push_block":
+		return signedTx
+	case "/v1/chain/push_transaction":
+		return signedTx
+	case "/v1/chain/record_obt_data":
+		return signedTx
+	case "/v1/chain/register_fio_address":
+		return signedTx
+	case "/v1/chain/register_fio_domain":
+		return signedTx
+	case "/v1/chain/register_producer":
+		return signedTx
+	case "/v1/chain/register_proxy":
+		return signedTx
+	case "/v1/chain/reject_funds_request":
+		return signedTx
+	case "/v1/chain/renew_fio_address":
+		return signedTx
+	case "/v1/chain/renew_fio_domain":
+		return signedTx
+	case "/v1/chain/send_transaction":
+		return signedTx
+	case "/v1/chain/set_fio_domain_public":
+		return signedTx
+	case "/v1/chain/submit_bundled_transaction":
+		return signedTx
+	case "/v1/chain/submit_fee_multiplier":
+		return signedTx
+	case "/v1/chain/submit_fee_ratios":
+		return signedTx
+	case "/v1/chain/transfer_tokens_pub_key":
+		return signedTx
+	case "/v1/chain/unregister_producer":
+		return signedTx
+	case "/v1/chain/unregister_proxy":
+		return signedTx
+	case "/v1/chain/vote_producer":
+		return signedTx
+	default:
+		return ""
+	}
+}
+
+func defaultPub() string {
+	if Account == nil || Account.PubKey == "" {
+		return `FIO5DAPixgyZjSYM1yUBf9DZmQp7J7Y2pSwYruMapoaVMeW3BZ2U1`
+	}
+	return Account.PubKey
+}
+
+func defaultAddress() string {
+	if Api == nil || Api.HttpClient == nil || Account == nil {
+		return `example@fiotestnet`
+	}
+	if Account.Addresses == nil || len(Account.Addresses) == 0 {
+		a, _, _ := Account.GetNames(Api)
+		if a == 0 {
+			return `example@fiotestnet`
+		}
+	}
+	return Account.Addresses[0].FioAddress
+}
+
+func defaultActor() string {
+	if Account == nil || Account.Actor == "" {
+		return "eab5rg3u14oz"
+	}
+	return string(Account.Actor)
+}
+
+var (
+	signedTx = `{
+  "signatures": [
+    "SIG_K1_..."
+  ],
+  "compression": "none",
+  "packed_context_free_data": "",
+  "packed_trx": "000102030405060708090a0b0c0d0e0f..."
+}`
+	defaultApiJsonMux = sync.RWMutex{}
+)
