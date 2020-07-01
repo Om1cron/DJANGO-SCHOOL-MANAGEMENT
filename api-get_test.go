@@ -11,4 +11,6 @@ package cryptonym
 //		t.Error(err)
 //	}
 //	if len(list.Apis) == 0 {
-//		t.Error("supporte
+//		t.Error("supported apis should not be empty")
+//	}
+//}
