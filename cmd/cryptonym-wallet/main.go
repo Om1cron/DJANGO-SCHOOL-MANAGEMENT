@@ -140,3 +140,118 @@ func main() {
 				refreshNotNil(actionsGroup)
 				refreshNotNil(hostEntry)
 				refreshNotNil(uriContent)
+				refreshNotNil(keyContent)
+				refreshNotNil(topLayout)
+				refreshNotNil(errs.ErrMsgs)
+				refreshNotNil(tabEntries.Info.Content)
+				refreshNotNil(tabEntries.Editor.Content)
+				refreshNotNil(tabEntries.Api.Content)
+				refreshNotNil(tabEntries.Msig.Content)
+				if explorer.TableIndex.IsCreated() {
+					refreshNotNil(tabEntries.Browser.Content)
+					refreshNotNil(tabEntries.Abi.Content)
+				}
+				refreshNotNil(tabContent)
+				if moneyBags.Hidden {
+					moneyBags.Show()
+				}
+			}
+		}
+	}()
+
+	if reconnect(account) {
+		connectedChan <- true
+	}
+
+	updateActions(ready, opts)
+	tabEntries = makeTabs()
+	// KeyGen has to be created after others to prevent a race:
+	tabContent = widget.NewTabContainer(
+		&tabEntries.Info,
+		&tabEntries.AccountInfo,
+		&tabEntries.Abi,
+		&tabEntries.Browser,
+		&tabEntries.Editor,
+		&tabEntries.Api,
+		widget.NewTabItem("Key Gen", explorer.KeyGenTab()),
+		&tabEntries.Vote,
+		&tabEntries.Msig,
+		&tabEntries.Requests,
+	)
+
+	uriContainer = fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(5, 35)),
+		uriContent,
+	)
+	tabEntries.Info.Content = widget.NewVBox(
+		layout.NewSpacer(),
+		uriContainer,
+		layout.NewSpacer(),
+	)
+	refreshNotNil(tabEntries.Info.Content)
+
+	topLayout = fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(explorer.ActionW, explorer.PctHeight())),
+			actionsGroup,
+		),
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(10, explorer.PctHeight())),
+			layout.NewSpacer(),
+		),
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(explorer.RWidth(), explorer.PctHeight())),
+			fyne.NewContainerWithLayout(layout.NewVBoxLayout(),
+				tabContent,
+				layout.NewSpacer(),
+				fyne.NewContainerWithLayout(layout.NewVBoxLayout(),
+					keyContent,
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(explorer.RWidth(), 150)),
+						widget.NewScrollContainer(
+							errs.ErrMsgs,
+						),
+					),
+				),
+			),
+		),
+	)
+
+	go func(repaint chan bool) {
+		for {
+			select {
+			case <-repaint:
+				// bug in Refresh doesn't get the group title, hide then show works
+				actionsGroup.Hide()
+				actionsGroup.Show()
+				if tabContent != nil {
+					tabContent.SelectTabIndex(0)
+				}
+				explorer.Win.Content().Refresh()
+				explorer.RefreshQr <- true
+				errs.RefreshChan <- true
+			}
+		}
+	}(explorer.RepaintChan)
+
+	explorer.Win.SetMainMenu(fyne.NewMainMenu(fyne.NewMenu("Settings",
+		fyne.NewMenuItem("Options", func() {
+			go explorer.SettingsWindow()
+		}),
+		fyne.NewMenuItem("Reload Saved Settings", func() {
+			go explorer.PromptForPassword()
+		}),
+		fyne.NewMenuItem("Connect to different server", func() {
+			go uriModal()
+		}),
+		fyne.NewMenuItem("", func() {}),
+		fyne.NewMenuItem("Dark Theme", func() {
+			explorer.WinSettings.T = "Dark"
+			explorer.RefreshQr <- true
+			fyne.CurrentApp().Settings().SetTheme(explorer.CustomTheme())
+			explorer.RepaintChan <- true
+		}),
+		fyne.NewMenuItem("Darker Theme", func() {
+			explorer.WinSettings.T = "Darker"
+			explorer.RefreshQr <- true
+			fyne.CurrentApp().Settings().SetTheme(explorer.DarkerTheme().ToFyneTheme())
+			explorer.RepaintChan <- true
+		}),
+		fyne.NewMenuItem("Light Theme", func() {
+			explorer.WinSettings.T = "Light"
+			explorer.RefreshQr <- true
