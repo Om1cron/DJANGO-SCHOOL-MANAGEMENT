@@ -255,3 +255,145 @@ func main() {
 		fyne.NewMenuItem("Light Theme", func() {
 			explorer.WinSettings.T = "Light"
 			explorer.RefreshQr <- true
+			fyne.CurrentApp().Settings().SetTheme(explorer.ExLightTheme().ToFyneTheme())
+			explorer.RepaintChan <- true
+		}),
+		fyne.NewMenuItem("Grey Theme", func() {
+			explorer.WinSettings.T = "Grey"
+			explorer.RefreshQr <- true
+			fyne.CurrentApp().Settings().SetTheme(explorer.ExGreyTheme().ToFyneTheme())
+			explorer.RepaintChan <- true
+		}),
+	)))
+
+	ready = true
+	updateActions(ready, opts)
+	explorer.Win.Resize(fyne.NewSize(explorer.W-10, (explorer.H*95)/100))
+	explorer.Win.SetFixedSize(true)
+	*uri = "http://127.0.0.1:8888"
+	hostEntry.SetText(*uri)
+	errs.RefreshChan <- true
+	explorer.Win.SetContent(topLayout)
+	explorer.Win.SetMaster()
+	explorer.Win.SetOnClosed(func() {
+		explorer.App.Quit()
+	})
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		switch explorer.WinSettings.T {
+		case "Dark":
+			fyne.CurrentApp().Settings().SetTheme(explorer.CustomTheme())
+		case "Darker":
+			fyne.CurrentApp().Settings().SetTheme(explorer.DarkerTheme().ToFyneTheme())
+		case "Grey":
+			fyne.CurrentApp().Settings().SetTheme(explorer.ExGreyTheme().ToFyneTheme())
+		case "Light":
+			fyne.CurrentApp().Settings().SetTheme(explorer.ExLightTheme().ToFyneTheme())
+		}
+		go explorer.PromptForPassword()
+		go settingsReload(explorer.SettingsLoaded)
+	}()
+	explorer.Win.ShowAndRun()
+}
+
+func refreshNotNil(object fyne.CanvasObject) {
+	if object != nil {
+		object.Refresh()
+	}
+}
+
+func settingsReload(newSettings chan *explorer.FioSettings) {
+	for {
+		select {
+		case s := <-newSettings:
+			if !strings.HasPrefix(s.Server, "http") {
+				s.Server = "http://" + s.Server
+			}
+			*uri = s.Server
+			hostEntry.SetText(*uri)
+			savedKeys = map[string]string{
+				s.DefaultKeyDesc: s.DefaultKey,
+				s.FavKey2Desc:    s.FavKey2,
+				s.FavKey3Desc:    s.FavKey3,
+				s.FavKey4Desc:    s.FavKey4,
+			}
+			moneyBags.Options = moneySlice()
+			newAccount, err := fio.NewAccountFromWif(s.DefaultKey)
+			keyContent.Children = keyBoxContent().Children
+			if err != nil {
+				errs.ErrChan <- "error loading key from saved settings. " + err.Error()
+			} else {
+				dr := *newAccount
+				account = &dr
+				explorer.Account = &dr
+				wifEntry.SetText(s.DefaultKey)
+				importButton.OnTapped()
+				tabContent.SelectTabIndex(0)
+			}
+		}
+	}
+}
+
+func refreshMyName() {
+	if account.Addresses != nil && len(account.Addresses) > 0 {
+		txt := account.Addresses[0].FioAddress
+		func(s string) {
+			myFioAddress.OnChanged = func(string) {
+				myFioAddress.SetText(s)
+			}
+		}(txt)
+		myFioAddress.SetText(txt)
+		explorer.DefaultFioAddress = account.Addresses[0].FioAddress
+	} else {
+		if found, _, e := account.GetNames(api); e == nil && found > 0 {
+			txt := account.Addresses[0].FioAddress
+			func(s string) {
+				myFioAddress.OnChanged = func(string) {
+					myFioAddress.SetText(s)
+				}
+			}(txt)
+			myFioAddress.SetText(txt)
+			explorer.DefaultFioAddress = account.Addresses[0].FioAddress
+		} else {
+			myFioAddress.OnChanged = func(string) {
+				myFioAddress.SetText("")
+			}
+			explorer.DefaultFioAddress = ""
+			myFioAddress.SetText("")
+			myFioAddress.Hide()
+		}
+	}
+	if myFioAddress.Text == "" && !myFioAddress.Hidden {
+		myFioAddress.Hide()
+	} else if myFioAddress.Hidden {
+		myFioAddress.Show()
+	}
+	refreshNotNil(myFioAddress)
+	refreshNotNil(keyContent)
+}
+
+var clientMux = sync.Mutex{}
+
+var apiDeadCounter int
+
+func refreshInfo(deadline time.Duration) (string, bool) {
+	if api == nil || explorer.Api == nil || api.BaseURL == "" {
+		return "", false
+	}
+	d := time.Now().Add(deadline)
+	ctx, cancel := context.WithDeadline(context.Background(), d)
+	defer cancel()
+	resultChan := make(chan string)
+	go func() {
+		clientMux.Lock()
+		defer clientMux.Unlock()
+		i, e := api.GetInfo()
+		if e != nil {
+			apiDeadCounter += 1
+			errs.ErrChan <- e.Error()
+			if apiDeadCounter >= 10 {
+				errs.ErrChan <- "connection seems to be having issues, trying to reconnect"
+				var err error
+				explorer.Api, explorer.Opts, err = fio.NewConnection(explorer.Account.KeyBag, explorer.Uri)
+				if err != nil {
+					errs.ErrChan <- err.Error()
