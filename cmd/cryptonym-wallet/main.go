@@ -397,3 +397,149 @@ func refreshInfo(deadline time.Duration) (string, bool) {
 				explorer.Api, explorer.Opts, err = fio.NewConnection(explorer.Account.KeyBag, explorer.Uri)
 				if err != nil {
 					errs.ErrChan <- err.Error()
+					return
+				}
+				api = explorer.Api
+				opts = explorer.Opts
+			}
+			return
+		}
+		apiDeadCounter = 0
+		j, _ := json.MarshalIndent(i, "", "  ")
+		serverInfoCh <- explorer.ServerInfo{
+			Info: i,
+			Uri:  api.BaseURL,
+		}
+		resultChan <- string(j)
+	}()
+	select {
+	case s := <-resultChan:
+		return s, true
+	case <-ctx.Done():
+		errs.ErrChan <- "failed to update server info in time, reducing poll frequency."
+		return "", false
+	}
+}
+
+func reconnect(account *fio.Account) (result bool) {
+	errs.DisconnectChan <- result
+	defer func() {
+		errs.DisconnectChan <- result
+	}()
+	clientMux.Lock()
+	defer clientMux.Unlock()
+	var err error
+	api, opts, err = fio.NewConnection(account.KeyBag, *uri)
+	if err != nil {
+		if *uri != "" {
+			errs.ErrChan <- err.Error()
+		}
+		return
+	}
+	api.Header.Set("User-Agent", "fio-cryptonym-wallet")
+	explorer.Api, explorer.Opts, _ = fio.NewConnection(account.KeyBag, *uri)
+	explorer.Api.Header.Set("User-Agent", "fio-cryptonym-wallet")
+	errs.ErrChan <- "connected to nodeos at " + *uri
+	explorer.Win.SetTitle(fmt.Sprintf("Cryptonym - nodeos @ %s", *uri))
+	errs.RefreshChan <- true
+	go func() {
+		time.Sleep(2 * time.Second)
+		explorer.BalanceChan <- true
+	}()
+	result = true
+	return
+}
+
+func updateActions(ready bool, opts *fio.TxOptions) {
+	newGroup := true
+	if actionsGroup == nil || actionsGroup.Text == "" {
+		actionsGroup = widget.NewGroupWithScroller("Not Connected")
+	}
+	if !ready {
+		return
+	}
+	if len(ActionButtons) > 0 {
+		newGroup = false
+	}
+	var err error
+	clientMux.Lock()
+	api, opts, err = fio.NewConnection(account.KeyBag, *uri)
+	if err != nil {
+		errs.ErrChan <- "not connected to nodeos server"
+		clientMux.Unlock()
+		return
+	}
+	api.Header.Set("User-Agent", "fio-cryptonym-wallet")
+	explorer.Api, explorer.Opts, _ = fio.NewConnection(account.KeyBag, *uri)
+	explorer.Api.Header.Set("User-Agent", "fio-cryptonym-wallet")
+	_, err = api.GetInfo()
+	if err != nil {
+		errs.ErrChan <- "not connected to nodeos server"
+		clientMux.Unlock()
+		return
+	}
+	actionsGroup.Text = "Actions"
+
+	if newGroup {
+		filterActions = widget.NewEntry()
+		filterActions.SetPlaceHolder("Filter Actions")
+		filterActions.OnChanged = showHideActions
+		actionsGroup.Append(filterActions)
+		filterCheck = widget.NewCheck("Hide Privileged", func(bool) {
+			showHideActions(filterActions.Text)
+		})
+		filterCheck.SetChecked(true)
+		actionsGroup.Append(widget.NewHBox(layout.NewSpacer(), filterCheck, layout.NewSpacer()))
+		prodsCheck = widget.NewCheck("Hide Producer", func(bool) {
+			showHideActions(filterActions.Text)
+		})
+		prodsCheck.SetChecked(true)
+		actionsGroup.Append(widget.NewHBox(layout.NewSpacer(), prodsCheck, layout.NewSpacer()))
+	} else {
+		filterActions.SetText("")
+	}
+
+	a, err := explorer.GetAccountSummary(api)
+	clientMux.Unlock()
+	if err != nil {
+		errs.ErrChan <- err.Error()
+		return
+	}
+	if a == nil || a.Actions == nil || len(a.Actions) == 0 {
+		errs.ErrChan <- "could not find any ABIs"
+		return
+	}
+	found := 0
+	if !newGroup {
+		for _, l := range ActionLabels {
+			if l != nil {
+				l.SetText("disabled")
+				l.Hide()
+			}
+		}
+		for _, b := range ActionButtons {
+			if b != nil {
+				b.SetText("disabled")
+				b.Hide()
+			}
+		}
+	}
+	for _, contract := range a.Index {
+		label := widget.NewLabel(strings.ToUpper(contract))
+		actionsGroup.Append(label)
+		ActionLabels = append(ActionLabels, label)
+		sort.Strings(a.Actions[contract])
+		for _, b := range a.Actions[contract] {
+			button := &widget.Button{}
+			button = widget.NewButton(fmt.Sprintf("%s::%s", contract, b), func() {
+				tabContent.SelectTabIndex(4)
+				if form, e := explorer.GetAbiForm(button.Text, account, api, opts); e == nil {
+					tabEntries.Editor.Content = form
+					tabEntries.Editor.Text = "Action - " + button.Text
+					errs.RefreshChan <- true
+				}
+			})
+			ActionButtons = append(ActionButtons, button)
+			button.Style = 0
+			actionsGroup.Append(button)
+			found = found + 1
