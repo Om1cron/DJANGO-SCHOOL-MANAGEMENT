@@ -543,3 +543,130 @@ func updateActions(ready bool, opts *fio.TxOptions) {
 			button.Style = 0
 			actionsGroup.Append(button)
 			found = found + 1
+		}
+	}
+	if found > 0 {
+		errs.ErrChan <- fmt.Sprintf("found %d actions", found)
+		tabEntries.Info = *widget.NewTabItem("Server",
+			widget.NewVBox(
+				serverInfoBox,
+			))
+		if browser, ok := explorer.GetTableBrowser(explorer.W, explorer.H, api); ok {
+			tabEntries.Browser = *widget.NewTabItem("Tables", browser)
+		}
+		if abiView, ok := explorer.GetAbiViewer(explorer.W, explorer.H, api); ok {
+			tabEntries.Abi = *widget.NewTabItem("ABIs", abiView)
+		}
+		updateTabChan := make(chan fyne.Container)
+		go func(newBox chan fyne.Container) {
+			for {
+				select {
+				case nb := <-newBox:
+					tabEntries.AccountInfo = *widget.NewTabItem("Accounts", &nb)
+					errs.RefreshChan <- true
+				}
+			}
+		}(updateTabChan)
+		updateApiChan := make(chan fyne.Container)
+		go func(newApiTab chan fyne.Container) {
+			for {
+				select {
+				case nb := <-newApiTab:
+					tabEntries.Api = *widget.NewTabItem("APIs", &nb)
+					errs.RefreshChan <- true
+				}
+			}
+		}(updateApiChan)
+		explorer.NewAccountSearchTab(updateTabChan, account)
+		explorer.NewApiRequestTab(updateApiChan)
+		updateMsigChan := make(chan fyne.Container)
+		go func(newMsigTab chan fyne.Container) {
+			for {
+				select {
+				case nb := <-newMsigTab:
+					tabEntries.Msig = *widget.NewTabItem("mSig", &nb)
+					// TODO: use a cancel context to timeout if nothing is listening on the channel:
+					go func() {
+						time.Sleep(time.Second)
+						if explorer.MsigLoaded {
+							explorer.MsigRefreshRequests <- false
+						}
+					}()
+					errs.RefreshChan <- true
+				}
+			}
+		}(updateMsigChan)
+		go func() {
+			time.Sleep(2 * time.Second)
+			explorer.UpdateAuthContent(updateMsigChan, api, opts, account)
+		}()
+		updateVoteChan := make(chan fyne.CanvasObject)
+		go func(content chan fyne.CanvasObject) {
+			for {
+				select {
+				case c := <-content:
+					tabEntries.Vote = *widget.NewTabItem("Vote", fyne.NewContainerWithLayout(
+						layout.NewFixedGridLayout(fyne.NewSize(explorer.RWidth(), explorer.PctHeight()-250)),
+						c,
+					))
+					tabContent.Refresh()
+				}
+			}
+		}(updateVoteChan)
+		go func() {
+			time.Sleep(4 * time.Second)
+			explorer.VoteContent(updateVoteChan, explorer.RefreshVotesChan)
+		}()
+		updateRequestChan := make(chan fyne.CanvasObject)
+		go func(content chan fyne.CanvasObject) {
+			for {
+				select {
+				case c := <-content:
+					tabEntries.Requests = *widget.NewTabItem("Requests", fyne.NewContainerWithLayout(
+						layout.NewFixedGridLayout(fyne.NewSize(explorer.RWidth(), explorer.PctHeight()-250)),
+						c,
+					))
+					tabContent.Refresh()
+				}
+			}
+		}(updateRequestChan)
+		go func() {
+			time.Sleep(3 * time.Second)
+			explorer.RequestContent(updateRequestChan, explorer.RefreshRequestsChan)
+		}()
+		showHideActions("")
+		errs.RefreshChan <- true
+		connectedChan <- true
+	}
+}
+
+func showHideActions(s string) {
+	for _, b := range ActionButtons {
+		if b == nil {
+			continue
+		}
+		switch {
+		case b.Text == "disabled":
+			b.Hide()
+		case (s != "" && !strings.Contains(b.Text, s)) || (filterCheck.Checked && explorer.PrivilegedActions[b.Text]) ||
+			(prodsCheck.Checked && explorer.ProducerActions[b.Text]):
+			b.Hide()
+		default:
+			b.Show()
+		}
+	}
+	for _, l := range ActionLabels {
+		if l == nil {
+			continue
+		}
+		if l.Text == "disabled" {
+			l.Hide()
+		}
+	}
+}
+
+func moneySlice() []string {
+	o := make([]string, 0)
+	for k := range savedKeys {
+		o = append(o, k)
+	}
