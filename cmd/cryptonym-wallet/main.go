@@ -826,3 +826,149 @@ func uriInput(showProxy bool) *widget.Box {
 var (
 	refreshWorkerCounter int
 )
+
+func keyBoxContent() *widget.Box {
+	doImport := func() {}
+	entryChan := make(chan string)
+	moneyBags.OnChanged = func(s string) {
+		if s != "" && s != moneyBags.PlaceHolder && wifEntry != nil {
+			entryChan <- s
+		}
+	}
+	moneyBags.PlaceHolder = "Quick Load Saved Key"
+	moneyBags.Refresh()
+	pubkey := widget.NewEntry()
+	func(s string) {
+		pubkey.OnChanged = func(string) {
+			pubkey.SetText(s)
+		}
+	}(account.PubKey) // deref
+	pubkey.SetText(account.PubKey)
+	actor := widget.NewEntry()
+	func(s string) {
+		actor.OnChanged = func(string) {
+			actor.SetText(s)
+		}
+	}(string(account.Actor)) // deref
+	actor.SetText(string(account.Actor))
+	var txt string
+	if account.Addresses != nil && len(account.Addresses) > 0 {
+		txt = account.Addresses[0].FioAddress
+	} else {
+		myFioAddress.Hide()
+	}
+	func(s string) {
+		myFioAddress.OnChanged = func(string) {
+			myFioAddress.SetText(s)
+		}
+	}(txt)
+	myFioAddress.SetText(txt)
+
+	wifWindow := explorer.App.NewWindow("Import WIF")
+	doImport = func() {
+		explorer.Win.RequestFocus()
+		newAcc, err := fio.NewAccountFromWif(wifEntry.Text)
+		errs.ErrChan <- "Importing new WIF ..."
+		if err != nil {
+			errs.ErrChan <- "import failed: " + err.Error()
+			//wifWindow.Hide()
+			return
+		}
+		tabContent.SelectTabIndex(1)
+		myFioAddress.OnChanged = func(string) {
+			myFioAddress.SetText("")
+		}
+		myFioAddress.SetText("")
+		myFioAddress.Hide()
+		derefAcc := *newAcc
+		account = &derefAcc
+		explorer.Account = &derefAcc
+		func(s string) {
+			actor.OnChanged = func(string) {
+				actor.SetText(s)
+			}
+		}(string(account.Actor))
+		actor.SetText(string(account.Actor))
+		updateActions(reconnect(account), opts)
+		func(s string) {
+			pubkey.OnChanged = func(string) {
+				pubkey.SetText(s)
+			}
+		}(account.PubKey)
+		pubkey.SetText(account.PubKey)
+		myFioAddress.OnChanged = func(string) {
+			myFioAddress.SetText("")
+		}
+		myFioAddress.SetText("")
+		if !myFioAddress.Hidden {
+			myFioAddress.Hide()
+			go refreshMyName()
+			explorer.RefreshVotesChan <- true
+			explorer.RefreshRequestsChan <- true
+		}
+	}
+
+	importButton = widget.NewButton("Import", func() {
+		doImport()
+		wifWindow.Close()
+	})
+	loadButton = widget.NewButtonWithIcon("Load Key", theme.MenuDropUpIcon(), func() {
+		wifEntry.SetPlaceHolder("5xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+		wifWindow := explorer.App.NewWindow("Import WIF")
+		wifWindow.Resize(fyne.NewSize(450, 180))
+		keyBox = widget.NewVBox(
+			wifEntry,
+			layout.NewSpacer(),
+			widget.NewHBox(
+				widget.NewButton("Import", func() {
+					doImport()
+					wifWindow.Close()
+				}),
+				widget.NewButton(
+					"Cancel", func() {
+						wifWindow.Close()
+						explorer.Win.RequestFocus()
+						return
+					},
+				),
+				layout.NewSpacer(), moneyBags,
+			),
+		)
+		wifWindow.SetContent(keyBox)
+		wifWindow.Show()
+	})
+
+	balanceButton = widget.NewButtonWithIcon("Refresh", theme.ViewRefreshIcon(), func() {
+		errs.ErrChan <- "refreshing"
+		explorer.BalanceChan <- true
+		refreshMyName()
+	})
+	balanceButton.Disable()
+	updateBal := func() {
+		if !explorer.Connected {
+			balanceButton.Disable()
+		}
+		if account != nil && api.BaseURL != "" {
+			if !balanceButton.Disabled() {
+				balanceButton.Disable()
+			}
+			fioBalance, e := api.GetBalance(account.Actor)
+			balanceButton.Enable()
+			if e != nil {
+				errs.ErrChan <- "Error getting balance: " + e.Error()
+				return
+			}
+			if explorer.TxResultBalanceChanOpen {
+				explorer.TxResultBalanceChan <- p.Sprintf("FIO Balance:\n%.9g", fioBalance)
+			}
+			if balance != fioBalance {
+				errs.ErrChan <- p.Sprintf("balance changed by: %f", fioBalance-balance)
+				balanceLabel.SetText(p.Sprintf("FIO Balance: %.9g", fioBalance))
+				balanceLabel.Refresh()
+				balance = fioBalance
+			}
+		}
+	}
+	go func() {
+		refreshWorkerCounter += 1
+		balance = 0.0
