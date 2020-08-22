@@ -670,3 +670,159 @@ func moneySlice() []string {
 	for k := range savedKeys {
 		o = append(o, k)
 	}
+	sort.Strings(o)
+	return o
+}
+
+func makeTabs() tabs {
+	return tabs{
+		Editor:      *widget.NewTabItem("Actions", widget.NewLabel("Select a Contract Action on the left")),
+		Api:         *widget.NewTabItem("APIs", widget.NewLabel("Not Connected")),
+		Info:        *widget.NewTabItem("Server", widget.NewLabel("Not Connected")),
+		Browser:     *widget.NewTabItem("Tables", widget.NewLabel("Not Connected")),
+		Abi:         *widget.NewTabItem("ABIs", widget.NewLabel("Not Connected")),
+		AccountInfo: *widget.NewTabItem("Accounts", widget.NewLabel("Not Connected")),
+		KeyGen:      *widget.NewTabItem("Key Gen", widget.NewLabel("")),
+		Msig:        *widget.NewTabItem("mSig", widget.NewLabel("Not Connected")),
+		Vote:        *widget.NewTabItem("Vote", widget.NewLabel("Not Connected")),
+		Requests:    *widget.NewTabItem("Requests", widget.NewLabel("Not Connected")),
+	}
+}
+
+func uriModal() {
+	if explorer.PasswordVisible {
+		return
+	}
+	go uriSimplerInput()
+}
+
+func uriSimplerInput() {
+	nw := explorer.App.NewWindow("new connection")
+	hEntry := &explorer.EnterEntry{}
+	cancelButton := widget.NewButton("cancel", func() {
+		nw.Hide()
+	})
+	connectButton = widget.NewButtonWithIcon("connect", fioassets.NewFioLogoResource(), func() {
+		connectButton.Disable()
+		myFioAddress.OnChanged = func(string) {
+			myFioAddress.SetText("")
+		}
+		explorer.DefaultFioAddress = ""
+		myFioAddress.SetText("")
+		myFioAddress.Hide()
+		host := hostEntry.Text
+		if !strings.HasPrefix(host, "http") {
+			host = "http://" + host
+		}
+		*uri = host
+		if reconnect(account) {
+			updateActions(true, opts)
+			nw.Hide()
+			nw = nil
+		} else {
+			connectButton.Enable()
+		}
+	})
+	hostEntry.Button = connectButton
+	hEntry = explorer.NewEnterEntry(func() {
+		connectButton.Disable()
+		host := hostEntry.Text
+		if !strings.HasPrefix(host, "http") {
+			host = "http://" + host
+		}
+		*uri = host
+		if reconnect(account) {
+			updateActions(true, opts)
+			nw.Hide()
+			nw = nil
+		} else {
+			connectButton.Enable()
+		}
+	})
+	mainSelect := widget.NewSelect(explorer.MainnetApi, func(s string) {
+		hostEntry.SetText(s)
+	})
+	mainSelect.PlaceHolder = "Mainnet Nodes"
+	hEntry.Text = *uri
+	nw.SetContent(widget.NewVBox(
+		layout.NewSpacer(),
+		widget.NewHBox(layout.NewSpacer(), hostEntry, cancelButton, connectButton, layout.NewSpacer()),
+		widget.NewHBox(layout.NewSpacer(), mainSelect, layout.NewSpacer()),
+		layout.NewSpacer()),
+	)
+	nw.Resize(fyne.NewSize(400, 200))
+	//nw.SetFixedSize(true)
+	nw.Show()
+}
+
+func uriInput(showProxy bool) *widget.Box {
+	hostEntry.Text = *uri
+	proxyProto := widget.NewSelect([]string{"http://", "https://"}, func(s string) {})
+	proxyProto.Hide()
+	proxyUrl := &widget.Entry{}
+	proxyUrl = widget.NewEntry()
+	proxyUrl.OnChanged = func(s string) {
+		*proxy = s
+	}
+	proxyUrl.SetText(*proxy)
+	proxyUrl.Hide()
+	proxyCheck = widget.NewCheck("Use a proxy", func(b bool) {
+		switch b {
+		case true:
+			proxyProto.Show()
+			proxyProto.SetSelected("http://")
+			proxyUrl.Show()
+		default:
+			proxyProto.Hide()
+			proxyUrl.Hide()
+		}
+	})
+	if !showProxy || os.Getenv("ADVANCED") == "" {
+		proxyCheck.Hide()
+	}
+	connectButton = widget.NewButtonWithIcon("connect", fioassets.NewFioLogoResource(), func() {
+		connectButton.Disable()
+		if proxyCheck.Checked {
+			if _, e := url.Parse(proxyProto.Selected + proxyUrl.Text); e != nil {
+				errs.ErrChan <- "invalid proxy URL specified"
+				connectButton.Enable()
+				return
+			}
+			if strings.Contains(hostEntry.Text, "127.0.0.1") || strings.Contains(hostEntry.Text, "localhost") {
+				errs.ErrChan <- "Warning: will not use proxy for connections to localhost"
+			}
+			// all we need to do is set the ENV vars and eos-go will pick up our settings
+			refreshNotNil(proxyUrl)
+			switch proxyProto.Selected {
+			case "https://":
+				os.Unsetenv("HTTP_PROXY")
+				os.Unsetenv("HTTPS_PROXY")
+				os.Setenv("HTTPS_PROXY", proxyProto.Selected+*proxy)
+			default:
+				os.Unsetenv("HTTP_PROXY")
+				os.Unsetenv("HTTPS_PROXY")
+				os.Setenv("HTTP_PROXY", proxyProto.Selected+*proxy)
+			}
+		}
+		host := hostEntry.Text
+		if !strings.HasPrefix(host, "http") {
+			host = "http://" + host
+		}
+		*uri = host
+		if reconnect(account) {
+			updateActions(true, opts)
+		} else {
+			connectButton.Enable()
+		}
+	})
+	hostEntry.Button = connectButton
+	if !showProxy {
+		connectButton.Hide()
+	}
+
+	return widget.NewHBox(connectButton, hostEntry, proxyCheck, proxyProto, proxyUrl)
+}
+
+var (
+	refreshWorkerCounter int
+)
