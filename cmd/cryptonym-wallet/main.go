@@ -972,3 +972,63 @@ func keyBoxContent() *widget.Box {
 	go func() {
 		refreshWorkerCounter += 1
 		balance = 0.0
+		tick := time.NewTicker(30 * time.Second)
+		infoTickDuration := 3 * time.Second
+		infoTick := time.NewTicker(infoTickDuration)
+		for {
+			select {
+			case <-tick.C:
+				if errs.Connected {
+					updateBal()
+				}
+			case <-infoTick.C:
+				// try to catch a race when loading settings since this can get called twice in some circumstances
+				if refreshWorkerCounter > 1 {
+					refreshWorkerCounter -= 1
+					return
+				}
+
+				if explorer.Connected && tabContent.CurrentTab().Text == "Server" {
+					if _, updated := refreshInfo(infoTickDuration / time.Duration(2)); updated {
+						if infoTickDuration > 2*time.Second {
+							infoTickDuration -= time.Second
+							infoTick = time.NewTicker(infoTickDuration)
+						}
+						continue
+					}
+					// server is responding slowly, poll less frequently
+					infoTickDuration = infoTickDuration * 2
+					infoTick = time.NewTicker(infoTickDuration)
+				}
+			case <-explorer.BalanceChan:
+				if errs.Connected {
+					updateBal()
+				}
+			case newWif := <-entryChan:
+				infoTickDuration = time.Second
+				infoTick = time.NewTicker(infoTickDuration)
+				if savedKeys[newWif] != "" {
+					wifEntry.SetText(savedKeys[newWif])
+				}
+			}
+		}
+	}()
+
+	return widget.NewVBox(
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(explorer.RWidth(), 90)),
+			fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(2),
+				widget.NewHBox(
+					widget.NewLabel("Current Key: "),
+					pubkey,
+					actor,
+					myFioAddress,
+				),
+				widget.NewHBox(
+					balanceLabel,
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(balanceButton.MinSize()), balanceButton),
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(loadButton.MinSize()), loadButton),
+				),
+			),
+		),
+	)
+}
