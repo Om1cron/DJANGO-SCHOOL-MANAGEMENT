@@ -10,4 +10,11 @@ import (
 var (
 	ErrChan        = make(chan string)
 	DisconnectChan = make(chan bool)
-	ErrTxt         = make([]st
+	ErrTxt         = make([]string, 50)
+	ErrMsgs        = widget.NewMultiLineEntry()
+	RefreshChan    = make(chan bool)
+	Connected      bool
+)
+
+func init() {
+	go func(msg chan string, disconne
