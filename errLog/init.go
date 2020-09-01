@@ -17,4 +17,9 @@ var (
 )
 
 func init() {
-	go func(msg chan string, disconne
+	go func(msg chan string, disconnected chan bool) {
+		last := time.Now()
+		t := time.NewTicker(500 * time.Millisecond)
+		for {
+			select {
+			case d := <-disconnecte
