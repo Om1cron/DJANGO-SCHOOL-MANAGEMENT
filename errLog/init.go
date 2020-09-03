@@ -22,4 +22,9 @@ func init() {
 		t := time.NewTicker(500 * time.Millisecond)
 		for {
 			select {
-			case d := <-disconnecte
+			case d := <-disconnected:
+				Connected = d
+				time.Sleep(250 * time.Millisecond)
+			case m := <-msg:
+				log.Println(m)
+				ErrTxt = append([]string{time.Now().Format(ti
