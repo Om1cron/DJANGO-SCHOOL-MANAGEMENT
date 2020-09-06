@@ -31,4 +31,10 @@ func init() {
 				last = time.Now()
 			case <-t.C:
 				if time.Now().After(last.Add(500 * time.Millisecond)) {
-					txt := string
+					txt := strings.Join(ErrTxt, "\n")
+					func(s string) {
+						ErrMsgs.OnChanged = func(string) {
+							ErrMsgs.SetText(s)
+						}
+					}(txt)
+					ErrMsgs.SetText(txt
