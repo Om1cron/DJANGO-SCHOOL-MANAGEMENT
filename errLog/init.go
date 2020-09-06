@@ -27,4 +27,8 @@ func init() {
 				time.Sleep(250 * time.Millisecond)
 			case m := <-msg:
 				log.Println(m)
-				ErrTxt = append([]string{time.Now().Format(ti
+				ErrTxt = append([]string{time.Now().Format(time.Stamp) + " -- " + m}, ErrTxt[:len(ErrTxt)-1]...)
+				last = time.Now()
+			case <-t.C:
+				if time.Now().After(last.Add(500 * time.Millisecond)) {
+					txt := string
