@@ -37,4 +37,9 @@ func init() {
 							ErrMsgs.SetText(s)
 						}
 					}(txt)
-					ErrMsgs.SetText(txt
+					ErrMsgs.SetText(txt)
+				}
+			}
+		}
+	}(ErrChan, DisconnectChan)
+}
