@@ -88,3 +88,76 @@ func RandomExistingFioAddress(url string) string {
 		return ""
 	}
 	api.Header.Set("User-Agent", "fio-cryptonym-wallet")
+	gtr, err := api.GetTableRows(eos.GetTableRowsRequest{
+		Code:       "fio.address",
+		Scope:      "fio.address",
+		Table:      "fionames",
+		LowerBound: "0",
+		Limit:      500,
+		JSON:       true,
+	})
+	if err != nil {
+		errs.ErrChan <- err.Error()
+		return ""
+	}
+	names := make([]fioNamesResp, 0)
+	err = json.Unmarshal(gtr.Rows, &names)
+	if len(names) == 0 {
+		return ""
+	}
+	return names[rand.Intn(len(names))].Name
+}
+
+func RandomActor() eos.AccountName {
+	k, err := fio.NewRandomAccount()
+	if err != nil {
+		nonBlockErr(err.Error())
+		return ""
+	}
+	actor, _ := fio.ActorFromPub(k.PubKey)
+	return actor
+}
+
+func RandomFioPubKey() string {
+	k, err := fio.NewRandomAccount()
+	if err != nil {
+		nonBlockErr(err.Error())
+		return ""
+	}
+	return k.PubKey
+}
+
+func FioAddressAt(domain string) string {
+	if !strings.HasPrefix(domain, "@") {
+		domain = "@" + domain
+	}
+	addr := word() + domain
+	if len(addr) >= 64 {
+		return addr[len(addr)-64:]
+	}
+	return addr
+}
+
+func InvalidFioAddressAt(domain string) string {
+	if !strings.HasPrefix(domain, "@") {
+		domain = "@" + domain
+	}
+	return word() + string(badChars[rand.Intn(len(badChars))]) + word() + domain
+}
+
+func FioDomain() string {
+	return word()
+}
+
+func InvalidFioDomain() string {
+	frontMiddleEnd := rand.Intn(3)
+	switch frontMiddleEnd {
+	case 0:
+		return string(badChars[rand.Intn(len(badChars))]) + word()
+	case 1:
+		return word() + string(badChars[rand.Intn(len(badChars))]) + word()
+	case 2:
+		return word() + string(badChars[rand.Intn(len(badChars))])
+	}
+	return word() + string(badChars[rand.Intn(len(badChars))]) + word()
+}
