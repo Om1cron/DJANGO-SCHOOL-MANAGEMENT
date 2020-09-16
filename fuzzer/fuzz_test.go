@@ -61,3 +61,39 @@ func TestRandomChecksum(t *testing.T) {
 		}
 	}
 }
+
+func TestHexToBytes(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		b := make([]byte, 32)
+		rand.Read(b)
+		s := HexToBytes(hex.EncodeToString(b))
+		if string(b) != s {
+			t.Error("bytes didn't match")
+			continue
+		}
+		fmt.Println(s, " == ", string(b))
+	}
+}
+
+func TestChecksumOf(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		b := make([]byte, rand.Intn(128)+32)
+		s := ChecksumOf(string(b))
+		fmt.Println(s)
+		if len(s) != 64 {
+			t.Error("wrong size")
+		}
+	}
+}
+
+func TestSignatureFor(t *testing.T) {
+	key, _ := fio.NewRandomAccount()
+	for i := 0; i < 10; i++ {
+		b := make([]byte, rand.Intn(128)+32)
+		s := SignatureFor(string(b), key)
+		fmt.Println(s)
+		if !strings.HasPrefix(s, "SIG_K1_") {
+			t.Error("invalid signature")
+		}
+	}
+}
