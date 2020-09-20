@@ -167,3 +167,147 @@ func RandomInteger(size int) RandomNumberResult {
 		}
 	case 16:
 		return RandomNumberResult{
+			abi:   "int16",
+			value: int16(rand.Intn(math.MaxInt16-1) + 1),
+		}
+	case 32:
+		return RandomNumberResult{
+			abi:   "int32",
+			value: int32(rand.Intn(math.MaxInt32-1) + 1),
+		}
+	case 64:
+		return RandomNumberResult{
+			abi:   "int64",
+			value: int64(rand.Intn(math.MaxInt64-1) + 1),
+		}
+	}
+	return RandomNumberResult{
+		abi:   "int32",
+		value: int32(rand.Intn(math.MaxInt16-1)+1) * -1,
+	}
+}
+
+func OverFlowInt(size int, signed bool) string {
+	switch {
+	case size == 8 && signed:
+		return fmt.Sprintf("%d", int16(math.MaxInt8)+1)
+	case size == 16 && signed:
+		return fmt.Sprintf("%d", int32(math.MaxInt16)+1)
+	case size == 32 && signed:
+		return fmt.Sprintf("%d", int64(math.MaxInt32)+1)
+	case size == 8 && !signed:
+		return fmt.Sprintf("%d", uint16(math.MaxUint8)+1)
+	case size == 16 && !signed:
+		return fmt.Sprintf("%d", uint32(math.MaxUint16)+1)
+	case size == 32 && !signed:
+		return fmt.Sprintf("%d", uint64(math.MaxUint32)+1)
+	}
+	return ""
+}
+
+func RandomInt128() string {
+	j, _ := eos.Int128{
+		Lo: rand.Uint64(),
+		Hi: rand.Uint64(),
+	}.MarshalJSON()
+	return string(j)
+}
+
+func RandomFloat(size int) float64 {
+	switch size {
+	case 32:
+		f := rand.Float32()
+		if f < .4 {
+			f = f + rand.Float32()*1000.0
+		}
+		return float64(f)
+	case 64:
+		f := rand.Float64()
+		if f < .4 {
+			f = f + rand.Float64()*10000.0
+			// if we are sending a f64, make sure it's a big one.
+			if f < math.MaxFloat32 {
+				f = f + float64(math.MaxInt16+rand.Intn(math.MaxInt16))
+			}
+		}
+		return f
+	}
+	return 0.0
+}
+
+func RandomBytes(size int, encode int8) interface{} {
+	var pl []byte
+	// reading MBs of data from urand is a bad idea, use math.rand instead
+	if size <= 4096 {
+		pl = make([]byte, size)
+		_, _ = cr.Read(pl)
+	} else {
+		pl = make([]byte, size)
+		_, _ = rand.Read(pl)
+	}
+	switch encode {
+	case EncodeRaw:
+		return string(pl)
+	case EncodeHexString:
+		return hex.EncodeToString(pl)
+	case EncodeBase64:
+		buf := bytes.NewBuffer([]byte{})
+		b64 := base64.NewEncoder(base64.StdEncoding, buf)
+		_, e := b64.Write(pl)
+		if e != nil {
+			nonBlockErr("warning: error creating base64 - " + e.Error())
+		}
+		return string(buf.Bytes())
+	}
+	return ""
+}
+
+func RandomChecksum() eos.Checksum256 {
+	cs := make([]byte, 32)
+	_, _ = cr.Read(cs)
+	return cs
+}
+
+func HexToBytes(hexData string) string {
+	b, e := hex.DecodeString(hexData)
+	if e != nil {
+		nonBlockErr("warning: could not decode hex data, sending empty string")
+		return ""
+	}
+	return string(b)
+}
+
+func ChecksumOf(value string) string {
+	if value == "" {
+		nonBlockErr("warning: sending checksum256 of an empty string")
+	}
+	sum := sha256.New()
+	sum.Write([]byte(value))
+	return hex.EncodeToString(sum.Sum(nil))
+}
+
+func SignatureFor(value string, key *fio.Account) string {
+	hash, err := hex.DecodeString(ChecksumOf(value))
+	if err != nil {
+		nonBlockErr("couldn't hash value: " + err.Error())
+		if len(hash) == 0 {
+			return ""
+		}
+	}
+	sig, err := key.KeyBag.Keys[0].Sign(hash)
+	if err != nil {
+		nonBlockErr("couldn't hash value: " + err.Error())
+		return ""
+	}
+	return sig.String()
+}
+
+func word() string {
+	var w string
+	for i := 0; i < 6; i++ {
+		w = w + string(byte(rand.Intn(26)+97))
+	}
+	return w
+}
+
+var incrementingInt int64
