@@ -311,3 +311,70 @@ func word() string {
 }
 
 var incrementingInt int64
+
+func IncrementingInt() int64 {
+	incrementingInt = incrementingInt + 1
+	return incrementingInt
+}
+
+var incrementingFloat float64
+
+func IncrementingFloat() float64 {
+	incrementingFloat = incrementingFloat + 1.00001
+	return incrementingFloat
+}
+
+func ResetIncrement() {
+	incrementingInt = 0
+	incrementingFloat = 0.0
+}
+
+func RandomAddAddress(count int) string {
+	addresses := make([]string, 0)
+	for i := 0; i < count; i++ {
+		code := word()
+		addresses = append(addresses, fmt.Sprintf(`{"token_code": "%s", "chain_code": "%s", "public_address": "%s"}`, code, code, RandomBytes(32, EncodeHexString)))
+	}
+	return fmt.Sprintf(`[%s]`, strings.Join(addresses, ", "))
+}
+
+func NewPubAddress(user *fio.Account) (address string, chain string) {
+	r := rand.Intn(3)
+	switch r {
+	case 0:
+		chain = "BTC"
+		wif, _ := btcutil.DecodeWIF(user.KeyBag.Keys[0].String())
+		btcutil.Hash160(wif.PrivKey.PubKey().SerializeUncompressed())
+		a, _ := btcutil.NewAddressPubKeyHash(btcutil.Hash160(wif.PrivKey.PubKey().SerializeUncompressed()), &chaincfg.MainNetParams)
+		address = a.String()
+	case 1:
+		chain = "ETH"
+		epk, _ := ecc.NewPublicKey("FIO" + user.PubKey[3:])
+		pk, _ := epk.Key()
+		address = crypto.PubkeyToAddress(*pk.ToECDSA()).String()
+	case 2:
+		chain = "EOS"
+		address = "EOS" + user.PubKey[3:]
+	}
+	return
+}
+
+//// FIXME!
+//func LoadFile(filename string) string {
+//	nonBlockErr("warning: LoadFile is not implemented yet, sending empty string!")
+//	return ""
+//}
+
+// try to notify on errors, but don't deadlock since we aren't entirely sure this is running inside the app
+func nonBlockErr(msg string) {
+	d := time.Now().Add(50 * time.Millisecond)
+	ctx, cancel := context.WithDeadline(context.Background(), d)
+	defer cancel()
+	go func(s string) {
+		errs.ErrChan <- s
+	}(msg)
+	select {
+	case <-ctx.Done():
+		return
+	}
+}
