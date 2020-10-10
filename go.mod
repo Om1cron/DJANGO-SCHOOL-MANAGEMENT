@@ -15,4 +15,5 @@ require (
 	golang.org/x/text v0.3.3
 	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61
 	gopkg.in/yaml.v2 v2.2.8
-	gopkg.in
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+)
