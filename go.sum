@@ -35,4 +35,5 @@ github.com/aws/aws-sdk-go v1.25.48/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpi
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/blockpane/prettyfyne v0.0.0-20200910224427-ab9af6316e6c h1:dxHAZFPoy1l1sr7op8Hpow7LkaNoQW46AMJT2nkbIzU=
 github.com/blockpane/prettyfyne v0.0.0-20200910224427-ab9af6316e6c/go.mod h1:pNzAa8Nd4AxVFrlSL8wiPKGVXyUrA+DcHVa6jPaDGm0=
-github.com/btcsuite/btc
+github.com/btcsuite/btcd v0.0.0-20171128150713-2e60448ffcc6/go.mod h1:Dmm/EzmjnCiweXmzRIAiUWCInVmPgjkzgv5k4tVyXiQ=
+github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfy
