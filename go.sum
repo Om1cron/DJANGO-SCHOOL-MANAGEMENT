@@ -36,4 +36,5 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/blockpane/prettyfyne v0.0.0-20200910224427-ab9af6316e6c h1:dxHAZFPoy1l1sr7op8Hpow7LkaNoQW46AMJT2nkbIzU=
 github.com/blockpane/prettyfyne v0.0.0-20200910224427-ab9af6316e6c/go.mod h1:pNzAa8Nd4AxVFrlSL8wiPKGVXyUrA+DcHVa6jPaDGm0=
 github.com/btcsuite/btcd v0.0.0-20171128150713-2e60448ffcc6/go.mod h1:Dmm/EzmjnCiweXmzRIAiUWCInVmPgjkzgv5k4tVyXiQ=
-github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfy
+github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfyv3S4AGBOmyouMsYE3EdYODkMbQjwPGw=
+github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDu
