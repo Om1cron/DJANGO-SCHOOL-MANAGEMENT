@@ -66,4 +66,5 @@ github.com/edsrzf/mmap-go v0.0.0-20160512033002-935e0e8a636c/go.mod h1:YO35OhQPt
 github.com/ethereum/go-ethereum v1.9.15 h1:wrWl+QrtutRUJ9LZXdUqBoGoo2b1tOCYRDrAOQhCY3A=
 github.com/ethereum/go-ethereum v1.9.15/go.mod h1:slT8bPPRhXsyNTwHQxrOnjuTZ1sDXRajW11EkJ84QJ0=
 github.com/fatih/color v1.3.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
-github.com/fioprotocol/fio-go v1.0.2-0.20201220021236-16318
+github.com/fioprotocol/fio-go v1.0.2-0.20201220021236-16318c6f0d8e h1:H4nMH3Q02qCGm+iMWskaougG9jLIfjOSn/LPo7f+9xs=
+github.com/fioprotocol/fio-go v1.0.2-0.20201220021236-16318c6f0d8e/go.mod h1:cX9
