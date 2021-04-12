@@ -68,4 +68,5 @@ github.com/ethereum/go-ethereum v1.9.15/go.mod h1:slT8bPPRhXsyNTwHQxrOnjuTZ1sDXR
 github.com/fatih/color v1.3.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fioprotocol/fio-go v1.0.2-0.20201220021236-16318c6f0d8e h1:H4nMH3Q02qCGm+iMWskaougG9jLIfjOSn/LPo7f+9xs=
 github.com/fioprotocol/fio-go v1.0.2-0.20201220021236-16318c6f0d8e/go.mod h1:cX96BK9Y8fQPJP2GXGQvCFovHJ35lw7ICUUUAzqnH40=
-github.com/fioprotocol/fio-go v1.0.3-0.20201220224546-01e10838c33f h1:z7USAVPeG0e9gKOrkGfCZ08cvlL40yVwiN0
+github.com/fioprotocol/fio-go v1.0.3-0.20201220224546-01e10838c33f h1:z7USAVPeG0e9gKOrkGfCZ08cvlL40yVwiN0ICLXJM24=
+github.com/fioprotocol/fio-go v1.0.3-0.20201220224546-01e10838c33f/go.mod h1:cX96BK9Y8fQPJP2GXGQvCFovHJ35lw7ICUUU
