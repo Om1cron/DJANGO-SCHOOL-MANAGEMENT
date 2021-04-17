@@ -74,4 +74,6 @@ github.com/fioprotocol/fio-go v1.0.3-0.20201222151005-9e1df6dd6005 h1:j65XCEjg+x
 github.com/fioprotocol/fio-go v1.0.3-0.20201222151005-9e1df6dd6005/go.mod h1:cX96BK9Y8fQPJP2GXGQvCFovHJ35lw7ICUUUAzqnH40=
 github.com/fioprotocol/fio-go v1.0.3-0.20210108173809-98ac48363ba8 h1:xrIGis41tO44VljhbH87aPHVIra5q/d/w5f56Ou4FW8=
 github.com/fioprotocol/fio-go v1.0.3-0.20210108173809-98ac48363ba8/go.mod h1:cX96BK9Y8fQPJP2GXGQvCFovHJ35lw7ICUUUAzqnH40=
-github.com/fjl/memsize v0.0.0-20180418122429-ca190fb6ffbc/go.mod h1:VvhXpOYNQvB+uIk2Rv
+github.com/fjl/memsize v0.0.0-20180418122429-ca190fb6ffbc/go.mod h1:VvhXpOYNQvB+uIk2RvXzuaQtkQJzzIx6lSBe1xv7hi0=
+github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
+github.com/fsnotify/fsnotify v1.4.7/go.mod
