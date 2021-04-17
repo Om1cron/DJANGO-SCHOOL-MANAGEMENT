@@ -71,4 +71,5 @@ github.com/fioprotocol/fio-go v1.0.2-0.20201220021236-16318c6f0d8e/go.mod h1:cX9
 github.com/fioprotocol/fio-go v1.0.3-0.20201220224546-01e10838c33f h1:z7USAVPeG0e9gKOrkGfCZ08cvlL40yVwiN0ICLXJM24=
 github.com/fioprotocol/fio-go v1.0.3-0.20201220224546-01e10838c33f/go.mod h1:cX96BK9Y8fQPJP2GXGQvCFovHJ35lw7ICUUUAzqnH40=
 github.com/fioprotocol/fio-go v1.0.3-0.20201222151005-9e1df6dd6005 h1:j65XCEjg+xFKKcsngbXRECbXN2UEZGqGrO7tq3+u0qI=
-github.com/fioprotocol/fio-g
+github.com/fioprotocol/fio-go v1.0.3-0.20201222151005-9e1df6dd6005/go.mod h1:cX96BK9Y8fQPJP2GXGQvCFovHJ35lw7ICUUUAzqnH40=
+github.com/fioprotocol/fio-go v1.0.3-0.20
