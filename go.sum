@@ -187,4 +187,5 @@ github.com/srwiley/oksvg v0.0.0-20200311192757-870daf9aa564/go.mod h1:afMbS0qvv1
 github.com/srwiley/rasterx v0.0.0-20181219215540-696f7edb7a7e h1:FFotfUvew9Eg02LYRl8YybAnm0HCwjjfY5JlOI1oB00=
 github.com/srwiley/rasterx v0.0.0-20181219215540-696f7edb7a7e/go.mod h1:mvWM0+15UqyrFKqdRjY6LuAVJR0HOVhJlEgZ5JWtSWU=
 github.com/srwiley/rasterx v0.0.0-20200120212402-85cb7272f5e9 h1:m59mIOBO4kfcNCEzJNy71UkeF4XIx2EVmL9KLwDQdmM=
-github.com/srwiley/rasterx v0.0.0-20200120212402-85cb7272f
+github.com/srwiley/rasterx v0.0.0-20200120212402-85cb7272f5e9/go.mod h1:mvWM0+15UqyrFKqdRjY6LuAVJR0HOVhJlEgZ5JWtSWU=
+github.com/status-im/keycard-go v0.0.0-20190316090335-8537d3370df4/go.mod h
