@@ -68,3 +68,85 @@ func init() {
 				BalanceLabel.SetText(bal)
 				BalanceLabel.Refresh()
 			}
+		}
+	}()
+	startErrLog()
+}
+
+type winSettings struct {
+	W int    `json:"w"`
+	H int    `json:"h"`
+	T string `json:"t"`
+}
+
+func getSavedWindowSettings() winSettings {
+	def := winSettings{
+		W: 1440,
+		H: 900,
+		T: "Light",
+	}
+	d, e := os.UserConfigDir()
+	if e != nil || d == "" {
+		return def
+	}
+	f, e := os.Open(fmt.Sprintf("%s%c%s%cwindow.json", d, os.PathSeparator, settingsDir, os.PathSeparator))
+	if e != nil {
+		return def
+	}
+	defer f.Close()
+	s, e := os.Stat(fmt.Sprintf("%s%c%s%cwindow.json", d, os.PathSeparator, settingsDir, os.PathSeparator))
+	if e != nil {
+		return def
+	}
+	b := make([]byte, s.Size())
+	_, e = f.Read(b)
+	if e != nil {
+		return def
+	}
+	wSet := winSettings{}
+	e = json.Unmarshal(b, &wSet)
+	if e != nil {
+		return def
+	}
+	if wSet.W == 0 || wSet.H == 0 {
+		wSet = def
+	}
+	if wSet.T == "" {
+		wSet.T = "Light"
+	}
+
+	if runtime.GOOS != "darwin" {
+		wSet.H -= 50
+	}
+	return wSet
+}
+
+func saveWindowSettings(w int, h int, t string) bool {
+	d, e := os.UserConfigDir()
+	if e != nil || d == "" {
+		return false
+	}
+	if ok, _ := MkDir(); !ok {
+		return false
+	}
+	fn := fmt.Sprintf("%s%c%s%cwindow.json", d, os.PathSeparator, settingsDir, os.PathSeparator)
+	f, e := os.OpenFile(fn, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0600)
+	if e != nil {
+		return false
+	}
+	defer f.Close()
+	j, _ := json.Marshal(&winSettings{W: w, H: h, T: t})
+	_, e = f.Write(j)
+	if e != nil {
+		return false
+	}
+	return true
+}
+
+func RWidth() int {
+	return W - ActionW - WidthReduce
+}
+
+func PctHeight() int {
+	return (H * 95) / 100
+}
