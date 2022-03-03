@@ -172,3 +172,140 @@ func KeyGenTab() *widget.Box {
 	var setBusy bool
 	setKey := func() {
 		time.Sleep(20 * time.Millisecond) // lame, but prevents a double event on darwin?!?
+		if setBusy {
+			return
+		}
+		setBusy = true
+		regenButton.Disable()
+		go func() {
+			defer func() {
+				vanityStopButton.Hide()
+				regenButton.Enable()
+				setBusy = false
+			}()
+			type ki struct {
+				kq []byte
+				pq []byte
+				k  string
+				e  error
+			}
+			result := make(chan ki)
+			go func() {
+				if vanityCheck.Checked {
+					if vanityOpt.word == "" {
+						keyStr = "empty search string provided!"
+						result <- ki{}
+						return
+					}
+					vanityStopButton.Show()
+					acc, err := vanityKey(vanityOpt, vanityQuit)
+					if err != nil {
+						keyStr = "Sorry, there was a problem generating the key\n" + err.Error()
+						result <- ki{}
+						return
+					}
+					if acc == nil || acc.KeyBag == nil || acc.KeyBag.Keys[0] == nil {
+						keyStr = "Sorry, there was a problem generating the key - got empty key!\n"
+						result <- ki{}
+						return
+					}
+					vanityStopButton.Hide()
+					key = acc.KeyBag.Keys[0]
+				} else if newKey {
+					key, err = ecc.NewRandomPrivateKey()
+					if err != nil {
+						keyStr = "Sorry, there was a problem generating the key\n" + err.Error()
+						result <- ki{}
+						return
+					}
+				}
+				newKey = true
+				keyInfo := ki{}
+				keyInfo.k, keyInfo.kq, keyInfo.pq, keyInfo.e = genKey(key)
+				result <- keyInfo
+			}()
+			// don't show the wait message right away to avoid flicker:
+			tick := time.NewTicker(time.Second)
+			var skipSetWait bool
+			for {
+				select {
+				case _ = <-tick.C:
+					if skipSetWait {
+						return
+					}
+					qrImage.Image = disabledImage(imageSize, imageSize)
+					qrImage.Refresh()
+					setWait(waitMsg)
+				case ki := <-result:
+					if ki.kq == nil {
+						return
+					}
+					skipSetWait = true
+					keyStr, qrPriv, qrPub, err = ki.k, ki.kq, ki.pq, ki.e
+					if err != nil {
+						keyStr = "Sorry, there was a problem generating the key\n" + err.Error()
+					}
+					qrReaderPriv := bytes.NewReader(qrPriv)
+					newQrPriv, _, err = image.Decode(qrReaderPriv)
+					if err != nil {
+						keyStr = "Sorry, there was a problem generating the qr code\n" + err.Error()
+					}
+
+					qrReader := bytes.NewReader(qrPub)
+					newQrPub, _, err = image.Decode(qrReader)
+					if err != nil {
+						keyStr = "Sorry, there was a problem generating the qr code\n" + err.Error()
+					}
+					qrImage.Image = newQrPub
+					swapQrButton.Enable()
+					copyToClip.Enable()
+					swapQrButton.Refresh()
+					copyToClip.Refresh()
+					entry.SetText(keyStr)
+					entry.OnChanged = func(string) {
+						entry.SetText(keyStr)
+					}
+					qrImage.Refresh()
+					showingPriv = true
+					swapQr()
+					return
+				}
+			}
+		}()
+	}
+
+	clipped := func() {
+		go func() {
+			clip := Win.Clipboard()
+			clip.SetContent(keyStr)
+			copyToClip.Text = "Copied!"
+			if keyStr != clip.Content() {
+				clip.SetContent("Failed to Copy!")
+			}
+			copyToClip.Refresh()
+			time.Sleep(2 * time.Second)
+			copyToClip.Text = "Copy To Clipboard"
+			copyToClip.Refresh()
+		}()
+	}
+	copyToClip = widget.NewButtonWithIcon("Copy To Clipboard", theme.ContentCopyIcon(), clipped)
+
+	go setKey()
+
+	go func() {
+		for {
+			select {
+			case <-RefreshQr:
+				newKey = false
+				setKey()
+			}
+		}
+	}()
+
+	regenButton = widget.NewButtonWithIcon("Regenerate", theme.ViewRefreshIcon(), setKey)
+	vanityEntry.Button = regenButton
+	return widget.NewVBox(
+		layout.NewSpacer(),
+		vanityBox,
+		fyne.NewContainerWithLayout(layout.NewGridLayout(3),
+			widget.NewHBox(
