@@ -309,3 +309,104 @@ func KeyGenTab() *widget.Box {
 		vanityBox,
 		fyne.NewContainerWithLayout(layout.NewGridLayout(3),
 			widget.NewHBox(
+				layout.NewSpacer(),
+				widget.NewVBox(
+					qrLabel,
+					qrImage,
+					swapQrButton,
+				),
+			),
+			widget.NewHBox(
+				widget.NewLabel(" "),
+				widget.NewVBox(
+					layout.NewSpacer(),
+					widget.NewHBox(
+						entry,
+					),
+					widget.NewHBox(
+						regenButton,
+						copyToClip,
+						vanityStopButton,
+						layout.NewSpacer(),
+					),
+				),
+			),
+			layout.NewSpacer(),
+		),
+		layout.NewSpacer(),
+	)
+}
+
+func disabledImage(w, h int) *image.RGBA {
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	rr, gg, bb, _ := App.Settings().Theme().ButtonColor().RGBA()
+	c := color.RGBA{R: uint8(rr), G: uint8(gg), B: uint8(bb), A: math.MaxUint8}
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			img.Set(x, y, c)
+		}
+	}
+	return img
+}
+
+func genKey(key *ecc.PrivateKey) (keyinfo string, privQr []byte, pubQr []byte, e error) {
+	var err error
+	// convert the WIF into an EOS account structure
+	kb := eos.NewKeyBag()
+	err = kb.ImportPrivateKey(key.String())
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	// get the FIO actor name (an EOS account derived from the public key.)
+	// in FIO an account has a 1:1 relationship to an account, and the account is
+	// created automatically
+	fioActor, err := fio.ActorFromPub(kb.Keys[0].PublicKey().String())
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	// Public key URI formatted
+	var pngPub []byte
+	qPub, err := qrcode.New("fio:FIO"+kb.Keys[0].PublicKey().String()[3:]+"?label="+string(fioActor), qrcode.Medium)
+	if err != nil {
+		return "", nil, nil, err
+	}
+	if strings.Contains(WinSettings.T, "Dark") {
+		qPub.ForegroundColor = darkestGrey
+		qPub.BackgroundColor = lightestGrey
+	} else {
+		qPub.ForegroundColor = color.Black
+		qPub.BackgroundColor = color.White
+	}
+	pngPub, err = qPub.PNG(imageSize)
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	// Private Key
+	var pngPriv []byte
+	qPriv, err := qrcode.New(kb.Keys[0].String(), qrcode.Medium)
+	if err != nil {
+		return "", nil, nil, err
+	}
+	if strings.Contains(WinSettings.T, "Dark") {
+		qPriv.ForegroundColor = darkestGrey
+		qPriv.BackgroundColor = lightestGrey
+	} else {
+		qPriv.ForegroundColor = color.Black
+		qPriv.BackgroundColor = color.White
+	}
+	pngPriv, err = qPriv.PNG(imageSize)
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	b := bytes.NewBuffer([]byte{})
+	// print out the result: a FIO public key is really an EOS key, with FIO at the beginning
+	b.WriteString(fmt.Sprintln("Private Key:   ", kb.Keys[0].String()))
+	b.WriteString(fmt.Sprintln("Public Key:     FIO" + kb.Keys[0].PublicKey().String()[3:]))
+	b.WriteString(fmt.Sprintln("Account Name:  ", fioActor))
+
+	return b.String(), pngPriv, pngPub, nil
+}
