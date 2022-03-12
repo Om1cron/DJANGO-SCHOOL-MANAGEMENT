@@ -21,4 +21,12 @@ func startErrLog() {
 	}
 	e = syscall.Dup2(int(errLog.Fd()), 1)
 	if e != nil {
-		log.Pri
+		log.Println(e)
+		return
+	}
+	e = syscall.Dup2(int(errLog.Fd()), 2)
+	if e != nil {
+		log.Println(e)
+		return
+	}
+	errs.ErrChan 
