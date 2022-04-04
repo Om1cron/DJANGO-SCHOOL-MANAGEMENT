@@ -29,4 +29,5 @@ func startErrLog() {
 		log.Println(e)
 		return
 	}
-	errs.ErrChan <- fmt.Sprintf("Writing session log to: %s%c%s%cerror
+	errs.ErrChan <- fmt.Sprintf("Writing session log to: %s%c%s%cerror.log", d, os.PathSeparator, settingsDir, os.PathSeparator)
+}
