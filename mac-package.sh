@@ -9,4 +9,7 @@ mkdir -p "package/Cryptonym"
 mkdir -p package/old
 mv package/*.dmg package/old/
 
-go build -ldflags "-s -w" -o cmd/cryptonym-wallet/c
+go build -ldflags "-s -w" -o cmd/cryptonym-wallet/cryptonym-wallet cmd/cryptonym-wallet/main.go
+
+upx -9 cmd/cryptonym-wallet/cryptonym-wallet
+fyne package -sourceDir cmd/cryptonym-wal
