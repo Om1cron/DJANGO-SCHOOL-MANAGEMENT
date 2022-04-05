@@ -16,4 +16,8 @@ fyne package -sourceDir cmd/cryptonym-wallet -name "Cryptonym" -os darwin && mv 
 sed -i'' -e 's/.string.1\.0.\/string./\<string>'$(git describe --tags --always --long)'\<\/string>/g' "package/Cryptonym/Cryptonym.app/Contents/Info.plist"
 rm -f cmd/cryptonym-wallet/cryptonym-wallet
 pushd package
-hdiutil creat
+hdiutil create -srcfolder "Cryptonym" "Cryptonym.dmg"
+popd
+rm -fr "package/Cryptonym"
+open "package/Cryptonym.dmg"
+

@@ -1,0 +1,4 @@
+package cryptonym
+
+import (
+	"byte
