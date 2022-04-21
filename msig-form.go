@@ -13,4 +13,15 @@ import (
 	fioassets "github.com/blockpane/cryptonym/assets"
 	errs "github.com/blockpane/cryptonym/errLog"
 	"github.com/fioprotocol/fio-go"
-	
+	"github.com/fioprotocol/fio-go/eos"
+	"math"
+	"sort"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+)
+
+type signer struct {
+	weight *widget.Entry
+	actor  *w
