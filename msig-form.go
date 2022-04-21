@@ -24,4 +24,14 @@ import (
 
 type signer struct {
 	weight *widget.Entry
-	actor  *w
+	actor  *widget.Entry
+	index  int
+}
+
+var (
+	MsigRefreshRequests = make(chan bool)
+	MsigLastTab         = 0
+	MsigLoaded          bool
+)
+
+func Updat
