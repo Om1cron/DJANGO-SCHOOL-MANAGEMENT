@@ -34,4 +34,6 @@ var (
 	MsigLoaded          bool
 )
 
-func Updat
+func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.TxOptions, account *fio.Account) {
+	for !Connected {
+		time.Sleep(time.S
