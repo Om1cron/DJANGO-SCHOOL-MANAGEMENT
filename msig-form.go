@@ -36,4 +36,10 @@ var (
 
 func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.TxOptions, account *fio.Account) {
 	for !Connected {
-		time.Sleep(time.S
+		time.Sleep(time.Second)
+	}
+	authTab := func() {} //recursive
+	authTab = func() {
+		accountEntry := widget.NewEntry()
+		newAccount := &fio.Account{}
+	
