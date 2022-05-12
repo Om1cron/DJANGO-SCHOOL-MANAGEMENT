@@ -42,4 +42,5 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 	authTab = func() {
 		accountEntry := widget.NewEntry()
 		newAccount := &fio.Account{}
-	
+		update := &widget.TabItem{}
+		fee := widget.NewLabelWithStyle(p.Sprintf("Required Fee: %s %G", fio.FioSymbol, fio.GetM
