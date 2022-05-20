@@ -43,4 +43,7 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		accountEntry := widget.NewEntry()
 		newAccount := &fio.Account{}
 		update := &widget.TabItem{}
-		fee := widget.NewLabelWithStyle(p.Sprintf("Required Fee: %s %G", fio.FioSymbol, fio.GetM
+		fee := widget.NewLabelWithStyle(p.Sprintf("Required Fee: %s %G", fio.FioSymbol, fio.GetMaxFee(fio.FeeAuthUpdate)*2.0), fyne.TextAlignTrailing, fyne.TextStyle{})
+		warning := widget.NewHBox(
+			widget.NewIcon(theme.WarningIcon()),
+		
