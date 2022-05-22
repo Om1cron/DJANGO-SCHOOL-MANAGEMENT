@@ -46,4 +46,5 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		fee := widget.NewLabelWithStyle(p.Sprintf("Required Fee: %s %G", fio.FioSymbol, fio.GetMaxFee(fio.FeeAuthUpdate)*2.0), fyne.TextAlignTrailing, fyne.TextStyle{})
 		warning := widget.NewHBox(
 			widget.NewIcon(theme.WarningIcon()),
-		
+			widget.NewLabelWithStyle("Warning: converting active account to multi-sig!", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		)
