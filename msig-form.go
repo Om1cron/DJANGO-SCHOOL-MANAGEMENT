@@ -48,3 +48,8 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			widget.NewIcon(theme.WarningIcon()),
 			widget.NewLabelWithStyle("Warning: converting active account to multi-sig!", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		)
+		warning.Hide()
+		newRandCheck := widget.NewCheck("Create New and Burn", func(b bool) {
+			if b {
+				newAccount, _ = fio.NewRandomAccount()
+	
