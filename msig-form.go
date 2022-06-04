@@ -52,4 +52,5 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		newRandCheck := widget.NewCheck("Create New and Burn", func(b bool) {
 			if b {
 				newAccount, _ = fio.NewRandomAccount()
-	
+				accountEntry.SetText(string(newAccount.Actor))
+				fee.SetText(p.Sprintf("Required Fee: %s%G", fio.FioSymbol, fio.GetMaxFe
