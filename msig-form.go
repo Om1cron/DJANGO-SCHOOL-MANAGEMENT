@@ -57,4 +57,5 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 				fee.Refresh()
 				warning.Hide()
 			} else {
-				accountEntry
+				accountEntry.SetText(string(account.Actor))
+				fee.SetText(p.Sprintf("Required Fee: %s%G", fio.FioSymbol, fio.GetMaxFee(fio.FeeAuthUpdate
