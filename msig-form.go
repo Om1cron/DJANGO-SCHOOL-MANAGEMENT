@@ -66,4 +66,8 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		accountEntry.SetText(string(account.Actor))
 		newRandCheck.SetChecked(true)
 
-		thresh
+		threshEntry := widget.NewEntry()
+		threshEntry.SetText("2")
+		tMux := sync.Mutex{}
+		threshEntry.OnChanged = func(s string) {
+			tMux.Lo
