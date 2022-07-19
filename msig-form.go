@@ -70,4 +70,8 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		threshEntry.SetText("2")
 		tMux := sync.Mutex{}
 		threshEntry.OnChanged = func(s string) {
-			tMux.Lo
+			tMux.Lock()
+			time.Sleep(300 * time.Millisecond)
+			if _, e := strconv.Atoi(s); e != nil {
+				tMux.Unlock()
+				threshEntry.SetText("2
