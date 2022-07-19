@@ -58,4 +58,12 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 				warning.Hide()
 			} else {
 				accountEntry.SetText(string(account.Actor))
-				fee.SetText(p.Sprintf("Required Fee: %s%G", fio.FioSymbol, fio.GetMaxFee(fio.FeeAuthUpdate
+				fee.SetText(p.Sprintf("Required Fee: %s%G", fio.FioSymbol, fio.GetMaxFee(fio.FeeAuthUpdate)*2.0))
+				fee.Refresh()
+				warning.Show()
+			}
+		})
+		accountEntry.SetText(string(account.Actor))
+		newRandCheck.SetChecked(true)
+
+		thresh
