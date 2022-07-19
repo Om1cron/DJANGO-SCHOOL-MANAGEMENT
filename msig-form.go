@@ -74,4 +74,10 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			time.Sleep(300 * time.Millisecond)
 			if _, e := strconv.Atoi(s); e != nil {
 				tMux.Unlock()
-				threshEntry.SetText("2
+				threshEntry.SetText("2")
+				return
+			}
+			tMux.Unlock()
+		}
+
+		signerSlice := make([]signer, 0) // keeps order correct when adding rows, and is sorted when submitting tx
