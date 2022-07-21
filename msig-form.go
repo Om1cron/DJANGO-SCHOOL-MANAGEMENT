@@ -84,4 +84,10 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		newSigner := func(s string) *fyne.Container {
 			if s == "" {
 				for i := 0; i < 12; i++ {
-					b := []byte{uint8(len(signerSlice) + 96)} // assuming we wil
+					b := []byte{uint8(len(signerSlice) + 96)} // assuming we will start with 1 by default
+					s = s + string(b)
+				}
+			}
+			w := widget.NewEntry()
+			w.SetText("1")
+			a := widget.NewEnt
