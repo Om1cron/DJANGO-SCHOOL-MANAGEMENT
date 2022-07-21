@@ -90,4 +90,9 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			}
 			w := widget.NewEntry()
 			w.SetText("1")
-			a := widget.NewEnt
+			a := widget.NewEntry()
+			a.SetText(s)
+			index := len(signerSlice)
+			shouldAppend := func() bool {
+				for _, sc := range signerSlice {
+					if sc.actor == a
