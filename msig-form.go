@@ -81,3 +81,7 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		}
 
 		signerSlice := make([]signer, 0) // keeps order correct when adding rows, and is sorted when submitting tx
+		newSigner := func(s string) *fyne.Container {
+			if s == "" {
+				for i := 0; i < 12; i++ {
+					b := []byte{uint8(len(signerSlice) + 96)} // assuming we wil
