@@ -110,4 +110,7 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			} else {
 				return nil
 			}
-			threshEntry.SetText
+			threshEntry.SetText(fmt.Sprintf("%d", 1+len(signerSlice)/2))
+			threshEntry.Refresh()
+			return fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(6),
+				layout.NewS
