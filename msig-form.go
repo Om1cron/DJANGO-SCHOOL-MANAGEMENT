@@ -102,4 +102,12 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 				return true
 			}
 			if shouldAppend() {
-				signerSlice = append(signerS
+				signerSlice = append(signerSlice, signer{
+					weight: w,
+					actor:  a,
+					index:  index,
+				})
+			} else {
+				return nil
+			}
+			threshEntry.SetText
