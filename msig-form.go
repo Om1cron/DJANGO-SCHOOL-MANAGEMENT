@@ -113,4 +113,5 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			threshEntry.SetText(fmt.Sprintf("%d", 1+len(signerSlice)/2))
 			threshEntry.Refresh()
 			return fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(6),
-				layout.NewS
+				layout.NewSpacer(),
+				widget.NewLabelWithStyle("Actor "+strconv.Itoa(signerSlice[index].index+1)+": ", fyne.TextAlignTrailing, fyne.
