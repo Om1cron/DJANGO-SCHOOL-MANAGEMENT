@@ -117,4 +117,9 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 				widget.NewLabelWithStyle("Actor "+strconv.Itoa(signerSlice[index].index+1)+": ", fyne.TextAlignTrailing, fyne.TextStyle{}),
 				signerSlice[index].actor,
 				widget.NewLabelWithStyle("Vote Weight: ", fyne.TextAlignTrailing, fyne.TextStyle{}),
-				
+				signerSlice[index].weight,
+				layout.NewSpacer(),
+			)
+		}
+		signerGroup := widget.NewGroup(" Signers ", newSigner(string(account.Actor)))
+		addSigner :=
