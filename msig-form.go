@@ -122,4 +122,6 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			)
 		}
 		signerGroup := widget.NewGroup(" Signers ", newSigner(string(account.Actor)))
-		addSigner :=
+		addSigner := widget.NewButtonWithIcon("Add Signer", theme.ContentAddIcon(), func() {
+			signerGroup.Append(newSigner(""))
+			signerGroup.Refresh
