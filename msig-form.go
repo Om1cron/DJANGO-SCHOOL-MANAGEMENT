@@ -124,4 +124,9 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		signerGroup := widget.NewGroup(" Signers ", newSigner(string(account.Actor)))
 		addSigner := widget.NewButtonWithIcon("Add Signer", theme.ContentAddIcon(), func() {
 			signerGroup.Append(newSigner(""))
-			signerGroup.Refresh
+			signerGroup.Refresh()
+			update.Content.Refresh()
+		})
+
+		resetSigners := widget.NewButtonWithIcon("Reset", theme.ContentClearIcon(), func() {
+			MsigLastT
