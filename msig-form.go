@@ -129,4 +129,9 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		})
 
 		resetSigners := widget.NewButtonWithIcon("Reset", theme.ContentClearIcon(), func() {
-			MsigLastT
+			MsigLastTab = 1
+			authTab()
+			go func() {
+				time.Sleep(100 * time.Millisecond)
+				for _, a := range fyne.CurrentApp().Driver().AllWindows() {
+					a.Content().R
