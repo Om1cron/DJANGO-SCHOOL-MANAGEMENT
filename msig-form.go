@@ -140,4 +140,9 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 		})
 
 		submitButton := &widget.Button{}
-		submitButton = widget.NewButtonWithIcon("Submit", fioassets.NewFioLogoResource(), func
+		submitButton = widget.NewButtonWithIcon("Submit", fioassets.NewFioLogoResource(), func() {
+			submitButton.Disable()
+			ok, _, msg := checkSigners(signerSlice, "active")
+			if !ok {
+				dialog.ShowError(msg, Win)
+	
