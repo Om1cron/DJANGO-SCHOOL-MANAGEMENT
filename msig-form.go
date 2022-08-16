@@ -134,4 +134,10 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			go func() {
 				time.Sleep(100 * time.Millisecond)
 				for _, a := range fyne.CurrentApp().Driver().AllWindows() {
-					a.Content().R
+					a.Content().Refresh()
+				}
+			}()
+		})
+
+		submitButton := &widget.Button{}
+		submitButton = widget.NewButtonWithIcon("Submit", fioassets.NewFioLogoResource(), func
