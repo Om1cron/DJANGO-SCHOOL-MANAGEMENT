@@ -149,4 +149,10 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			}
 			defer submitButton.Enable()
 			if newRandCheck.Checked {
-				if ok, err := fundRandMsig(newAccount, account, len(signerSlice),
+				if ok, err := fundRandMsig(newAccount, account, len(signerSlice), api, opts); !ok {
+					errs.ErrChan <- "new msig account was not created!"
+					dialog.ShowError(err, Win)
+					return
+				}
+			}
+			
