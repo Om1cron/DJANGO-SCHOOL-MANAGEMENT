@@ -145,4 +145,8 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			ok, _, msg := checkSigners(signerSlice, "active")
 			if !ok {
 				dialog.ShowError(msg, Win)
-	
+				return
+			}
+			defer submitButton.Enable()
+			if newRandCheck.Checked {
+				if ok, err := fundRandMsig(newAccount, account, len(signerSlice),
