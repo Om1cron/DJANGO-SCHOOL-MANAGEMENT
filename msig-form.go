@@ -155,4 +155,10 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 					return
 				}
 			}
-			
+			acc := &fio.Account{}
+			acc = account
+			if newRandCheck.Checked {
+				acc = newAccount
+			}
+			t, err := strconv.Atoi(threshEntry.Text)
+			if
