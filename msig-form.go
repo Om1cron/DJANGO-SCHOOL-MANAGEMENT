@@ -161,4 +161,8 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 				acc = newAccount
 			}
 			t, err := strconv.Atoi(threshEntry.Text)
-			if
+			if err != nil {
+				errs.ErrChan <- "Invalid threshold, refusing to continue"
+				return
+			}
+			ok, info, err := updateAuthResult(acc, s
