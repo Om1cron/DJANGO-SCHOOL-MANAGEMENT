@@ -165,4 +165,12 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 				errs.ErrChan <- "Invalid threshold, refusing to continue"
 				return
 			}
-			ok, info, err := updateAuthResult(acc, s
+			ok, info, err := updateAuthResult(acc, signerSlice, t)
+			if ok {
+				dialog.ShowCustom("Success", "OK", info, Win)
+				return
+			}
+			dialog.ShowError(err, Win)
+		})
+
+	
