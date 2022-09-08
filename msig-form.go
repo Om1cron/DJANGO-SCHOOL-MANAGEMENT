@@ -177,4 +177,7 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			widget.NewScrollContainer(
 				widget.NewVBox(
 					widget.NewHBox(
-						widget.NewL
+						widget.NewLabelWithStyle("Account: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+						newRandCheck,
+						accountEntry,
+						widget.NewLabelWithStyle("Thr
