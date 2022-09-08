@@ -173,4 +173,8 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 			dialog.ShowError(err, Win)
 		})
 
-	
+		update = widget.NewTabItem("Update Auth",
+			widget.NewScrollContainer(
+				widget.NewVBox(
+					widget.NewHBox(
+						widget.NewL
