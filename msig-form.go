@@ -185,4 +185,5 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 					),
 					signerGroup,
 					layout.NewSpacer(),
-					widget.
+					widget.NewHBox(layout.NewSpacer(), addSigner, resetSigners, layout.NewSpacer(), warning, fee, submitButton, layout.NewSpacer()),
+	
