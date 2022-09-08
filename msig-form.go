@@ -180,4 +180,9 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 						widget.NewLabelWithStyle("Account: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 						newRandCheck,
 						accountEntry,
-						widget.NewLabelWithStyle("Thr
+						widget.NewLabelWithStyle("Threshold: ", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+						threshEntry,
+					),
+					signerGroup,
+					layout.NewSpacer(),
+					widget.
