@@ -186,4 +186,8 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 					signerGroup,
 					layout.NewSpacer(),
 					widget.NewHBox(layout.NewSpacer(), addSigner, resetSigners, layout.NewSpacer(), warning, fee, submitButton, layout.NewSpacer()),
-	
+					widget.NewLabel(""),
+				),
+			))
+		tabs := widget.NewTabContainer(MsigRequestsContent(api, opts, account), update)
+		tabs.SelectTabInde
