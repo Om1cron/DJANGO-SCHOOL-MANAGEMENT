@@ -196,4 +196,14 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 	go func() {
 		for {
 			select {
-			case r
+			case r := <-MsigRefreshRequests:
+				if r {
+					a := *Api
+					api = &a
+					o := *Opts
+					opts = &o
+					u := *Account
+					account = &u
+					authTab()
+				}
+				// do we ever 
