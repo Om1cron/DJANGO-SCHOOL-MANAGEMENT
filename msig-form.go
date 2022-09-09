@@ -190,4 +190,10 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 				),
 			))
 		tabs := widget.NewTabContainer(MsigRequestsContent(api, opts, account), update)
-		tabs.SelectTabInde
+		tabs.SelectTabIndex(MsigLastTab)
+		container <- *fyne.NewContainerWithLayout(layout.NewMaxLayout(), tabs)
+	}
+	go func() {
+		for {
+			select {
+			case r
