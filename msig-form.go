@@ -206,4 +206,13 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 					account = &u
 					authTab()
 				}
-				// do we ever 
+				// do we ever need a new routine? Think this return is causing a deadlock...
+				//return
+			}
+		}
+	}()
+	authTab()
+	MsigLoaded = true
+}
+
+func getSigners(account string, api
