@@ -221,4 +221,7 @@ func getSigners(account string, api *fio.API) string {
 	}
 	info, err := api.GetFioAccount(account)
 	if err != nil {
-		
+		return ""
+	}
+	for _, auth := range info.Permissions {
+		if auth.PermName == "active" && auth.RequiredAuth.Accounts != nil && len(auth.R
