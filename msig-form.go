@@ -215,4 +215,10 @@ func UpdateAuthContent(container chan fyne.Container, api *fio.API, opts *fio.Tx
 	MsigLoaded = true
 }
 
-func getSigners(account string, api
+func getSigners(account string, api *fio.API) string {
+	if strings.HasPrefix(account, "eosio") {
+		return getTopProds(api)
+	}
+	info, err := api.GetFioAccount(account)
+	if err != nil {
+		
