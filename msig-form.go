@@ -224,4 +224,7 @@ func getSigners(account string, api *fio.API) string {
 		return ""
 	}
 	for _, auth := range info.Permissions {
-		if auth.PermName == "active" && auth.RequiredAuth.Accounts != nil && len(auth.R
+		if auth.PermName == "active" && auth.RequiredAuth.Accounts != nil && len(auth.RequiredAuth.Accounts) > 0 {
+			signers := make([]string, 0)
+			for _, signer := range auth.RequiredAuth.Accounts {
+				signers = append(s
