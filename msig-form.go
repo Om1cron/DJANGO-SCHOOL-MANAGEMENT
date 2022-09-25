@@ -234,3 +234,9 @@ func getSigners(account string, api *fio.API) string {
 			}
 		}
 	}
+	return account + " is not a multi-sig account!"
+}
+
+type topProd struct {
+	Producer string `json:"owner"`
+	IsActive uint8  
