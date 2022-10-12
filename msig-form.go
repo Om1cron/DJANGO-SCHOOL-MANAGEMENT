@@ -239,4 +239,10 @@ func getSigners(account string, api *fio.API) string {
 
 type topProd struct {
 	Producer string `json:"owner"`
-	IsActive uint8  
+	IsActive uint8  `json:"is_active"`
+}
+
+func getTopProds(api *fio.API) string {
+	const want = 30
+	gtr, err := api.GetTableRowsOrder(fio.GetTableRowsOrderRequest{
+		Code:
