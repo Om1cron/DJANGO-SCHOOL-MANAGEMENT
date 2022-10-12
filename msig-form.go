@@ -250,3 +250,11 @@ func getTopProds(api *fio.API) string {
 		Table:      "producers",
 		LowerBound: "0",
 		UpperBound: "18446744073709551615",
+		Index:      "4",
+		KeyType:    "i64",
+		Limit:      100,
+		JSON:       true,
+		Reverse:    true,
+	})
+	if err != nil {
+		errs.ErrChan <
