@@ -245,4 +245,8 @@ type topProd struct {
 func getTopProds(api *fio.API) string {
 	const want = 30
 	gtr, err := api.GetTableRowsOrder(fio.GetTableRowsOrderRequest{
-		Code:
+		Code:       "eosio",
+		Scope:      "eosio",
+		Table:      "producers",
+		LowerBound: "0",
+		UpperBound: "18446744073709551615",
