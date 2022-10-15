@@ -257,4 +257,10 @@ func getTopProds(api *fio.API) string {
 		Reverse:    true,
 	})
 	if err != nil {
-		errs.ErrChan <
+		errs.ErrChan <- err.Error()
+		return ""
+	}
+	tp := make([]topProd, 0)
+	err = json.Unmarshal(gtr.Rows, &tp)
+	if err != nil {
+		errs.ErrChan <- 
