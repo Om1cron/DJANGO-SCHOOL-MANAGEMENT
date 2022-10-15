@@ -263,4 +263,10 @@ func getTopProds(api *fio.API) string {
 	tp := make([]topProd, 0)
 	err = json.Unmarshal(gtr.Rows, &tp)
 	if err != nil {
-		errs.ErrChan <- 
+		errs.ErrChan <- err.Error()
+		return ""
+	}
+	prods := make([]string, 0)
+	for _, p := range tp {
+		if p.IsActive == 1 {
+			prods = append(prods, p.Prod
