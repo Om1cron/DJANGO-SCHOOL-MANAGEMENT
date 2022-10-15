@@ -279,4 +279,5 @@ func getTopProds(api *fio.API) string {
 	return strings.Join(prods, ", ")
 }
 
-func
+func fundRandMsig(msig *fio.Account, funder *fio.Account, count int, api *fio.API, opts *fio.TxOptions) (ok bool, err error) {
+	feeMultGue
