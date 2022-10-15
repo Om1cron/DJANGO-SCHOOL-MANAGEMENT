@@ -269,4 +269,14 @@ func getTopProds(api *fio.API) string {
 	prods := make([]string, 0)
 	for _, p := range tp {
 		if p.IsActive == 1 {
-			prods = append(prods, p.Prod
+			prods = append(prods, p.Producer)
+			if len(prods) == want {
+				break
+			}
+		}
+	}
+	sort.Strings(prods)
+	return strings.Join(prods, ", ")
+}
+
+func
