@@ -280,4 +280,10 @@ func getTopProds(api *fio.API) string {
 }
 
 func fundRandMsig(msig *fio.Account, funder *fio.Account, count int, api *fio.API, opts *fio.TxOptions) (ok bool, err error) {
-	feeMultGue
+	feeMultGuess := float64(42*count) / 1000.0
+	feeMultGuess = math.Ceil(feeMultGuess)
+	if feeMultGuess < 1.0 {
+		feeMultGuess = 1
+	}
+	if feeMultGuess > 1.0 {
+		errs.Err
