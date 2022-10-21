@@ -286,4 +286,4 @@ func fundRandMsig(msig *fio.Account, funder *fio.Account, count int, api *fio.AP
 		feeMultGuess = 1
 	}
 	if feeMultGuess > 1.0 {
-		errs.Err
+		errs.ErrChan <- fmt.Sprintf("NOTE: fees are increased due to number of signers, transaction will be %s %g", fio.FioSymbol, fio.GetMaxFee(fio.FeeAuthUpd
