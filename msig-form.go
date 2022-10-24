@@ -286,4 +286,8 @@ func fundRandMsig(msig *fio.Account, funder *fio.Account, count int, api *fio.AP
 		feeMultGuess = 1
 	}
 	if feeMultGuess > 1.0 {
-		errs.ErrChan <- fmt.Sprintf("NOTE: fees are increased due to number of signers, transaction will be %s %g", fio.FioSymbol, fio.GetMaxFee(fio.FeeAuthUpd
+		errs.ErrChan <- fmt.Sprintf("NOTE: fees are increased due to number of signers, transaction will be %s %g", fio.FioSymbol, fio.GetMaxFee(fio.FeeAuthUpdate)*feeMultGuess*2)
+	}
+	errs.ErrChan <- "creating new msig account, sending funds, please wait"
+	resp, err := api.SignPushTransaction(
+		fio.
