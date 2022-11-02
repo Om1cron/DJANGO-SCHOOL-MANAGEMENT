@@ -290,4 +290,5 @@ func fundRandMsig(msig *fio.Account, funder *fio.Account, count int, api *fio.AP
 	}
 	errs.ErrChan <- "creating new msig account, sending funds, please wait"
 	resp, err := api.SignPushTransaction(
-		fio.
+		fio.NewTransaction(
+			[]*fio.Action{fio.NewTransferTokensPubKey(funder.Actor, msig.PubKey, fio.Tokens((fio.GetMaxFee(fio.FeeAuthUpdate)*feeMultGuess*2.0)
