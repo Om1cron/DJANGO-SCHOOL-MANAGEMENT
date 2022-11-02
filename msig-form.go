@@ -297,4 +297,7 @@ func fundRandMsig(msig *fio.Account, funder *fio.Account, count int, api *fio.AP
 	)
 	if err != nil {
 		errs.ErrChan <- err.Error()
-		er
+		errs.ErrChan <- "Could not fund new msig account:"
+		return false, err
+	}
+	errs.ErrChan <- p.Sprintf("Funded new account (%s) txid: %v", resp.Tr
