@@ -305,4 +305,7 @@ func fundRandMsig(msig *fio.Account, funder *fio.Account, count int, api *fio.AP
 	return true, nil
 }
 
-func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLevelWeight []eos.PermissionLevelWe
+func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLevelWeight []eos.PermissionLevelWeight, msg error) {
+	weights := make([]eos.PermissionLevelWeight, 0)
+	signerWeights := make(map[string]int)
+	unique := make(map[str
