@@ -308,4 +308,9 @@ func fundRandMsig(msig *fio.Account, funder *fio.Account, count int, api *fio.AP
 func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLevelWeight []eos.PermissionLevelWeight, msg error) {
 	weights := make([]eos.PermissionLevelWeight, 0)
 	signerWeights := make(map[string]int)
-	unique := make(map[str
+	unique := make(map[string]bool)
+	signerOrder := make([]string, 0)
+	for _, s := range signers {
+
+		def := bytes.Repeat([]byte(s.actor.Text[:1]), 12)
+		if s.actor.
