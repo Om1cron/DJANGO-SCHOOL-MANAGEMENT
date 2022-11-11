@@ -315,4 +315,9 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 		def := bytes.Repeat([]byte(s.actor.Text[:1]), 12)
 		if s.actor.Text == string(def) {
 			// reject on a default value
-			msg = errors.New(s.actor.Text + " is not a valid signer for an msig ac
+			msg = errors.New(s.actor.Text + " is not a valid signer for an msig account, refusing to continue.")
+			errs.ErrChan <- msg.Error()
+			return false, nil, msg
+		}
+		signerOrder = append(signerOrder, s.actor.Text)
+		w, 
