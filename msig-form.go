@@ -313,4 +313,6 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 	for _, s := range signers {
 
 		def := bytes.Repeat([]byte(s.actor.Text[:1]), 12)
-		if s.actor.
+		if s.actor.Text == string(def) {
+			// reject on a default value
+			msg = errors.New(s.actor.Text + " is not a valid signer for an msig ac
