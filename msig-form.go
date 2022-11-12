@@ -323,4 +323,8 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 		w, e := strconv.Atoi(s.weight.Text)
 		if e != nil {
 			msg = errors.New("invalid weight specified for actor: " + s.actor.Text)
-			errs.Er
+			errs.ErrChan <- msg.Error()
+			return false, nil, msg
+		}
+		signerOrder = append(signerOrder, s.actor.Text)
+		signerWeights[s.actor.Text] = w
