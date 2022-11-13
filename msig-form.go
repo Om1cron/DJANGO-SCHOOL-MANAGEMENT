@@ -328,3 +328,11 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 		}
 		signerOrder = append(signerOrder, s.actor.Text)
 		signerWeights[s.actor.Text] = w
+	}
+	sort.Strings(signerOrder)
+	for _, so := range signerOrder {
+		if unique[so] {
+			continue
+		}
+		unique[so] = true
+		weights = appen
