@@ -335,4 +335,9 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 			continue
 		}
 		unique[so] = true
-		weights = appen
+		weights = append(weights, eos.PermissionLevelWeight{
+			Permission: eos.PermissionLevel{
+				Actor:      eos.AccountName(so),
+				Permission: level,
+			},
+			Weight: uin
