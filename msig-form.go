@@ -340,4 +340,10 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 				Actor:      eos.AccountName(so),
 				Permission: level,
 			},
-			Weight: uin
+			Weight: uint16(signerWeights[so]),
+		})
+	}
+	if len(weights) > 0 {
+		return true, weights, nil
+	}
+	return false, nil, errors.New("could not parse permi
