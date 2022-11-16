@@ -346,4 +346,7 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 	if len(weights) > 0 {
 		return true, weights, nil
 	}
-	return false, nil, errors.New("could not parse permi
+	return false, nil, errors.New("could not parse permission levels")
+}
+
+// getRequestsForAccount will query the propose table, and returns a map with the proposal name, and a zlib compressed c
