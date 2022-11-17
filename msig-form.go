@@ -349,4 +349,6 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 	return false, nil, errors.New("could not parse permission levels")
 }
 
-// getRequestsForAccount will query the propose table, and returns a map with the proposal name, and a zlib compressed c
+// getRequestsForAccount will query the propose table, and returns a map with the proposal name, and a zlib compressed copy
+// of the packed transactions (they can be huge!)
+func getRequestsForAccount(actor string, limit int, lowerLimit s
