@@ -351,4 +351,6 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 
 // getRequestsForAccount will query the propose table, and returns a map with the proposal name, and a zlib compressed copy
 // of the packed transactions (they can be huge!)
-func getRequestsForAccount(actor string, limit int, lowerLimit s
+func getRequestsForAccount(actor string, limit int, lowerLimit string, account *fio.Account, api *fio.API, opts *fio.TxOptions) (map[string][]byte, error) {
+	// TODO: all the queries.
+	return ni
