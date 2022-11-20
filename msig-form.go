@@ -353,4 +353,7 @@ func checkSigners(signers []signer, level eos.PermissionName) (ok bool, permLeve
 // of the packed transactions (they can be huge!)
 func getRequestsForAccount(actor string, limit int, lowerLimit string, account *fio.Account, api *fio.API, opts *fio.TxOptions) (map[string][]byte, error) {
 	// TODO: all the queries.
-	return ni
+	return nil, nil
+}
+
+func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok bool, result *widget.Box, err error)
