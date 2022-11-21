@@ -360,4 +360,7 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 	ok, activePermLevel, _ := checkSigners(signers, "active")
 	ok, ownerPermLevel, _ := checkSigners(signers, "owner")
 	if !ok {
-		return ok, nil,
+		return ok, nil, errors.New("update auth Failed, an invalid actor was supplied")
+	}
+	a, o, e := fio.NewConnection(account.KeyBag, Uri)
+	if e != nil
