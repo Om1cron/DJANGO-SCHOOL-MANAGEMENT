@@ -356,4 +356,8 @@ func getRequestsForAccount(actor string, limit int, lowerLimit string, account *
 	return nil, nil
 }
 
-func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok bool, result *widget.Box, err error)
+func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok bool, result *widget.Box, err error) {
+	ok, activePermLevel, _ := checkSigners(signers, "active")
+	ok, ownerPermLevel, _ := checkSigners(signers, "owner")
+	if !ok {
+		return ok, nil,
