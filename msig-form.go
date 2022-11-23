@@ -363,4 +363,7 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 		return ok, nil, errors.New("update auth Failed, an invalid actor was supplied")
 	}
 	a, o, e := fio.NewConnection(account.KeyBag, Uri)
-	if e != nil
+	if e != nil {
+		errs.ErrChan <- e.Error()
+		errs.ErrChan <- "Could not update auth, new connection failed:"
+		return false, nil, errors.New("up
