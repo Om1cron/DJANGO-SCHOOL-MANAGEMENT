@@ -366,4 +366,7 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 	if e != nil {
 		errs.ErrChan <- e.Error()
 		errs.ErrChan <- "Could not update auth, new connection failed:"
-		return false, nil, errors.New("up
+		return false, nil, errors.New("update auth Failed, could not connect to server")
+	}
+	a.Header.Set("User-Agent", "fio-cryptonym-wallet")
+	feeMultGuess := float64(42*len(activePerm
