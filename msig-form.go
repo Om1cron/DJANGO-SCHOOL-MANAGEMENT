@@ -369,4 +369,9 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 		return false, nil, errors.New("update auth Failed, could not connect to server")
 	}
 	a.Header.Set("User-Agent", "fio-cryptonym-wallet")
-	feeMultGuess := float64(42*len(activePerm
+	feeMultGuess := float64(42*len(activePermLevel)) / 1000.0
+	feeMultGuess = math.Ceil(feeMultGuess)
+	if feeMultGuess < 1 {
+		feeMultGuess = 1.0
+	}
+	updateActive := fio.NewAction("eosio", "upd
