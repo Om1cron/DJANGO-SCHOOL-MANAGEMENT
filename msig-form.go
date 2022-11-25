@@ -374,4 +374,9 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 	if feeMultGuess < 1 {
 		feeMultGuess = 1.0
 	}
-	updateActive := fio.NewAction("eosio", "upd
+	updateActive := fio.NewAction("eosio", "updateauth", account.Actor, fio.UpdateAuth{
+		Account:    account.Actor,
+		Permission: "active",
+		Parent:     "owner",
+		Auth: fio.Authority{
+			Threshold: 
