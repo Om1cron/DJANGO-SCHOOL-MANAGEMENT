@@ -379,4 +379,9 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 		Permission: "active",
 		Parent:     "owner",
 		Auth: fio.Authority{
-			Threshold: 
+			Threshold: uint32(threshold),
+			Accounts:  activePermLevel,
+		},
+		MaxFee: fio.Tokens(fio.GetMaxFee(fio.FeeAuthUpdate) * feeMultGuess),
+	})
+	
