@@ -384,4 +384,6 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 		},
 		MaxFee: fio.Tokens(fio.GetMaxFee(fio.FeeAuthUpdate) * feeMultGuess),
 	})
-	
+	buf := bytes.NewBuffer(nil)
+	updateOwner := fio.NewActionWithPermission("eosio", "updateauth", account.Actor, "owner", fio.UpdateAuth{
+		Accoun
