@@ -386,4 +386,9 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 	})
 	buf := bytes.NewBuffer(nil)
 	updateOwner := fio.NewActionWithPermission("eosio", "updateauth", account.Actor, "owner", fio.UpdateAuth{
-		Accoun
+		Account:    account.Actor,
+		Permission: "owner",
+		//Parent:     "owner",
+		Auth: fio.Authority{
+			Threshold: uint32(threshold),
+			Accounts:  owner
