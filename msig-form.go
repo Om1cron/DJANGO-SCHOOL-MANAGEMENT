@@ -402,4 +402,6 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 	)
 	if e != nil {
 		errs.ErrChan <- e.Error()
-		err
+		errs.ErrChan <- account.KeyBag.Keys[0].String()
+		errs.ErrChan <- "use this private key to recover funds."
+		errs.ErrChan <- "Could not up
