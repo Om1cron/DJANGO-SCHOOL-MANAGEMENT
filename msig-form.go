@@ -396,4 +396,10 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 		MaxFee: fio.Tokens(fio.GetMaxFee(fio.FeeAuthUpdate) * feeMultGuess),
 	})
 	_, tx, e := a.SignTransaction(
-		fio.Ne
+		fio.NewTransaction(
+			[]*fio.Action{updateOwner, updateActive}, o),
+		o.ChainID, fio.CompressionNone,
+	)
+	if e != nil {
+		errs.ErrChan <- e.Error()
+		err
