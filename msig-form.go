@@ -404,4 +404,7 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 		errs.ErrChan <- e.Error()
 		errs.ErrChan <- account.KeyBag.Keys[0].String()
 		errs.ErrChan <- "use this private key to recover funds."
-		errs.ErrChan <- "Could not up
+		errs.ErrChan <- "Could not update auth for owner, sign transaction failed:"
+		return false, nil, errors.New("Update Auth Failed: " + e.Error())
+	}
+	out, e := a.PushTransactionR
