@@ -413,4 +413,10 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 		errs.ErrChan <- account.KeyBag.Keys[0].String()
 		errs.ErrChan <- "use this private key to recover funds."
 		errs.ErrChan <- "Could not update auth for owner, push transaction failed:"
-		return false, nil, errors.New("Update Auth Fa
+		return false, nil, errors.New("Update Auth Failed: " + e.Error())
+	}
+	j, _ := json.MarshalIndent(out, "", "    ")
+	if len(j) > 2 {
+		buf.Write(j)
+	}
+	actors := make([]string,
