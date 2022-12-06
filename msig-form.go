@@ -419,4 +419,9 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 	if len(j) > 2 {
 		buf.Write(j)
 	}
-	actors := make([]string,
+	actors := make([]string, 0)
+	for _, act := range signers {
+		actors = append(actors, act.actor.Text)
+	}
+	sort.Strings(actors)
+	txResult := widget.NewMultiLineEntry()
