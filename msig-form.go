@@ -426,4 +426,7 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 	sort.Strings(actors)
 	txResult := widget.NewMultiLineEntry()
 	txResult.SetText(string(buf.Bytes()))
-	errs.ErrChan <- fmt.Sprintf("Update auth success: %s updated permsissions with signers %v", 
+	errs.ErrChan <- fmt.Sprintf("Update auth success: %s updated permsissions with signers %v", string(account.Actor), actors)
+	return true, widget.NewVBox(
+		widget.NewHBox(
+			widget.NewLabel("Successfully created new msig acc
