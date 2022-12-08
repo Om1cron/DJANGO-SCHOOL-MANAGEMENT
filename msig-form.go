@@ -429,4 +429,7 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 	errs.ErrChan <- fmt.Sprintf("Update auth success: %s updated permsissions with signers %v", string(account.Actor), actors)
 	return true, widget.NewVBox(
 		widget.NewHBox(
-			widget.NewLabel("Successfully created new msig acc
+			widget.NewLabel("Successfully created new msig account for "+string(account.Actor)+" "),
+			widget.NewButtonWithIcon("", theme.ContentCopyIcon(), func() {
+				cb := Win.Clipboard()
+				cb.SetContent(string(acc
