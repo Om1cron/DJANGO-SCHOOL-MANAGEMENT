@@ -432,4 +432,8 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 			widget.NewLabel("Successfully created new msig account for "+string(account.Actor)+" "),
 			widget.NewButtonWithIcon("", theme.ContentCopyIcon(), func() {
 				cb := Win.Clipboard()
-				cb.SetContent(string(acc
+				cb.SetContent(string(account.Actor))
+			}),
+		),
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize((W*50)/100, (H*50)/100)),
+		
