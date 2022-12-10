@@ -436,4 +436,9 @@ func updateAuthResult(account *fio.Account, signers []signer, threshold int) (ok
 			}),
 		),
 		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize((W*50)/100, (H*50)/100)),
-		
+			widget.NewScrollContainer(
+				txResult,
+			),
+		),
+	), nil
+}
