@@ -386,3 +386,152 @@ func requestBox(proposer string, requests []*fio.MsigApprovalsInfo, index int, p
 	} else {
 		for msigAccount := range actorMap {
 			needs, has, err := getVoteWeight(msigAccount, requests[index].ProvidedApprovals, api)
+			if err != nil {
+				errs.ErrChan <- err.Error()
+				hasApprovals = false
+			}
+			if has == 1 {
+				have = "has"
+			}
+			approvalsNeeded = append(approvalsNeeded, fmt.Sprintf("Account %s requires %d approvals, %d %s been provided", msigAccount, needs, has, have))
+			if has < needs {
+				hasApprovals = false
+			}
+		}
+	}
+	if hasApprovals {
+		execute.SetText(p.Sprintf("Execute %s %g", fio.FioSymbol, eFee))
+		execute.Show()
+	}
+	approvalWeightLabel.SetText(strings.Join(approvalsNeeded, "\n"))
+	approvalWeightLabel.Refresh()
+	actionEntry := widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{Monospace: true})
+	actionLines := strings.Split(actionString, "\n")
+	for i := range actionLines {
+		if len(actionLines[i]) > 128 {
+			actionLines[i] = actionLines[i][:125] + "..."
+		}
+	}
+	actionEntry.SetText(strings.Join(actionLines, "\n"))
+	actionBox := widget.NewGroup("Transaction", widget.NewHBox(
+		layout.NewSpacer(),
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize((W*75)/100, actionEntry.MinSize().Height)),
+			actionEntry,
+		),
+		layout.NewSpacer(),
+	))
+	return widget.NewGroupWithScroller(string(requests[index].ProposalName), approversRows, actionBox)
+}
+
+type msigActionInfo struct {
+	Account      string          `json:"account"`
+	Name         string          `json:"name"`
+	Action       json.RawMessage `json:"action"`
+	ProposalHash eos.Checksum256 `json:"proposal_hash"`
+}
+
+func getVoteWeight(account string, providedApprovals []fio.MsigApproval, api *fio.API) (required int, current int, err error) {
+	acc, err := api.GetFioAccount(account)
+	if err != nil {
+		return 0, 0, nil
+	}
+	weights := make(map[string]int)
+	for _, a := range acc.Permissions {
+		if a.PermName == "active" && a.RequiredAuth.Accounts != nil && len(a.RequiredAuth.Accounts) > 0 {
+			required = int(a.RequiredAuth.Threshold)
+			for _, owner := range a.RequiredAuth.Accounts {
+				weights[string(owner.Permission.Actor)] = int(owner.Weight)
+			}
+		}
+	}
+	for _, approved := range providedApprovals {
+		current = current + weights[string(approved.Level.Actor)]
+	}
+	return
+}
+
+func resultPopup(result string, window fyne.Window) {
+	mle := widget.NewMultiLineEntry()
+	mle.SetText(result)
+	dialog.ShowCustom("Transaction Result", "Done",
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize((W*50)/100, (H*50)/100)),
+			widget.NewScrollContainer(
+				mle,
+			),
+		),
+		window,
+	)
+}
+
+func ProposalRows(offset int, limit int, api *fio.API, opts *fio.TxOptions, account *fio.Account) *widget.Box {
+	_, proposals, err := api.GetProposals(offset, limit)
+	if err != nil {
+		errs.ErrChan <- err.Error()
+		return widget.NewHBox(widget.NewLabel(err.Error()))
+	}
+	refButton := &widget.Button{}
+	refButton = widget.NewButtonWithIcon("Refresh", theme.ViewRefreshIcon(), func() {
+		refButton.Disable()
+		MsigLastTab = 0
+		go func() {
+			MsigRefreshRequests <- true
+		}()
+	})
+	//onlyPriv := widget.NewCheck("Only Privileged", func(b bool) {})
+	//onlyPriv.SetChecked(true)
+	//last14 := widget.NewCheck("Only show last 14 days", func(b bool) {})
+	//last14.SetChecked(true)
+
+	vb := widget.NewVBox()
+	vb.Append(widget.NewHBox(
+		//layout.NewSpacer(), onlyPriv, last14, refButton, layout.NewSpacer(),
+		layout.NewSpacer(), refButton, layout.NewSpacer(),
+	),
+	)
+	proposalsSorted := func() []string {
+		p := make([]string, 0)
+		for k := range proposals {
+			p = append(p, k)
+		}
+		sort.Strings(p)
+		return p
+	}()
+	for _, proposer := range proposalsSorted {
+		more, approvalsInfo, err := api.GetApprovals(fio.Name(proposer), 10)
+		if err != nil {
+			errs.ErrChan <- err.Error()
+			continue
+		}
+		names, found, err := api.GetFioNamesForActor(proposer)
+		if err != nil {
+			errs.ErrChan <- err.Error()
+			continue
+		}
+		fioAddresses := make([]string, 0)
+		if found {
+			for _, n := range names.FioAddresses {
+				fioAddresses = append(fioAddresses, n.FioAddress)
+			}
+		}
+		var fioAddrs string
+		if len(fioAddresses) > 0 {
+			fioAddrs = strings.Join(fioAddresses, ", ")
+			if len(fioAddrs) > 32 {
+				fioAddrs = fioAddrs[:28] + "..."
+			}
+		}
+		var sep string
+		if fioAddrs != "" {
+			sep = " – "
+		}
+		groupRows := fyne.NewContainerWithLayout(layout.NewGridLayout(2))
+		if more {
+			groupRows.AddObject(
+				widget.NewLabel("Account has more than 10 proposals, not all are shown."),
+			)
+			groupRows.AddObject(layout.NewSpacer())
+		}
+		group := widget.NewGroup(fmt.Sprintf(" (%s)%s%s ", proposer, sep, fioAddrs), groupRows)
+		sort.Slice(approvalsInfo, func(i, j int) bool {
+			a, _ := eos.StringToName(string(approvalsInfo[i].ProposalName))
+			b, _ := eos.StringToName(string(approvalsInfo[j].ProposalName))
