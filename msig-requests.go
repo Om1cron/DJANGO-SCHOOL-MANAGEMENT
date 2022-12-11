@@ -233,3 +233,156 @@ func requestBox(proposer string, requests []*fio.MsigApprovalsInfo, index int, p
 			widget.NewLabelWithStyle("Account", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 			layout.NewSpacer(),
 		),
+	)
+
+	approversSorted := func() []string {
+		s := make([]string, 0)
+		for k := range approvers {
+			s = append(s, k)
+		}
+		sort.Strings(s)
+		return s
+	}()
+	var checked int
+	for _, k := range approversSorted {
+		// actor, fio address, has approved, is produce
+		//hasApproved := theme.CancelIcon()
+		hasApproved := theme.CheckButtonIcon()
+		asterisk := ""
+		if approvers[k] {
+			//hasApproved = theme.ConfirmIcon()
+			hasApproved = theme.CheckButtonCheckedIcon()
+			checked += 1
+			for _, p := range producers.Active.Producers {
+				if p.AccountName == eos.AccountName(k) {
+					top21Count += 1
+					asterisk = "*"
+					break
+				}
+			}
+		}
+		top21Label := widget.NewLabel(asterisk)
+		var firstName string
+		n, ok, _ := api.GetFioNamesForActor(k)
+		if ok && len(n.FioAddresses) > 0 {
+			firstName = n.FioAddresses[0].FioAddress
+		}
+		deref := &k
+		actor := *deref
+		copyButton := widget.NewButtonWithIcon("", theme.ContentCopyIcon(), func() {
+			Win.Clipboard().SetContent(actor)
+		})
+		approversRows.Append(fyne.NewContainerWithLayout(layout.NewGridLayout(3),
+			fyne.NewContainerWithLayout(layout.NewGridLayout(2),
+				widget.NewHBox(
+					layout.NewSpacer(),
+					top21Label,
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(32, 32)),
+						canvas.NewImageFromResource(hasApproved),
+					)),
+				widget.NewLabel(firstName),
+			),
+			widget.NewHBox(
+				layout.NewSpacer(),
+				copyButton,
+				widget.NewLabelWithStyle(k, fyne.TextAlignTrailing, fyne.TextStyle{Monospace: true}),
+			),
+			widget.NewLabelWithStyle(isProd(eos.AccountName(k)), fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+		))
+
+	}
+
+	type actionActor struct {
+		Actor string `json:"actor"`
+	}
+	// will use for counting vote weights ...
+	actorMap := make(map[string]bool)
+	actions := make([]msigActionInfo, 0)
+	actionString := ""
+	tx, err := api.GetProposalTransaction(eos.AccountName(proposer), requests[index].ProposalName)
+	if err != nil {
+		return widget.NewHBox(widget.NewLabelWithStyle(err.Error(), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}))
+	} else {
+		proposalHash = tx.ProposalHash
+		for _, action := range tx.PackedTransaction.Actions {
+			abi, err := api.GetABI(action.Account)
+			if err != nil {
+				errs.ErrChan <- err.Error()
+				continue
+			}
+			decoded, err := abi.ABI.DecodeAction(action.HexData, action.Name)
+			if err != nil {
+				errs.ErrChan <- err.Error()
+				continue
+			}
+			actions = append(actions, msigActionInfo{
+				Action:       decoded,
+				Account:      string(action.Account),
+				Name:         string(action.Name),
+				ProposalHash: tx.ProposalHash,
+			})
+			aActor := &actionActor{}
+			err = json.Unmarshal(decoded, aActor)
+			if err == nil && aActor.Actor != "" {
+				actorMap[aActor.Actor] = true
+			}
+		}
+		a, err := json.MarshalIndent(actions, "", "  ")
+		if err != nil {
+			errs.ErrChan <- err.Error()
+		} else {
+			actionString = string(a)
+		}
+	}
+	hasApprovals := true
+	approvalsNeeded := make([]string, 0)
+	have := "have"
+	var privAction bool
+	for a := range PrivilegedActions {
+		sa := strings.Split(a, "::")
+		if len(sa) != 2 {
+			continue
+		}
+		if string(tx.PackedTransaction.Actions[0].Name) == sa[1] {
+			privAction = true
+			break
+		}
+	}
+	if privAction {
+		if checked == 1 {
+			have = "has"
+		}
+		var required int
+		type tp struct {
+			Producer string `json:"producer"`
+		}
+		rows := make([]tp, 0)
+		gtr, err := api.GetTableRows(eos.GetTableRowsRequest{
+			Code:  "eosio",
+			Scope: "eosio",
+			Table: "topprods",
+			Limit: 21,
+			JSON:  true,
+		})
+		if err != nil {
+			errs.ErrChan <- err.Error()
+			required = 15
+		} else {
+			_ = json.Unmarshal(gtr.Rows, &rows)
+			if len(rows) == 0 || len(rows) == 21 {
+				required = 15
+			} else {
+				required = (len(rows) / 2) + ((len(rows) / 2) / 2)
+			}
+		}
+		var top21Voted string
+		if top21Count > 0 {
+			top21Voted = fmt.Sprintf(" - (%d are Top 21 Producers)", top21Count)
+		}
+		approvalsNeeded = append(approvalsNeeded, fmt.Sprintf("Account %s requires %d approvals, %d %s been provided%s", tx.PackedTransaction.Actions[0].Account, required, checked, have, top21Voted))
+		if checked < required {
+			hasApprovals = false
+		}
+	} else {
+		for msigAccount := range actorMap {
+			needs, has, err := getVoteWeight(msigAccount, requests[index].ProvidedApprovals, api)
