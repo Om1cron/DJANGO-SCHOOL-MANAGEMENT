@@ -535,3 +535,81 @@ func ProposalRows(offset int, limit int, api *fio.API, opts *fio.TxOptions, acco
 		sort.Slice(approvalsInfo, func(i, j int) bool {
 			a, _ := eos.StringToName(string(approvalsInfo[i].ProposalName))
 			b, _ := eos.StringToName(string(approvalsInfo[j].ProposalName))
+			return a < b
+		})
+		for index, prop := range approvalsInfo {
+			hasNeeds := fmt.Sprintf("%d of %d approvals", len(prop.ProvidedApprovals), len(prop.ProvidedApprovals)+len(prop.RequestedApprovals))
+			gpt, err := api.GetProposalTransaction(eos.AccountName(proposer), prop.ProposalName)
+			if err != nil {
+				errs.ErrChan <- err.Error()
+				continue
+			}
+			for _, action := range gpt.PackedTransaction.Actions {
+				a, err := api.GetABI(action.Account)
+				if err != nil {
+					errs.ErrChan <- err.Error()
+					continue
+				}
+				derefIdx := &index
+				idx := *derefIdx
+				derefProp := &proposer
+				newProp := *derefProp
+				view := func() *widget.Button {
+					return widget.NewButtonWithIcon("", theme.VisibilityIcon(), func() {
+						proposalWindow := App.NewWindow(newProp + " - " + string(prop.ProposalName))
+						proposalWindow.SetContent(
+							fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize((W*85)/100, (H*85)/100)),
+								requestBox(newProp, approvalsInfo, idx, proposalWindow, api, opts, account),
+							))
+						proposalWindow.SetFixedSize(true)
+						proposalWindow.SetOnClosed(func() {
+							Win.RequestFocus()
+						})
+						proposalWindow.Show()
+					})
+				}()
+				decoded, err := a.ABI.DecodeAction(action.HexData, action.Name)
+				if err != nil {
+					errs.ErrChan <- err.Error()
+				}
+				details := make(map[string]interface{})
+				// don't try to decode an empty action
+				if len(decoded) > 0 {
+					err = json.Unmarshal(decoded, &details)
+					if err != nil {
+						errs.ErrChan <- err.Error()
+						continue
+					}
+				}
+				ds := make([]string, 0)
+				keys := make([]string, 0)
+				for k := range details {
+					keys = append(keys, k)
+				}
+				sort.Strings(keys)
+				for _, k := range keys {
+					if k == "tpid" || k == "max_fee" || k == "actor" {
+						continue
+					}
+					ds = append(ds, fmt.Sprintf("%s: %+v", k, details[k]))
+				}
+				summaryCols := widget.NewHBox(
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(150, 30)), view),
+					fyne.NewContainerWithLayout(layout.NewGridLayout(3),
+						widget.NewHBox(layout.NewSpacer(), widget.NewLabelWithStyle(string(prop.ProposalName), fyne.TextAlignLeading, fyne.TextStyle{Monospace: true}), layout.NewSpacer()),
+						widget.NewHBox(layout.NewSpacer(), widget.NewLabelWithStyle(fmt.Sprintf("%16s", action.Name), fyne.TextAlignCenter, fyne.TextStyle{Monospace: true}), layout.NewSpacer()),
+						widget.NewHBox(layout.NewSpacer(), widget.NewLabelWithStyle(hasNeeds, fyne.TextAlignCenter, fyne.TextStyle{}), layout.NewSpacer()),
+					))
+				txSummary := strings.Join(ds, ", ")
+				if len(txSummary) > 64 {
+					txSummary = txSummary[:60] + "..."
+				}
+				groupRows.AddObject(summaryCols)
+				groupRows.AddObject(widget.NewLabelWithStyle(txSummary, fyne.TextAlignTrailing, fyne.TextStyle{Monospace: true}))
+			}
+		}
+		vb.Append(group)
+		vb.Append(widget.NewHBox(widget.NewLabel(" ")))
+	}
+	return vb
+}
