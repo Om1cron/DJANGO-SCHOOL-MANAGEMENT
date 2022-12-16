@@ -195,3 +195,157 @@ func (abi *Abi) GeneratePayloads(key *fio.Account) error {
 					abi.mux.RUnlock()
 					FormState.UpdateValue(&i, v, false, true)
 					abi.mux.RLock()
+					return nil
+				case "invalid fio domain":
+					v = fuzzer.InvalidFioDomain()
+				case "valid fio domain (max size)":
+					v = fuzzer.MaxRandomFioDomain()
+				case "valid fio domain":
+					v = fuzzer.FioDomain()
+				case "max length: newfundsreq.content":
+					v = fuzzer.MaxNewFundsContent()
+				case "max length: recordobt.content":
+					v = fuzzer.MaxRecObtContent()
+				case "max length: regproducer.url":
+					v = fuzzer.MaxProducerUrl()
+				case "random existing fio address":
+					v = fuzzer.RandomExistingFioAddress(Uri)
+				}
+				abi.mux.RUnlock()
+				FormState.UpdateValue(&i, v, isSlice, false)
+				abi.mux.RLock()
+				return nil
+
+			case "number":
+				var l int
+				var e error
+				if form.Variation.Selected != "random number (mixed)" && form.Variation.Selected != "max int" {
+					if form.Len.Selected == "" {
+						return errors.New(*form.Name + ": no number specified")
+					}
+					l, e = strconv.Atoi(form.Len.Selected)
+					if e != nil {
+						return errors.New(*form.Name + ": " + e.Error())
+					}
+				}
+				var noJsonEscape = true
+				switch form.Variation.Selected {
+				case "max int":
+					abiType := form.Len.Selected
+					if form.Type.Selected == "string" {
+						abiType = "string"
+						noJsonEscape = false
+					}
+					v = fuzzer.MaxInt(form.Len.Selected)
+					abi.mux.RUnlock()
+					//FormState.UpdateValue(&i, v, false, true)
+					FormState.UpdateValueWithConvert(&i, v, isSlice, abiType, noJsonEscape)
+					abi.mux.RLock()
+					return nil
+				case "incrementing float":
+					abiType := "float64"
+					if form.Type.Selected == "string" {
+						abiType = "string"
+						noJsonEscape = false
+					}
+					v = fuzzer.IncrementingFloat()
+					abi.mux.RUnlock()
+					FormState.UpdateValueWithConvert(&i, v, isSlice, abiType, noJsonEscape)
+					abi.mux.RLock()
+					return nil
+				case "incrementing int":
+					abiType := "int64"
+					if form.Type.Selected == "string" {
+						abiType = "string"
+						noJsonEscape = false
+					}
+					v = fuzzer.IncrementingInt()
+					abi.mux.RUnlock()
+					FormState.UpdateValueWithConvert(&i, v, isSlice, abiType, noJsonEscape)
+					abi.mux.RLock()
+					return nil
+				case "random float":
+					abiType := fmt.Sprintf("float%d", l)
+					if form.Type.Selected == "string" {
+						abiType = "string"
+						noJsonEscape = false
+					}
+					v = fuzzer.RandomFloat(l)
+					abi.mux.RUnlock()
+					FormState.UpdateValueWithConvert(&i, v, isSlice, abiType, noJsonEscape)
+					abi.mux.RLock()
+					return nil
+				case "random int":
+					switch l {
+					case 128:
+						v = fuzzer.RandomInt128()
+						abi.mux.RUnlock()
+						FormState.UpdateValueWithConvert(&i, v, isSlice, "string", false)
+					default:
+						abiType := fmt.Sprintf("int%d", l)
+						if form.Type.Selected == "string" {
+							abiType = "string"
+							noJsonEscape = false
+						}
+						v = fuzzer.RandomInteger(l).Interface()
+						abi.mux.RUnlock()
+						FormState.UpdateValueWithConvert(&i, v, isSlice, abiType, noJsonEscape)
+					}
+					abi.mux.RLock()
+					return nil
+				case "overflow int":
+					abiType := "uint64"
+					if form.Type.Selected == "string" {
+						abiType = "string"
+						noJsonEscape = false
+					}
+					signed := false
+					if strings.HasPrefix(form.Type.Selected, "int") {
+						signed = true
+					}
+					v = fuzzer.OverFlowInt(l, signed)
+					abi.mux.RUnlock()
+					FormState.UpdateValueWithConvert(&i, v, isSlice, abiType, noJsonEscape)
+					abi.mux.RLock()
+					return nil
+				case "random number (mixed)":
+					rn := fuzzer.RandomNumber()
+					abiType := rn.AbiType()
+					if form.Type.Selected == "string" {
+						abiType = "string"
+						noJsonEscape = false
+					}
+					abi.mux.RUnlock()
+					FormState.UpdateValueWithConvert(&i, rn.String(), false, abiType, noJsonEscape)
+					abi.mux.RLock()
+					return nil
+				}
+
+			case "bytes/string":
+				var hasLen bool
+				var payloadLen int
+				if form.Len.Selected != "" {
+					hasLen = true
+					e := func() error {
+						if form.Len.Selected == "random length" {
+							payloadLen = rand.Intn(math.MaxInt16 + 8)
+							return nil
+						}
+						var e error
+						payloadLen, e = strconv.Atoi(strings.ReplaceAll(form.Len.Selected, ",", ""))
+						if e != nil {
+							return errors.New(*form.Name + ": invalid number for payload length")
+						}
+						return nil
+					}()
+					if e != nil {
+						return e
+					}
+				}
+				lenError := func() error {
+					return errors.New(*form.Name + ": no length specified for random payload")
+				}
+				switch form.Variation.Selected {
+				case "string":
+					if !hasLen {
+						return lenError()
