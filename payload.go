@@ -468,3 +468,63 @@ func (abi *Abi) PackAndSign(api *fio.API, opts *fio.TxOptions, account *fio.Acco
 	if err != nil {
 		return nil, nil, err
 	}
+	newStructBytes := abi.DeriveJsonAbi()
+	newDef := eos.StructDef{}
+	err = json.Unmarshal(newStructBytes, &newDef)
+	for i, def := range newAbi.ABI.Structs {
+		if def.Name == abi.Action {
+			newAbi.ABI.Structs[i] = newDef
+			break
+		}
+	}
+
+	encoded, err := newAbi.ABI.EncodeAction(eos.ActionName(abi.Action), []byte(jsonString))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	actionData := eos.NewActionData(nil)
+	actionData.HexData = encoded
+	var finalActor string
+	for _, r := range abi.Rows {
+		if *r.Name == "actor" {
+			finalActor = fmt.Sprintf("%v", *r.Value)
+		}
+	}
+	if finalActor == "" {
+		finalActor = string(account.Actor)
+	}
+	action := &fio.Action{
+		Account: eos.AccountName(abi.Contract),
+		Name:    eos.ActionName(abi.Action),
+		Authorization: []eos.PermissionLevel{
+			{
+				Actor:      eos.AccountName(finalActor),
+				Permission: "active",
+			},
+		},
+		ActionData: actionData,
+	}
+	compression := fio.CompressionNone
+	if useZlib {
+		compression = fio.CompressionZlib
+	}
+	opts.TxOptions.DelaySecs = 0
+	if deferTx {
+		opts.TxOptions.DelaySecs = uint32(delayTxSec)
+	}
+	signMe := fio.NewTransaction([]*fio.Action{action}, opts)
+	if msig {
+		signMe.Expiration.Time = time.Now().Add(time.Hour)
+	}
+	_, packedTx, err := api.SignTransaction(
+		signMe,
+		opts.ChainID,
+		compression,
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return rawJ, packedTx, nil
+}
