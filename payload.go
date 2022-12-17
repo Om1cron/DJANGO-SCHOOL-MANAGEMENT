@@ -349,3 +349,122 @@ func (abi *Abi) GeneratePayloads(key *fio.Account) error {
 				case "string":
 					if !hasLen {
 						return lenError()
+					}
+					v = fuzzer.RandomString(payloadLen)
+					abi.mux.RUnlock()
+					FormState.UpdateValue(&i, v, isSlice, false)
+					abi.mux.RLock()
+					return nil
+				case "bytes":
+					if !hasLen {
+						return lenError()
+					}
+					v = fuzzer.RandomBytes(payloadLen, fuzzer.EncodeRaw)
+					abi.mux.RUnlock()
+					FormState.UpdateValue(&i, v, isSlice, false)
+					abi.mux.RLock()
+					return nil
+				case "bytes: hex encoded":
+					if !hasLen {
+						return lenError()
+					}
+					v = fuzzer.RandomBytes(payloadLen, fuzzer.EncodeHexString)
+					abi.mux.RUnlock()
+					FormState.UpdateValue(&i, v, isSlice, false)
+					abi.mux.RLock()
+					return nil
+				case "bytes: base64 encoded":
+					if !hasLen {
+						return lenError()
+					}
+					v = fuzzer.RandomBytes(payloadLen, fuzzer.EncodeBase64)
+					abi.mux.RUnlock()
+					FormState.UpdateValue(&i, v, isSlice, false)
+					abi.mux.RLock()
+					return nil
+				case "random checksum":
+					v = fuzzer.RandomChecksum()
+					abi.mux.RUnlock()
+					FormState.UpdateValue(&i, v, isSlice, false)
+					abi.mux.RLock()
+					return nil
+				}
+
+			case "load file":
+				return errors.New("load file is not implemented yet")
+
+			default:
+				return errors.New("unknown generator provided")
+			}
+			return nil
+		}()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (abi *Abi) PackAndSign(api *fio.API, opts *fio.TxOptions, account *fio.Account, msig bool) (json.RawMessage, *eos.PackedTransaction, error) {
+	if len(abi.Rows) == 0 {
+		return nil, nil, nil
+	}
+	abi.mux.RLock()
+	defer abi.mux.RUnlock()
+
+	// build a json string
+	jsonString := "{"
+	for i, row := range abi.Rows {
+		if row.convert == nil {
+			row.convert = func(s interface{}) interface{} {
+				return s
+			}
+		}
+		b := make([]byte, 0)
+		var err error
+		switch {
+		case !row.IsSlice && !row.noJsonEscape:
+			b, err = json.Marshal(row.convert(row.Value))
+			if err != nil {
+				errs.ErrChan <- err.Error()
+			}
+		case !row.IsSlice && row.noJsonEscape:
+			b = []byte(fmt.Sprintf("%v", *row.Value))
+		//FIXME, this is converting everything to string arrays
+		case row.IsSlice:
+			payloads := func() []string {
+				p := strings.Split(fmt.Sprintf("%v", row.Input.Text), ",")
+				s := make([]string, len(p))
+				for i := range p {
+					s[i] = strings.TrimSpace(p[i])
+				}
+				return s
+			}()
+			b, err = json.Marshal(payloads)
+			if err != nil {
+				errs.ErrChan <- err.Error()
+			}
+		}
+		jsonString = jsonString + fmt.Sprintf(`"%s":%s`, *row.Name, string(b))
+		if i < len(abi.Rows)-1 {
+			jsonString = jsonString + ","
+		}
+	}
+	jsonString = jsonString + "}"
+
+	rawJ := json.RawMessage([]byte(jsonString))
+	// make sure we can marshall the json we just created ...
+	if len(jsonString) >= 524288 {
+		rawJ = []byte(fmt.Sprintf(`{"message":"Not showing request: %d bytes is too large"}"`, len(jsonString)))
+	} else {
+		err := json.Unmarshal([]byte(jsonString), &rawJ)
+		if err != nil {
+			return nil, nil, errors.New("could not marshal new data into json: " + err.Error())
+		}
+	}
+
+	// get the "real" abi, and we will update it with any changes:
+	newAbi, err := api.GetABI(eos.AccountName(abi.Rows[0].Contract))
+	if err != nil {
+		return nil, nil, err
+	}
