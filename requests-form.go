@@ -191,3 +191,139 @@ func ViewRequest(id uint64, closed chan interface{}, refresh chan bool, account 
 			a.SetText(value)
 			a.OnChanged = func(string) {
 				a.SetText(value)
+			}
+			reqData = append(reqData, widget.NewFormItem(name, a))
+		}
+	}
+	reqData = append(reqData, widget.NewFormItem("Request Envelope", layout.NewSpacer()))
+	add("Request ID", strconv.FormatUint(id, 10))
+	add("Time", req.Time.Format(time.UnixDate))
+	add("Payer (To)", req.PayerFioAddress)
+	add("", req.PayerKey)
+	add("Payee (From)", req.PayeeFioAddress)
+	add("", req.PayeeKey)
+	reqData = append(reqData, widget.NewFormItem("", layout.NewSpacer()))
+	reqData = append(reqData, widget.NewFormItem("Decrypted Request", layout.NewSpacer()))
+	add("Payee Public Address", decrypted.Request.PayeePublicAddress)
+	add("Amount", decrypted.Request.Amount)
+	add("Chain Code", decrypted.Request.ChainCode)
+	add("Token Code", decrypted.Request.TokenCode)
+	add("Memo", decrypted.Request.Memo)
+	add("Hash", decrypted.Request.Hash)
+	add("Offline Url", decrypted.Request.OfflineUrl)
+
+	errMsg := widget.NewLabelWithStyle("", fyne.TextAlignCenter, fyne.TextStyle{Monospace: true})
+	errIcon := fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(20, 20)), canvas.NewImageFromResource(theme.WarningIcon()))
+	errIcon.Hide()
+	respondBtn := &widget.Button{}
+	respondBtn = widget.NewButtonWithIcon("Record Response", theme.MailReplyIcon(), func() {
+		closing := make(chan interface{})
+		d := dialog.NewCustom(
+			fmt.Sprintf("Respond: Request ID %d (%s)", req.FioRequestId, req.PayeeFioAddress),
+			"Cancel",
+			RespondRequest(req, decrypted.Request, closing, account, api),
+			Win,
+		)
+		go func() {
+			<-closing
+			close(closed)
+			d.Hide()
+		}()
+		d.Show()
+	})
+	rejectBtn := &widget.Button{}
+	rejectBtn = widget.NewButtonWithIcon("Reject", theme.DeleteIcon(), func() {
+		rejectBtn.Disable()
+		respondBtn.Disable()
+		resp, err := api.SignPushActions(fio.NewRejectFndReq(account.Actor, strconv.FormatUint(id, 10)))
+		if err != nil {
+			errIcon.Show()
+			errMsg.SetText(err.Error())
+			errMsg.Refresh()
+			rejectBtn.Enable()
+			respondBtn.Enable()
+			return
+		}
+		errIcon.Hide()
+		errMsg.SetText("Done. Transaction ID: " + resp.TransactionID)
+		refresh <- true
+	})
+	buttons := widget.NewVBox(
+		widget.NewHBox(
+			layout.NewSpacer(),
+			respondBtn,
+			rejectBtn,
+			layout.NewSpacer(),
+		),
+		widget.NewHBox(layout.NewSpacer(), errIcon, errMsg, layout.NewSpacer()),
+	)
+	f := widget.NewForm(reqData...)
+	return widget.NewVBox(
+		widget.NewHBox(layout.NewSpacer(), f, layout.NewSpacer()),
+		buttons,
+	)
+}
+
+func RespondRequest(req *fio.FundsReqTableResp, decrypted *fio.ObtRequestContent, closed chan interface{}, account *fio.Account, api *fio.API) fyne.CanvasObject {
+	var memo string
+	if len(decrypted.Memo) > 0 {
+		memo = "re: " + decrypted.Memo
+	}
+	record := &fio.ObtRecordContent{
+		PayerPublicAddress: "",
+		PayeePublicAddress: decrypted.PayeePublicAddress,
+		Amount:             decrypted.Amount,
+		ChainCode:          decrypted.ChainCode,
+		TokenCode:          decrypted.TokenCode,
+		Status:             "",
+		ObtId:              strconv.FormatUint(req.FioRequestId, 10),
+		Memo:               memo,
+		Hash:               "",
+		OfflineUrl:         "",
+	}
+	bytesRemaining := widget.NewLabel("")
+	remaining := func(l *widget.Label) {
+		content, err := record.Encrypt(account, req.PayeeKey)
+		if err != nil {
+			l.SetText(err.Error())
+		}
+		tooLarge := ""
+		if 432-len(content) < 0 {
+			tooLarge = "Content is too large! "
+		}
+		over := 432 - len(content)
+		if over >= 0 {
+			over = 0
+		}
+		l.SetText(fmt.Sprintf("%s%d bytes over (%d bytes after encryption and encoding) 432 max", tooLarge, over, len(content)))
+	}
+	respData := make([]*widget.FormItem, 0)
+	add := func(name string, value string, disabled bool, updateField *string) {
+		a := widget.NewEntry()
+		a.SetText(value)
+		if disabled {
+			a.Disable()
+		}
+		a.OnChanged = func(string) {
+			if updateField != nil {
+				*updateField = a.Text
+			}
+			remaining(bytesRemaining)
+		}
+		respData = append(respData, widget.NewFormItem(name, a))
+	}
+	add("Request ID", strconv.FormatUint(req.FioRequestId, 10), true, nil)
+	add("Payer (To)", req.PayerFioAddress, true, nil)
+	add("Payee (From)", req.PayeeFioAddress, true, nil)
+	respData = append(respData, widget.NewFormItem("", layout.NewSpacer()))
+	add("Payer Public Key", "", false, &record.PayerPublicAddress)
+	add("Payee Public Key", decrypted.PayeePublicAddress, true, nil)
+	add("Chain Code", decrypted.ChainCode, true, nil)
+	add("Token Code", decrypted.TokenCode, true, nil)
+	add("Amount", decrypted.Amount, false, &record.Amount)
+	add("Status", "", false, &record.Status)
+	add("Memo", memo, false, &record.Memo)
+	add("Hash", "", false, &record.Hash)
+	add("Offline Url", "", false, &record.OfflineUrl)
+
+	errMsg := widget.NewLabel("")
