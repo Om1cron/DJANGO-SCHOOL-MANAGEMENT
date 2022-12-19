@@ -452,3 +452,124 @@ func NewRequest(account *fio.Account, api *fio.API) fyne.CanvasObject {
 
 	warn := fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(20, 20)),
 		canvas.NewImageFromResource(theme.WarningIcon()),
+	)
+	amountEntry := widget.NewEntry()
+	amountEntry.SetText("0.0")
+	amountEntry.OnChanged = func(s string) {
+		fl, err := strconv.ParseFloat(s, 64)
+		if err != nil || fl == 0 {
+			warn.Show()
+			return
+		}
+		warn.Hide()
+		nfr.Amount = s
+	}
+	reqFormData = append(reqFormData, widget.NewFormItem("Amount", widget.NewHBox(amountEntry, warn)))
+	add("Memo", "", false, &nfr.Memo)
+	add("Hash", "", false, &nfr.Hash)
+	add("Offline Url", "", false, &nfr.OfflineUrl)
+	errLabel := widget.NewLabel("")
+	sendRequest := func() {
+		defer func() {
+			go func() {
+				// prevent accidental click click click
+				time.Sleep(2 * time.Second)
+				send.Enable()
+			}()
+		}()
+		send.Disable()
+		content, err = nfr.Encrypt(account, payerPub)
+		if err != nil {
+			errLabel.SetText(err.Error())
+			errs.ErrChan <- err.Error()
+			return
+		}
+		resp, err := api.SignPushActions(fio.NewFundsReq(account.Actor, payerFio, payeeFio, content))
+		if err != nil {
+			errLabel.SetText(err.Error())
+			errs.ErrChan <- err.Error()
+			return
+		}
+		errLabel.SetText("Success, txid: " + resp.TransactionID)
+	}
+	send = widget.NewButtonWithIcon("Send Request", theme.ConfirmIcon(), sendRequest)
+	send.Disable()
+	return widget.NewVBox(
+		widget.NewForm(reqFormData...),
+		widget.NewHBox(layout.NewSpacer(), errLabel, layout.NewSpacer()),
+		send,
+	)
+}
+
+var chainMux = sync.Mutex{}
+
+func GetChains() []string {
+	chainMux.Lock()
+	defer chainMux.Unlock()
+	result := make([]string, len(chainTokens))
+	i := 0
+	for k := range chainTokens {
+		result[i] = k
+		i += 1
+	}
+	sort.Strings(result)
+	return result
+}
+
+func GetTokens(s string) []string {
+	chainMux.Lock()
+	defer chainMux.Unlock()
+	if s == "" || chainTokens[s] == nil {
+		return make([]string, 0)
+	}
+	return chainTokens[s]
+}
+
+var chainTokens = map[string][]string{
+	"ABBC": {"ABBC"},
+	"ADA":  {"ADA"},
+	"ALGO": {"ALGO"},
+	"ATOM": {"ATOM"},
+	"BAND": {"BAND"},
+	"BCH": {
+		"BCH",
+		"FLEX",
+	},
+	"BHD": {"BHD"},
+	"BNB": {
+		"ANKR",
+		"BNB",
+		"CHZ",
+		"ERD",
+		"ONE",
+		"RUNE",
+		"SWINGBY",
+	},
+	"BSV":  {"BSV"},
+	"BTC":  {"BTC"},
+	"BTM":  {"BTM"},
+	"CET":  {"CET"},
+	"CHX":  {"CHX"},
+	"CKB":  {"CKB"},
+	"DASH": {"DASH"},
+	"DOGE": {"DOGE"},
+	"DOT":  {"DOT"},
+	"EOS":  {"EOS"},
+	"ETC":  {"ETC"},
+	"ETH": {
+		"AERGO",
+		"AKRO",
+		"ALTBEAR",
+		"ALTBULL",
+		"BAND",
+		"BAT",
+		"BEPRO",
+		"BNBBEAR",
+		"BNBBULL",
+		"BOLT",
+		"BTCBEAR",
+		"BTCBULL",
+		"BTMX",
+		"BVOL",
+		"BXA",
+		"CELR",
