@@ -327,3 +327,128 @@ func RespondRequest(req *fio.FundsReqTableResp, decrypted *fio.ObtRequestContent
 	add("Offline Url", "", false, &record.OfflineUrl)
 
 	errMsg := widget.NewLabel("")
+	sendResponse := &widget.Button{}
+	sendResponse = widget.NewButtonWithIcon("Send Response", theme.ConfirmIcon(), func() {
+		content, err := record.Encrypt(account, req.PayeeKey)
+		if err != nil {
+			errMsg.SetText("Encrypt response: " + err.Error())
+			return
+		}
+		resp, err := api.SignPushActions(fio.NewRecordSend(account.Actor, strconv.FormatUint(req.FioRequestId, 10), req.PayerFioAddress, req.PayeeFioAddress, content))
+		if err != nil {
+			errMsg.SetText("Push Action: " + err.Error())
+			return
+		}
+		errs.ErrChan <- "Success, txid: " + resp.TransactionID
+		errMsg.SetText("Success, txid: " + resp.TransactionID)
+		sendResponse.Disable()
+		time.Sleep(2 * time.Second)
+		close(closed)
+	})
+
+	remaining(bytesRemaining)
+	return widget.NewVBox(
+		bytesRemaining,
+		widget.NewForm(respData...),
+		errMsg,
+		sendResponse,
+	)
+}
+
+func NewRequest(account *fio.Account, api *fio.API) fyne.CanvasObject {
+	n, _, err := account.GetNames(api)
+	if err != nil {
+		return widget.NewLabel(err.Error())
+	}
+	if n == 0 {
+		return widget.NewLabel("You must have at least one FIO Name to send requests.")
+	}
+	send := &widget.Button{}
+	var content, payerFio, payerPub, payeeFio string
+	nfr := &fio.ObtRequestContent{}
+
+	reqFormData := make([]*widget.FormItem, 0)
+	add := func(name string, value string, disabled bool, updateField *string) {
+		a := widget.NewEntry()
+		a.SetText(value)
+		if disabled {
+			a.Disable()
+		}
+		a.OnChanged = func(string) {
+			if updateField != nil {
+				*updateField = a.Text
+			}
+		}
+		reqFormData = append(reqFormData, widget.NewFormItem(name, a))
+	}
+	payeeNameSelect := widget.NewSelect(func() []string {
+		names := make([]string, len(account.Addresses))
+		for i := range account.Addresses {
+			names[i] = account.Addresses[i].FioAddress
+		}
+		return names
+	}(),
+		func(s string) {
+			payeeFio = s
+		},
+	)
+	payeeNameSelect.SetSelected(payeeNameSelect.Options[0])
+	reqFormData = append(reqFormData, widget.NewFormItem("Your FIO Name", payeeNameSelect))
+
+	payerPubLabel := widget.NewLabelWithStyle(spaces, fyne.TextAlignLeading, fyne.TextStyle{Monospace: true})
+	payerName := widget.NewEntry()
+	invalid := func() {
+		payerPubLabel.SetText(spaces)
+		payerPub = ""
+		send.Disable()
+	}
+	payerName.OnChanged = func(s string) {
+		if !fio.Address(s).Valid() {
+			invalid()
+			return
+		}
+		pa, ok, _ := api.PubAddressLookup(fio.Address(s), "FIO", "FIO")
+		if !ok || pa.PublicAddress == "" {
+			invalid()
+			return
+		}
+		payerPubLabel.SetText(pa.PublicAddress)
+		payerPub = pa.PublicAddress
+		payerFio = s
+		send.Enable()
+	}
+	reqFormData = append(reqFormData, widget.NewFormItem("Recipient's FIO Name", payerName))
+	reqFormData = append(reqFormData, widget.NewFormItem("", payerPubLabel))
+
+	reqFormData = append(reqFormData, widget.NewFormItem("", layout.NewSpacer()))
+
+	payeeRecvAddress := widget.NewEntry()
+	payeeRecvAddress.OnChanged = func(s string) {
+		nfr.PayeePublicAddress = s
+	}
+	reqFormData = append(reqFormData, widget.NewFormItem("Send to Address", payeeRecvAddress))
+
+	chainSelect := &widget.SelectEntry{}
+	tokenSelect := widget.NewSelectEntry(make([]string, 0))
+	tokenSelect.OnChanged = func(s string) {
+		nfr.TokenCode = s
+		resp, found, _ := api.PubAddressLookup(fio.Address(payeeFio), chainSelect.Text, tokenSelect.Text)
+		if !found {
+			return
+		}
+		payeeRecvAddress.SetText(resp.PublicAddress)
+	}
+	chainSelect = widget.NewSelectEntry(GetChains())
+	chainSelect.OnChanged = func(s string) {
+		tokenSelect.SetOptions(GetTokens(s))
+		tokenSelect.SetText(s)
+		tokenSelect.Refresh()
+		nfr.ChainCode = s
+	}
+	chainSelect.SetText("BTC")
+	tokenSelect.SetText("BTC")
+	reqFormData = append(reqFormData, widget.NewFormItem("Chain Code", chainSelect))
+	reqFormData = append(reqFormData, widget.NewFormItem("Token Code", tokenSelect))
+
+	warn := fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(20, 20)),
+		canvas.NewImageFromResource(theme.WarningIcon()),
