@@ -292,3 +292,78 @@ func InitServerInfo(info chan ServerInfo, reconnected chan bool) fyne.CanvasObje
 					histApiBox.Show()
 					histApiSp.Show()
 				}
+			}
+			return
+		}
+	}
+
+	go func() {
+		tick := time.NewTicker(5 * time.Second)
+		var lastHead uint32
+		for {
+			select {
+			case <-tick.C:
+				if !sizeLabel.Hidden {
+					go dbRefresh()
+				}
+			case <-reconnected:
+				go update()
+			case si := <-info:
+				go func() {
+					headBlockLabel.SetText(pp.Sprintf("%d", si.Info.HeadBlockNum))
+					if lastHead == si.Info.HeadBlockNum {
+						headTimeLagIcon.Show()
+					} else {
+						lastHead = si.Info.HeadBlockNum
+						if !headTimeLagIcon.Hidden {
+							headTimeLagIcon.Hide()
+						}
+					}
+					libLabel.SetText(pp.Sprintf("%d  (%d)", si.Info.LastIrreversibleBlockNum, int64(si.Info.LastIrreversibleBlockNum)-int64(si.Info.HeadBlockNum)))
+					if si.Info.HeadBlockNum-si.Info.LastIrreversibleBlockNum >= 450 {
+						libWarnIcon.Show()
+						libWarnLabel.SetText(fmt.Sprintf("Last Irreversible Block is %d blocks behind", int64(si.Info.HeadBlockNum)-int64(si.Info.LastIrreversibleBlockNum)))
+					} else if !libWarnIcon.Hidden {
+						libWarnIcon.Hide()
+						libWarnLabel.SetText("")
+					}
+					chainIdLabel.SetText(si.Info.ChainID.String())
+					versionLabel.SetText(si.Info.ServerVersionString)
+					headTimeLabel.SetText(si.Info.HeadBlockTime.Local().String())
+					if si.Info.HeadBlockTime.Before(time.Now().Add(-time.Minute)) {
+						headTimeLagIcon.Show()
+						headTimeLagLabel.Show()
+						headTimeLagLabel.SetText(pp.Sprintf("%v", time.Now().Sub(si.Info.HeadBlockTime.Time)))
+					} else if !headTimeLagLabel.Hidden {
+						headTimeLagIcon.Hide()
+						headTimeLagLabel.Hide()
+					}
+					if knownChains[si.Info.ChainID.String()] != "" {
+						chainIdKnownLabel.SetText(knownChains[si.Info.ChainID.String()])
+						if !chainIdIcon.Hidden {
+							chainIdIcon.Hide()
+						}
+					} else {
+						chainIdIcon.Show()
+						chainIdKnownLabel.SetText("Unknown Chain")
+					}
+					prodLabel.SetText(string(si.Info.HeadBlockProducer))
+					prodUrl.SetURL(nil)
+					if prods[string(si.Info.HeadBlockProducer)] != nil {
+						short := strings.Replace(prods[string(si.Info.HeadBlockProducer)].url.String(), "https://", "", -1)
+						short = strings.Replace(short, "http://", "", -1)
+						short = strings.Split(short, "/")[0]
+						prodUrl.SetURL(prods[string(si.Info.HeadBlockProducer)].url)
+						prodUrl.SetText(short)
+						prodAddrLabel.SetText(prods[string(si.Info.HeadBlockProducer)].address)
+					}
+				}()
+			}
+		}
+	}()
+
+	for _, canv := range rows {
+		container.AddObject(canv)
+	}
+	return container
+}
