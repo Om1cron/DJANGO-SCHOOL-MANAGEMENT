@@ -151,3 +151,144 @@ func InitServerInfo(info chan ServerInfo, reconnected chan bool) fyne.CanvasObje
 	sizeWarnLabel := widget.NewLabel("Over 75% of RAM is used!")
 	sizeWarnLabel.Hide()
 	sizeSp := layout.NewSpacer()
+	sizeSp.Hide()
+	sizeBox := widget.NewHBox(
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(25, 25)), sizeWarnIcon),
+		sizeBytesLabel,
+		sizeWarnLabel,
+	)
+	rows = append(rows, []fyne.CanvasObject{
+		sizeLabel,
+		sizeBox,
+		sizeSp,
+	}...)
+
+	netApiLabel := widget.NewLabelWithStyle("Network API", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true})
+	netApiLabel.Hide()
+	netSp := layout.NewSpacer()
+	netSp.Hide()
+	netApiBox := widget.NewHBox(
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(25, 25)), canvas.NewImageFromResource(theme.WarningIcon())),
+		widget.NewLabelWithStyle("Network API is Enabled!", fyne.TextAlignLeading, fyne.TextStyle{Italic: true}),
+		widget.NewLabel("allows anyone to control network connections"),
+	)
+	netApiBox.Hide()
+	rows = append(rows, []fyne.CanvasObject{
+		netApiLabel,
+		netApiBox,
+		netSp,
+	}...)
+
+	prodApiLabel := widget.NewLabelWithStyle("Producer API", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true})
+	prodApiLabel.Hide()
+	prodApiBox := widget.NewHBox(
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(25, 25)), canvas.NewImageFromResource(theme.WarningIcon())),
+		widget.NewLabelWithStyle("Producer API is Enabled!", fyne.TextAlignLeading, fyne.TextStyle{Italic: true}),
+		widget.NewLabel("allows anyone to control the producer plugin"),
+	)
+	prodApiBox.Hide()
+	prodApiSp := layout.NewSpacer()
+	prodApiSp.Hide()
+	rows = append(rows, []fyne.CanvasObject{
+		prodApiLabel,
+		prodApiBox,
+		prodApiSp,
+	}...)
+
+	container := fyne.NewContainerWithLayout(layout.NewGridLayout(3))
+
+	pp := message.NewPrinter(language.AmericanEnglish)
+	dbRefresh := func() {
+		s, err := Api.GetDBSize()
+		if err != nil {
+			return
+		}
+		if s.Size != 0 {
+			sizeBytesLabel.SetText(pp.Sprintf("RAM used %d MB", (s.UsedBytes/1024)/1024))
+			sizeBytesLabel.Show()
+			if (s.UsedBytes/s.Size)*100 > 75 {
+				sizeWarnLabel.Show()
+			} else if !sizeWarnLabel.Hidden {
+				sizeWarnLabel.Hide()
+			}
+		}
+	}
+
+	update := func() {
+		prods = make(map[string]*prodInfo)
+		for {
+			time.Sleep(3 * time.Second)
+			if Api == nil || Api.BaseURL == "" {
+				continue
+			}
+			uriLabel.SetText(Api.BaseURL)
+			producers, err := Api.GetFioProducers()
+			if err != nil {
+				continue
+			}
+			for _, prod := range producers.Producers {
+				ur := prod.Url
+				if !strings.HasPrefix(ur, "http") {
+					ur = "https://" + prod.Url
+				}
+				u, err := url.Parse(ur)
+				if err != nil {
+					u, _ = url.Parse("http://127.0.0.1")
+				}
+				prods[string(prod.Owner)] = &prodInfo{
+					address: string(prod.FioAddress),
+					url:     u,
+				}
+			}
+
+			// now update list of available APIs
+			resp, err := Api.HttpClient.Post(Api.BaseURL+"/v1/node/get_supported_apis", "application/json", nil)
+			if err != nil {
+				errs.ErrChan <- "fetchApis: " + err.Error()
+				continue
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				errs.ErrChan <- "fetchApis: " + err.Error()
+				continue
+			}
+			supported := &SupportedApis{}
+			err = json.Unmarshal(body, supported)
+			if err != nil {
+				errs.ErrChan <- "fetchApis: " + err.Error()
+				continue
+			}
+			prodApiLabel.Hide()
+			prodApiBox.Hide()
+			prodApiSp.Hide()
+			netApiLabel.Hide()
+			netApiBox.Hide()
+			netSp.Hide()
+			histApiLabel.Hide()
+			histApiBox.Hide()
+			histApiSp.Hide()
+			sizeLabel.Hide()
+			sizeBox.Hide()
+			sizeWarnLabel.Hide()
+			sizeWarnIcon.Hide()
+			for _, a := range supported.Apis {
+				switch {
+				case strings.HasPrefix(a, "/v1/producer"):
+					prodApiLabel.Show()
+					prodApiBox.Show()
+					prodApiSp.Show()
+				case strings.HasPrefix(a, "/v1/net"):
+					netApiLabel.Show()
+					netApiBox.Show()
+					netSp.Show()
+				case strings.HasPrefix(a, "/v1/db"):
+					dbRefresh()
+					sizeLabel.Show()
+					sizeBox.Show()
+					sizeSp.Show()
+				case strings.HasPrefix(a, "/v1/hist"):
+					histApiLabel.Show()
+					histApiBox.Show()
+					histApiSp.Show()
+				}
