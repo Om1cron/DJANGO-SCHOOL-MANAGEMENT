@@ -216,3 +216,151 @@ func SettingsWindow() {
 	warningIcon := fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(24, 24)),
 		canvas.NewImageFromResource(theme.WarningIcon()),
 	)
+	matchWarningIcon := fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(24, 24)),
+		canvas.NewImageFromResource(theme.WarningIcon()),
+	)
+	matchWarningIcon.Hide()
+	passEntry.SetPlaceHolder("please enter a password")
+	passEntry.OnChanged = func(s string) {
+		if len(s) < 8 {
+			warningIcon.Show()
+			saveButton.Disable()
+			return
+		}
+		warningIcon.Hide()
+		if passConfirm.Text != s {
+			matchWarningIcon.Show()
+			saveButton.Disable()
+			return
+		}
+		matchWarningIcon.Hide()
+		warningIcon.Hide()
+		saveButton.Enable()
+	}
+	passConfirm.SetPlaceHolder("confirm the password")
+	passConfirm.OnChanged = func(s string) {
+		if len(passEntry.Text) < 8 {
+			warningIcon.Show()
+			saveButton.Disable()
+			return
+		}
+		warningIcon.Hide()
+		if passEntry.Text != s {
+			matchWarningIcon.Show()
+			saveButton.Disable()
+			return
+		}
+		matchWarningIcon.Hide()
+		warningIcon.Hide()
+		saveButton.Enable()
+	}
+
+	cancelButton := widget.NewButton("Cancel", func() {
+		w.Close()
+	})
+
+	updateFieldsFromSettings = func() {
+		heightEntry.SetText(fmt.Sprint(H))
+		widthEntry.SetText(fmt.Sprint(W))
+		serverEntry.SetText(Settings.Server)
+		proxyEntry.SetText(Settings.Proxy)
+		defKeyEntry.SetText(Settings.DefaultKey)
+		defKeyDescEntry.SetText(Settings.DefaultKeyDesc)
+		favKey2Entry.SetText(Settings.FavKey2)
+		favKey2DescEntry.SetText(Settings.FavKey2Desc)
+		favKey3Entry.SetText(Settings.FavKey3)
+		favKey3DescEntry.SetText(Settings.FavKey3Desc)
+		favKey4Entry.SetText(Settings.FavKey4)
+		favKey4DescEntry.SetText(Settings.FavKey4Desc)
+		msigDefaultEntry.SetText(Settings.MsigAccount)
+		tpidEntry.SetText(Settings.Tpid)
+		advanced.SetChecked(Settings.AdvancedFeatures)
+		if Settings.AdvancedFeatures {
+			_ = os.Setenv("ADVANCED", "true")
+		}
+		themeSelect.Selected = WinSettings.T
+		themeSelect.Refresh()
+	}
+
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		w.SetContent(widget.NewLabel("Unable to determine config directory: " + err.Error()))
+	} else {
+		filename = fmt.Sprintf("%s%c%s%c%s", configDir, os.PathSeparator, settingsDir, os.PathSeparator, settingsFileName)
+		settingsFileLabel.SetText(filename)
+		w.SetContent(
+			widget.NewVBox(
+				fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(2),
+					fyne.NewContainerWithLayout(layout.NewGridLayout(2),
+						widget.NewHBox(layout.NewSpacer(), warningIcon, widget.NewLabel("Password for encryption: ")),
+						passEntry,
+					),
+					fyne.NewContainerWithLayout(layout.NewGridLayout(2),
+						widget.NewHBox(layout.NewSpacer(), matchWarningIcon, widget.NewLabel("Confirm: ")),
+						passConfirm,
+					),
+				),
+				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(50, 50)), layout.NewSpacer()),
+				widget.NewHBox(
+					layout.NewSpacer(),
+					widget.NewLabelWithStyle("Preferred Server", fyne.TextAlignTrailing, fyne.TextStyle{}),
+					serverEntry, layout.NewSpacer(),
+				),
+				//widget.NewHBox(
+				//	layout.NewSpacer(),
+				//	widget.NewLabelWithStyle("Preferred Proxy", fyne.TextAlignTrailing, fyne.TextStyle{}),
+				//	proxyEntry, layout.NewSpacer(),
+				//),
+				widget.NewHBox(
+					layout.NewSpacer(),
+					widget.NewLabelWithStyle("Default Theme", fyne.TextAlignTrailing, fyne.TextStyle{}),
+					themeSelect, layout.NewSpacer(),
+				),
+				sizeRow,
+				advancedRow,
+				widget.NewHBox(
+					layout.NewSpacer(),
+					widget.NewLabelWithStyle("Preferred MSIG Account for Proposals", fyne.TextAlignTrailing, fyne.TextStyle{}),
+					msigDefaultEntry, layout.NewSpacer(),
+				),
+				widget.NewHBox(
+					layout.NewSpacer(),
+					widget.NewLabelWithStyle("Preferred TPID", fyne.TextAlignTrailing, fyne.TextStyle{}),
+					tpidEntry, layout.NewSpacer(),
+				),
+				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(50, 50)), layout.NewSpacer()),
+				widget.NewHBox(
+					widget.NewLabelWithStyle("*Quick Load Key", fyne.TextAlignLeading, fyne.TextStyle{}),
+					widget.NewHBox(
+						defKeyEntry, layout.NewSpacer(), defKeyDescEntry,
+					),
+					layout.NewSpacer(),
+				),
+				widget.NewHBox(
+					widget.NewLabelWithStyle(" Quick Load Key  ", fyne.TextAlignLeading, fyne.TextStyle{}),
+					widget.NewHBox(
+						favKey2Entry, layout.NewSpacer(), favKey2DescEntry,
+					),
+					layout.NewSpacer(),
+				),
+				widget.NewHBox(
+					widget.NewLabelWithStyle(" Quick Load Key  ", fyne.TextAlignLeading, fyne.TextStyle{}),
+					widget.NewHBox(
+						favKey3Entry, layout.NewSpacer(), favKey3DescEntry,
+					),
+					layout.NewSpacer(),
+				),
+				widget.NewHBox(
+					widget.NewLabelWithStyle(" Quick Load Key  ", fyne.TextAlignLeading, fyne.TextStyle{}),
+					widget.NewHBox(
+						favKey4Entry, layout.NewSpacer(), favKey4DescEntry,
+					),
+					layout.NewSpacer(),
+				),
+				widget.NewLabelWithStyle("* - Default Key", fyne.TextAlignCenter, fyne.TextStyle{}),
+				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(50, 50)), layout.NewSpacer()),
+				layout.NewSpacer(),
+				widget.NewHBox(layout.NewSpacer(), saveButton, defaultsButton, cancelButton, layout.NewSpacer()),
+				widget.NewHBox(
+					layout.NewSpacer(),
+					widget.NewLabelWithStyle("Config File Location", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
