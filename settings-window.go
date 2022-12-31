@@ -364,3 +364,156 @@ func SettingsWindow() {
 				widget.NewHBox(
 					layout.NewSpacer(),
 					widget.NewLabelWithStyle("Config File Location", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+					settingsFileLabel,
+					layout.NewSpacer(),
+				),
+			),
+		)
+	}
+	updateFieldsFromSettings()
+	w.Show()
+}
+
+type unlockEntry struct {
+	widget.Entry
+	Action func(bool)
+}
+
+func (e *unlockEntry) onEnter() {
+	e.Action(true)
+}
+
+func newUnlockEntry(f func(bool)) *unlockEntry {
+	entry := &unlockEntry{
+		Entry:  widget.Entry{Password: true},
+		Action: f,
+	}
+	entry.ExtendBaseWidget(entry)
+	return entry
+}
+
+func (e *unlockEntry) KeyDown(key *fyne.KeyEvent) {
+	switch key.Name {
+	case fyne.KeyReturn:
+		e.onEnter()
+	default:
+		e.Entry.KeyDown(key)
+	}
+}
+
+func PromptForPassword() {
+	if PasswordVisible {
+		return
+	}
+	PasswordVisible = true
+	defer func() { PasswordVisible = false }()
+	ok, fileLen, _, err := LoadEncryptedSettings("")
+	if !ok && fileLen == 0 && err == nil {
+		//no config file to load, just continue.
+		return
+	}
+	var serverOverride string
+	mainnetSelect := widget.NewSelect(MainnetApi, func(s string) {
+		if s != "" {
+			serverOverride = s
+		}
+	})
+	mainnetSelect.PlaceHolder = "Override Saved Server"
+	deferCheck := widget.NewCheck("defer connect", func(b bool) {
+		if b {
+			mainnetSelect.Hide()
+			return
+		}
+		mainnetSelect.Show()
+	})
+	resultLabel := widget.NewLabelWithStyle("", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+	resultBox := widget.NewHBox(
+		layout.NewSpacer(),
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(35, 35)),
+			canvas.NewImageFromResource(theme.WarningIcon()),
+		),
+		resultLabel,
+		layout.NewSpacer(),
+	)
+	resultBox.Hide()
+	passCallBack := func(b bool) {}
+	pop := &widget.PopUp{}
+
+	passEntry := newUnlockEntry(func(b bool) {})
+	passEntry.SetPlaceHolder("Enter your password")
+	passEntry.OnChanged = func(s string) {
+		resultBox.Hide()
+	}
+	cancelButton := widget.NewButtonWithIcon(" Defaults ", theme.CancelIcon(), func() {
+		pop.Hide()
+	})
+	submitButton := widget.NewButtonWithIcon(" Load ", theme.ConfirmIcon(), func() {
+		passCallBack(true)
+	})
+
+	link, _ := url.Parse("https://fioprotocol.io/")
+	contents := widget.NewVBox(
+		widget.NewLabelWithStyle("Enter your password to load saved settings", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+		widget.NewHBox(
+			fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(150, 250)),
+				widget.NewVBox(
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(140, 20)), layout.NewSpacer()),
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(140, 140)),
+						canvas.NewImageFromResource(fioassets.NewFioLogoResource()),
+					),
+					widget.NewHyperlinkWithStyle("fioprotocol.io", link, fyne.TextAlignCenter, fyne.TextStyle{}),
+					layout.NewSpacer(),
+				),
+			),
+			fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(400, 280)),
+				widget.NewVBox(
+					layout.NewSpacer(),
+					widget.NewHBox(layout.NewSpacer(), resultBox, widget.NewLabel(""), layout.NewSpacer()),
+					layout.NewSpacer(),
+					widget.NewHBox(layout.NewSpacer(), passEntry, layout.NewSpacer()),
+					layout.NewSpacer(),
+					fyne.NewContainerWithLayout(layout.NewGridLayout(4),
+						layout.NewSpacer(), cancelButton, submitButton, layout.NewSpacer(),
+					),
+					widget.NewHBox(deferCheck),
+					widget.NewHBox(mainnetSelect),
+					widget.NewHBox(widget.NewLabel(" ")),
+				),
+			),
+		),
+	)
+	passCallBack = func(b bool) {
+		if !b {
+			return
+		}
+		passEntry.Disable()
+		defer passEntry.Enable()
+		ok, _, newConfig, err := LoadEncryptedSettings(passEntry.Text)
+		switch {
+		case err != nil && err.Error() == "cipher: message authentication failed":
+			resultLabel.SetText("Incorrect Password")
+			resultBox.Show()
+		case err != nil:
+			resultLabel.SetText(err.Error())
+			resultBox.Show()
+		case !ok:
+			resultLabel.SetText("Could not decrypt settings")
+			resultBox.Show()
+		case ok:
+			Settings.Server = newConfig.Server
+			if deferCheck.Checked {
+				Settings.Server = ""
+			} else if serverOverride != "" {
+				Settings.Server = serverOverride
+			}
+			Settings.Proxy = newConfig.Proxy
+			Settings.DefaultKey = newConfig.DefaultKey
+			Settings.DefaultKeyDesc = newConfig.DefaultKeyDesc
+			Settings.FavKey2 = newConfig.FavKey2
+			Settings.FavKey2Desc = newConfig.FavKey2Desc
+			Settings.FavKey3 = newConfig.FavKey3
+			Settings.FavKey3Desc = newConfig.FavKey3Desc
+			Settings.FavKey4 = newConfig.FavKey4
+			Settings.FavKey4Desc = newConfig.FavKey4Desc
+			Settings.MsigAccount = newConfig.MsigAccount
+			Settings.Tpid = newConfig.Tpid
