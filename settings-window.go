@@ -517,3 +517,65 @@ func PromptForPassword() {
 			Settings.FavKey4Desc = newConfig.FavKey4Desc
 			Settings.MsigAccount = newConfig.MsigAccount
 			Settings.Tpid = newConfig.Tpid
+
+			SettingsLoaded <- Settings
+			pop.Hide()
+			return
+		}
+		//show()
+	}
+	pop = widget.NewModalPopUp(contents, Win.Canvas())
+	passEntry.Action = passCallBack
+}
+
+type EnterEntry struct {
+	widget.Entry
+	Action func()
+}
+
+func (e *EnterEntry) onEnter() {
+	e.Action()
+}
+
+func NewEnterEntry(f func()) *EnterEntry {
+	entry := &EnterEntry{
+		Entry:  widget.Entry{},
+		Action: f,
+	}
+	entry.ExtendBaseWidget(entry)
+	return entry
+}
+
+func (e *EnterEntry) KeyDown(key *fyne.KeyEvent) {
+	switch key.Name {
+	case fyne.KeyReturn:
+		e.onEnter()
+	default:
+		e.Entry.KeyDown(key)
+	}
+}
+
+type EnterSelectEntry struct {
+	widget.SelectEntry
+	Action func()
+}
+
+func (e *EnterSelectEntry) onEnter() {
+	e.Action()
+}
+
+func NewEnterSelectEntry(entries []string, f func()) *EnterSelectEntry {
+	entry := &EnterSelectEntry{Action: f}
+	entry.SetOptions(entries)
+	entry.ExtendBaseWidget(entry)
+	return entry
+}
+
+func (e *EnterSelectEntry) KeyDown(key *fyne.KeyEvent) {
+	switch key.Name {
+	case fyne.KeyReturn:
+		e.onEnter()
+	default:
+		e.Entry.KeyDown(key)
+	}
+}
