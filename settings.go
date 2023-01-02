@@ -222,3 +222,67 @@ func MkDir() (ok bool, err error) {
 		errs.ErrChan <- "readWriteSettings: " + err.Error()
 		return false, err
 	}
+	return true, nil
+}
+
+func readWriteSettings(action uint8, fileBytes []byte) (ok bool, content []byte, err error) {
+	if action != settingsRead && action != settingsSave {
+		return false, nil, errors.New("invalid action")
+	}
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		errs.ErrChan <- err.Error()
+		return false, nil, err
+	}
+	_, err = MkDir()
+	if err != nil {
+		return false, nil, err
+	}
+
+	fileName := fmt.Sprintf("%s%c%s%c%s", configDir, os.PathSeparator, settingsDir, os.PathSeparator, settingsFileName)
+	f := &os.File{}
+	fileStat, err := os.Stat(fileName)
+	if _, ok := err.(*os.PathError); ok {
+		if action == settingsRead {
+			return false, nil, nil
+		}
+	} else if err != nil {
+		return false, nil, err
+	}
+
+	// handle request to read file:
+	if fileStat != nil && fileStat.Size() > 0 && action == settingsRead {
+		f, err := os.OpenFile(fileName, os.O_RDONLY, 600)
+		if err != nil {
+			return false, nil, err
+		}
+		defer f.Close()
+		contents := make([]byte, int(fileStat.Size()))
+		n, err := f.Read(contents)
+		if err != nil {
+			return false, nil, err
+		}
+		if int64(n) != fileStat.Size() {
+			return false, nil, errors.New("could not read file, truncated result")
+		}
+		return true, contents, nil
+	} else if action == settingsRead {
+		return false, nil, nil
+	}
+
+	// otherwise write the new config file:
+	f, err = os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
+	if err != nil {
+		return false, nil, err
+	}
+	defer f.Close()
+	_ = f.SetWriteDeadline(time.Now().Add(time.Second))
+	n, err := f.Write(fileBytes)
+	if err != nil {
+		return false, nil, err
+	}
+	if n != len(fileBytes) {
+		return false, nil, errors.New("did not write entire file, output truncated")
+	}
+	return true, nil, nil
+}
