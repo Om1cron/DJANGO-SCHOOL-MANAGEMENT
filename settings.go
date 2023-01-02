@@ -82,3 +82,143 @@ func EncryptSettings(set *FioSettings, salt []byte, password string) (encrypted 
 	// convert our settings to a binary struct
 	data := bytes.NewBuffer(nil)
 	g := gob.NewEncoder(data)
+	err = g.Encode(set)
+	if err != nil {
+		errs.ErrChan <- "EncryptSettings: " + err.Error()
+		return nil, err
+	}
+
+	// password-based key derivation, 48 bytes, 1st 32 is aes key, last 12 mac key
+	key := pbkdf2.Key([]byte(password), salt, 12*1024, 48, sha256.New)
+
+	// aes 256
+	cb, err := aes.NewCipher(key[:32])
+	if err != nil {
+		errs.ErrChan <- "EncryptSettings: " + err.Error()
+		return nil, err
+	}
+
+	//pkcs7 pad the plaintext
+	plaintext := append(data.Bytes(), func() []byte {
+		padLen := cb.BlockSize() - (len(data.Bytes()) % cb.BlockSize())
+		pad := make([]byte, padLen)
+		for i := range pad {
+			pad[i] = uint8(padLen)
+		}
+		return pad
+	}()...)
+
+	// use an authenticated (Galois) cipher
+	gcm, err := cipher.NewGCM(cb)
+	if err != nil {
+		errs.ErrChan <- "EncryptSettings: " + err.Error()
+		return nil, err
+	}
+	// since the nonce should be secret and is derived via pbkdf, don't save it, write ciphertext directly to the buffer
+	l, err := crypted.Write(gcm.Seal(nil, key[len(key)-gcm.NonceSize():], plaintext, nil))
+	if err != nil {
+		errs.ErrChan <- "EncryptSettings: " + err.Error()
+		return nil, err
+	} else if l < len(plaintext)+gcm.Overhead() {
+		err = errors.New("unable to encrypt data, did not get correct size")
+		errs.ErrChan <- "EncryptSettings: " + err.Error()
+		return nil, err
+	}
+
+	// final paranoid sanity check that we got the correct amount of data back
+	if len(crypted.Bytes()) != len(salt)+len(plaintext)+gcm.Overhead() {
+		return nil, errors.New("unable to encrypt data, resulting ciphertext was wrong size")
+	}
+
+	return crypted.Bytes(), nil
+}
+
+func DecryptSettings(encrypted []byte, password string) (settings *FioSettings, err error) {
+	key := pbkdf2.Key([]byte(password), encrypted[:12], 12*1024, 48, sha256.New)
+	cb, err := aes.NewCipher(key[:32])
+	if err != nil {
+		errs.ErrChan <- "DecryptSettings: " + err.Error()
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(cb)
+	if err != nil {
+		errs.ErrChan <- "DecryptSettings: " + err.Error()
+		return nil, err
+	}
+	plain, err := gcm.Open(nil, key[len(key)-gcm.NonceSize():], encrypted[12:], nil)
+	if err != nil {
+		errs.ErrChan <- "DecryptSettings: " + err.Error()
+		return nil, err
+	}
+	padLen := int(plain[len(plain)-1])
+	if len(plain) <= padLen {
+		err = errors.New("invalid padding, plaintext smaller than pkcs7 pad size")
+		errs.ErrChan <- "DecryptSettings: " + err.Error()
+		return nil, err
+	}
+	g := gob.NewDecoder(bytes.NewReader(plain[:len(plain)-padLen]))
+	err = g.Decode(&settings)
+	if err != nil {
+		errs.ErrChan <- "DecryptSettings: " + err.Error()
+		return nil, err
+	}
+	if settings.AdvancedFeatures {
+		_ = os.Setenv("ADVANCED", "true")
+	}
+	return
+}
+
+const (
+	settingsRead uint8 = iota
+	settingsSave
+)
+
+// will never return a nil settings
+func LoadEncryptedSettings(password string) (ok bool, fileLength int, settings *FioSettings, err error) {
+	ok, encrypted, err := readWriteSettings(settingsRead, nil)
+	if !ok {
+		return ok, len(encrypted), DefaultSettings(), err
+	}
+	decrypted, err := DecryptSettings(encrypted, password)
+	if err != nil {
+		return false, len(encrypted), DefaultSettings(), err
+	}
+	if decrypted == nil {
+		return false, len(encrypted), DefaultSettings(), errors.New("unknown error decrypting config, got empty config")
+	}
+	return true, len(encrypted), decrypted, nil
+}
+
+func SaveEncryptedSettings(password string, settings *FioSettings) (ok bool, err error) {
+	encrypted, err := EncryptSettings(settings, nil, password)
+	if err != nil {
+		return false, err
+	}
+	ok, _, err = readWriteSettings(settingsSave, encrypted)
+	return
+}
+
+func MkDir() (ok bool, err error) {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return false, nil
+	}
+	dirName := fmt.Sprintf("%s%c%s", configDir, os.PathSeparator, settingsDir)
+	var createDir bool
+	dirStat, err := os.Stat(dirName)
+	if _, ok := err.(*os.PathError); ok {
+		if e := os.Mkdir(dirName, os.FileMode(0700)); e != nil {
+			return false, err
+		}
+		createDir = true
+	} else if err != nil {
+		errs.ErrChan <- "MkDir: " + err.Error()
+		return false, err
+	}
+	if dirStat == nil && !createDir {
+		return false, errors.New("unknown error creating configuration directory")
+	} else if !createDir && !dirStat.IsDir() {
+		err = errors.New("cannot create directory, file already exists")
+		errs.ErrChan <- "readWriteSettings: " + err.Error()
+		return false, err
+	}
