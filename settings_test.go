@@ -5,4 +5,8 @@ import (
 	"testing"
 )
 
-func 
+func TestEncryptSettings(t *testing.T) {
+	s := DefaultSettings()
+	encrypted, err := EncryptSettings(s, nil, "password")
+	if err != nil {
+		t.Erro
