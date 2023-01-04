@@ -17,4 +17,6 @@ func TestEncryptSettings(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	fmt.Printf("%#v\n", d
+	fmt.Printf("%#v\n", decrypted)
+
+}
