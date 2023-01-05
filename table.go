@@ -154,3 +154,153 @@ func (tb *TableBrowserIndex) Add(contract string, tables []string) (ok bool) {
 	tb.tables[contract] = tables
 	return true
 }
+
+func (tb *TableBrowserIndex) Get(contract string) (tables []string) {
+	tb.mux.RLock()
+	defer tb.mux.RUnlock()
+	if tb.tables[contract] == nil || len(tb.tables[contract]) == 0 {
+		errs.ErrChan <- contract + " doesn't have any tables?"
+		return []string{""}
+	}
+	return tb.tables[contract]
+}
+
+func (tb *TableBrowserIndex) List() []string {
+	l := make([]string, 0)
+	tb.mux.RLock()
+	defer tb.mux.RUnlock()
+	for tableName := range tb.tables {
+		l = append(l, tableName)
+	}
+	sort.Strings(l)
+	return l
+}
+
+func GetTableBrowser(w int, h int, api *fio.API) (tab *widget.Box, ok bool) {
+	var getRows func()
+	page := widget.NewEntry()
+	page.SetText("1")
+	page.Disable()
+	rowsPerPage := widget.NewEntry()
+	rowsPerPage.SetText("10")
+
+	getRowsPerPage := func() uint32 {
+		i, e := strconv.Atoi(rowsPerPage.Text)
+		if e != nil {
+			rowsPerPage.SetText("10")
+			rowsPerPage.Refresh()
+			return 10
+		}
+		return uint32(i)
+	}
+
+	result := widget.NewMultiLineEntry()
+	submit := widget.NewButtonWithIcon("Query", theme.SearchIcon(), func() {
+		getRows()
+	})
+	showQueryCheck := widget.NewCheck("show query", func(b bool) {})
+	var tables = widget.NewSelect([]string{""}, func(s string) {
+		result.SetText("")
+		if !page.Disabled() {
+			page.SetText("1")
+		}
+		if submit.Disabled() {
+			submit.Enable()
+		}
+		getRows()
+	})
+	tables.PlaceHolder = "(table)"
+	scopeEntry := widget.NewEntry()
+	advancedCheck := &widget.Check{}
+	contract := widget.NewSelect(TableIndex.List(), func(s string) {
+		scopeEntry.SetText(s)
+		if advancedCheck.Disabled() {
+			advancedCheck.Enable()
+		}
+		t := TableIndex.Get(s)
+		if len(t) == 0 {
+			tables.Options = make([]string, 0)
+			return
+		}
+		tables.Options = t
+		tables.SetSelected(t[0])
+	})
+	contract.PlaceHolder = "(account)"
+	next := &widget.Button{}
+	next = widget.NewButtonWithIcon("next", theme.NavigateNextIcon(), func() {
+		p, e := strconv.Atoi(page.Text)
+		if e != nil {
+			page.SetText("1")
+		} else {
+			page.SetText(strconv.Itoa(p + 1))
+		}
+		getRows()
+	})
+	next.Disable()
+	previous := widget.NewButtonWithIcon("previous", theme.NavigateBackIcon(), func() {
+		p, e := strconv.Atoi(page.Text)
+		if e != nil {
+			page.SetText("1")
+		} else {
+			page.SetText(strconv.Itoa(p - 1))
+		}
+		getRows()
+	})
+	previous.Disable()
+
+	indexLabel := widget.NewLabel("index ")
+	indexLabel.Hide()
+	indexEntry := widget.NewEntry()
+	indexEntry.SetText("1")
+	indexEntry.Hide()
+	scopeLabel := widget.NewLabel("scope ")
+	scopeLabel.Hide()
+	//scopeEntry := widget.NewEntry() // moved above contract select
+	scopeEntry.SetText("")
+	scopeEntry.Hide()
+	typeSelect := widget.NewSelect(
+		[]string{
+			"name",
+			"i64",
+			"i128",
+			"i256",
+			"float64",
+			"float128",
+			"ripemd160",
+			"sha256",
+		},
+		func(s string) {},
+	)
+	typeSelect.PlaceHolder = "(key type)"
+	typeSelect.Hide()
+	lowerLabel := widget.NewLabel("lower bound")
+	lowerLabel.Hide()
+	lowerValueEntry := widget.NewEntry()
+	lowerValueEntry.SetPlaceHolder("lower bound")
+	lowerValueEntry.Hide()
+	upperLabel := widget.NewLabel("upper bound")
+	upperLabel.Hide()
+	upperValueEntry := widget.NewEntry()
+	upperValueEntry.SetPlaceHolder("upper bound")
+	upperValueEntry.Hide()
+	lowerValueEntry.OnChanged = func(s string) {
+		upperValueEntry.SetText(s)
+		upperValueEntry.Refresh()
+	}
+	transformSelect := widget.NewSelect(
+		[]string{
+			"none",
+			"name -> i64",
+			"checksum256",
+			"hash",
+		},
+		func(s string) {},
+	)
+	transformSelect.PlaceHolder = "(transform)"
+	transformSelect.Hide()
+	reverseCheck := widget.NewCheck("reverse", func(bool) {})
+	reverseCheck.Hide()
+	var lastNext, lastPrev bool
+	var lastPage string
+	advancedCheck = widget.NewCheck("Advanced", func(b bool) {
+		if b {
