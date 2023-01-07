@@ -304,3 +304,149 @@ func GetTableBrowser(w int, h int, api *fio.API) (tab *widget.Box, ok bool) {
 	var lastPage string
 	advancedCheck = widget.NewCheck("Advanced", func(b bool) {
 		if b {
+			lastNext = next.Disabled()
+			lastPrev = previous.Disabled()
+			lastPage = page.Text
+			page.SetText("-")
+			scopeLabel.Show()
+			scopeEntry.Show()
+			indexLabel.Show()
+			indexEntry.Show()
+			typeSelect.Show()
+			lowerLabel.Show()
+			lowerValueEntry.Show()
+			upperLabel.Show()
+			upperValueEntry.Show()
+			transformSelect.Show()
+			reverseCheck.Show()
+			page.Disable()
+			previous.Disable()
+			next.Disable()
+			return
+		}
+		scopeLabel.Hide()
+		scopeEntry.Hide()
+		indexLabel.Hide()
+		indexEntry.Hide()
+		typeSelect.Hide()
+		lowerLabel.Hide()
+		lowerValueEntry.Hide()
+		upperLabel.Hide()
+		upperValueEntry.Hide()
+		transformSelect.Hide()
+		reverseCheck.Hide()
+		page.SetText(lastPage)
+		page.Enable()
+		if !lastPrev {
+			previous.Enable()
+		}
+		if !lastNext {
+			next.Enable()
+		}
+	})
+	advancedCheck.Disable()
+
+	browseLayout := widget.NewVBox(
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(200, 35)),
+			widget.NewHBox(
+				widget.NewLabel("                              "),
+				advancedCheck,
+				scopeLabel,
+				scopeEntry,
+				indexLabel,
+				indexEntry,
+				typeSelect,
+				lowerLabel,
+				lowerValueEntry,
+				upperLabel,
+				upperValueEntry,
+				transformSelect,
+				reverseCheck,
+			),
+		),
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(200, 35)),
+			widget.NewHBox(
+				widget.NewLabel("                              "),
+				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(180, contract.MinSize().Height)), contract),
+				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(180, tables.MinSize().Height)), tables),
+				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(previous.MinSize()), previous),
+				widget.NewLabel("page"),
+				page,
+				widget.NewLabel("limit"),
+				rowsPerPage,
+				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(next.MinSize()), next),
+				showQueryCheck,
+				widget.NewLabel("  "),
+				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(submit.MinSize()), submit),
+			),
+		),
+		fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(RWidth(), int(math.Round(float64(H)*.62)))),
+			widget.NewScrollContainer(
+				widget.NewVBox(
+					result,
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.Size{
+						Width:  20,
+						Height: 100,
+					}), layout.NewSpacer()),
+				)),
+		))
+	getRows = func() {
+		if contract.Selected == "" || tables.Selected == "" || page.Text == "" {
+			result.SetText("Invalid table params")
+			return
+		}
+		proposedPage, e := strconv.ParseUint(page.Text, 10, 32)
+		if e != nil {
+			page.SetText("1")
+			proposedPage = 1
+		}
+		var curl string
+		var out *string
+		var more bool
+		switch advancedCheck.Checked {
+		case true:
+			// (max uint32, scope string, contract string, table string, index string, keyType string, lower string, upper string, transform string, api *fio.API
+			out, curl, _ = QueryTableAdvanced(getRowsPerPage(), scopeEntry.Text, contract.Selected, tables.Selected, indexEntry.Text, typeSelect.Selected, lowerValueEntry.Text, upperValueEntry.Text, transformSelect.Selected, reverseCheck.Checked, api)
+		case false:
+			out, curl, more = QueryTable((uint32(proposedPage)-1)*getRowsPerPage(), getRowsPerPage(), contract.Selected, tables.Selected, api)
+			if out == nil {
+				return
+			}
+			if !more && !next.Disabled() {
+				next.Disable()
+			} else if more && next.Disabled() {
+				next.Enable()
+			}
+			if proposedPage < 2 && !previous.Disabled() {
+				previous.Disable()
+			} else if proposedPage >= 2 && previous.Disabled() {
+				previous.Enable()
+			}
+			if (!next.Disabled() || !previous.Disabled()) && page.Disabled() {
+				page.Enable()
+			} else if next.Disabled() && previous.Disabled() && !page.Disabled() {
+				page.Disable()
+			}
+		}
+		result.SetText("")
+		var txt string
+		if out != nil {
+			if showQueryCheck.Checked {
+				txt = `
+Query:
+
+` + curl + `
+
+Result
+
+` + *out
+
+			} else {
+				txt = *out
+			}
+			func(s string) {
+				result.OnChanged = func(string) {
+					result.SetText(s)
+				}
+			}(txt) // deref
+			result.SetText(txt)
