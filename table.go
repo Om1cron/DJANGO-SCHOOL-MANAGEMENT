@@ -450,3 +450,103 @@ Result
 				}
 			}(txt) // deref
 			result.SetText(txt)
+		}
+	}
+	TableIndex.SetCreated(true)
+	return browseLayout, true
+}
+
+func QueryTable(offset uint32, max uint32, contract string, table string, api *fio.API) (out *string, query string, more bool) {
+	gtr := eos.GetTableRowsRequest{
+		Code:       contract,
+		Scope:      contract,
+		Table:      table,
+		LowerBound: strconv.Itoa(int(offset)),
+		Limit:      max,
+		JSON:       true,
+	}
+	qs, _ := json.MarshalIndent(gtr, "", "  ")
+	query = string(qs)
+	resp, err := api.GetTableRows(gtr)
+	var o string
+	if err != nil {
+		o = err.Error()
+		return &o, query, more
+	}
+	more = resp.More
+	j, err := json.MarshalIndent(resp.Rows, "", "  ")
+	if err != nil {
+		o = err.Error()
+		return &o, query, more
+	}
+	o = string(j)
+	return &o, query, more
+}
+
+func QueryTableAdvanced(max uint32, scope string, contract string, table string, index string, keyType string, lower string, upper string, transform string, reverse bool, api *fio.API) (out *string, query string, more bool) {
+	if keyType == "(key type)" {
+		keyType = "name"
+	}
+	switch transform {
+	case "name -> i64":
+		u, err := eos.StringToName(upper)
+		if err != nil {
+			e := err.Error()
+			out = &e
+			return
+		}
+		l, err := eos.StringToName(lower)
+		if err != nil {
+			e := err.Error()
+			out = &e
+			return
+		}
+		upper = fmt.Sprintf("%d", u)
+		lower = fmt.Sprintf("%d", l)
+	case "checksum256":
+		h := sha256.New()
+		_, err := h.Write([]byte(upper))
+		if err != nil {
+			e := err.Error()
+			out = &e
+			return
+		}
+		ub := h.Sum(nil)
+		upper = hex.EncodeToString(ub)
+		h.Reset()
+		h.Write([]byte(lower))
+		lb := h.Sum(nil)
+		lower = hex.EncodeToString(lb)
+	case "hash":
+		upper = FioDomainNameHash(upper)
+		lower = FioDomainNameHash(lower)
+	}
+	gtr := fio.GetTableRowsOrderRequest{
+		Code:       contract,
+		Scope:      scope,
+		Table:      table,
+		LowerBound: lower,
+		UpperBound: upper,
+		Limit:      max,
+		KeyType:    keyType,
+		Index:      index,
+		JSON:       true,
+		Reverse:    reverse,
+	}
+	qs, _ := json.MarshalIndent(gtr, "", "  ")
+	query = string(qs)
+	resp, err := api.GetTableRowsOrder(gtr)
+	var o string
+	if err != nil {
+		o = err.Error()
+		return &o, query, more
+	}
+	more = resp.More
+	j, err := json.MarshalIndent(resp.Rows, "", "  ")
+	if err != nil {
+		o = err.Error()
+		return &o, query, more
+	}
+	o = string(j)
+	return &o, query, more
+}
