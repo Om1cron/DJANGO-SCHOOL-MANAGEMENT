@@ -7,4 +7,10 @@ import (
 )
 
 func TestGetAccountActions(t *testing.T) {
-	api, _, err := fio.NewConnection(nil, "http:
+	api, _, err := fio.NewConnection(nil, "http://127.0.0.1:8888")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	api.Header.Set("User-Agent", "fio-cryptonym-wallet")
+	a, err := GetAccountSummary
