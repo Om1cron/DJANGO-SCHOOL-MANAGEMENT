@@ -51,3 +51,138 @@ type FioCustomTheme struct {
 }
 
 func (FioCustomTheme) BackgroundColor() color.Color {
+	return darkGrey
+}
+
+func (FioCustomTheme) ButtonColor() color.Color {
+	return darkerGrey
+}
+
+func (FioCustomTheme) DisabledButtonColor() color.Color {
+	//return darkestGrey
+	return darkGrey
+}
+
+func (FioCustomTheme) HyperlinkColor() color.Color {
+	return fioTertiary
+}
+
+func (FioCustomTheme) TextColor() color.Color {
+	return lightestGrey
+}
+
+func (FioCustomTheme) DisabledTextColor() color.Color {
+	return lightGrey
+}
+
+func (FioCustomTheme) IconColor() color.Color {
+	return fioTertiary
+}
+
+func (FioCustomTheme) DisabledIconColor() color.Color {
+	return grey
+}
+
+func (FioCustomTheme) PlaceHolderColor() color.Color {
+	return fioPrimary
+}
+
+func (FioCustomTheme) PrimaryColor() color.Color {
+	return fioPrimary
+}
+
+func (FioCustomTheme) HoverColor() color.Color {
+	return fioSecondary
+}
+
+func (FioCustomTheme) FocusColor() color.Color {
+	return &color.RGBA{R: 93, G: 93, B: 93, A: 124}
+}
+
+func (FioCustomTheme) ScrollBarColor() color.Color {
+	//return greyBorder
+	//return fioPrimary
+	return &color.RGBA{R: 26, G: 20, B: 60, A: 128}
+}
+
+func (FioCustomTheme) ShadowColor() color.Color {
+	return &color.RGBA{R: 2, G: 0, B: 4, A: 166}
+}
+
+func (FioCustomTheme) TextSize() int {
+	return 14
+}
+
+func (FioCustomTheme) TextFont() fyne.Resource {
+	return theme.DefaultTextFont()
+}
+
+func (FioCustomTheme) TextBoldFont() fyne.Resource {
+	return theme.DefaultTextBoldFont()
+}
+
+func (FioCustomTheme) TextItalicFont() fyne.Resource {
+	return theme.DefaultTextBoldItalicFont()
+}
+
+func (FioCustomTheme) TextBoldItalicFont() fyne.Resource {
+	return theme.DefaultTextBoldItalicFont()
+}
+
+func (FioCustomTheme) TextMonospaceFont() fyne.Resource {
+	return theme.DefaultTextMonospaceFont()
+}
+
+func (FioCustomTheme) Padding() int {
+	return 3
+}
+
+func (FioCustomTheme) IconInlineSize() int {
+	return 20
+}
+
+func (FioCustomTheme) ScrollBarSize() int {
+	return 12
+}
+
+func (FioCustomTheme) ScrollBarSmallSize() int {
+	return 4
+}
+
+func CustomTheme() fyne.Theme {
+	return &FioCustomTheme{}
+}
+
+func FioLogoCanvas() fyne.CanvasObject {
+	i, _, err := fioassets.NewFioLogo()
+	if err != nil {
+		return nil
+	}
+	image := canvas.NewImageFromImage(i)
+	return fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(55, 55)), layout.NewSpacer(), image)
+}
+
+type ClickEntry struct {
+	widget.Entry
+	Button *widget.Button
+}
+
+func (e *ClickEntry) onEnter() {
+	e.Button.Tapped(&fyne.PointEvent{})
+}
+
+func NewClickEntry(b *widget.Button) *ClickEntry {
+	entry := &ClickEntry{
+		Entry:  widget.Entry{},
+		Button: b,
+	}
+	entry.ExtendBaseWidget(entry)
+	return entry
+}
+
+func (e *ClickEntry) KeyDown(key *fyne.KeyEvent) {
+	switch key.Name {
+	case fyne.KeyReturn:
+		e.onEnter()
+	default:
+		e.Entry.KeyDown(key)
