@@ -13,4 +13,10 @@ func TestGetAccountActions(t *testing.T) {
 		return
 	}
 	api.Header.Set("User-Agent", "fio-cryptonym-wallet")
-	a, err := GetAccountSummary
+	a, err := GetAccountSummary(api)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	fmt.Println(a)
+}
