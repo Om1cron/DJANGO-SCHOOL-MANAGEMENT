@@ -186,3 +186,96 @@ func (e *ClickEntry) KeyDown(key *fyne.KeyEvent) {
 		e.onEnter()
 	default:
 		e.Entry.KeyDown(key)
+	}
+}
+
+func DarkerTheme() *prettyfyne.PrettyTheme {
+	pt, _, err := prettyfyne.UnmarshalYaml([]byte(darkerTheme))
+	if err != nil {
+		return &prettyfyne.ExampleDracula
+	}
+	return pt
+}
+
+const darkerTheme = `
+background_color:
+  r: 16
+  g: 16
+  b: 16
+  a: 255
+button_color:
+  r: 28
+  g: 28
+  b: 28
+  a: 255
+disabled_button_color:
+  r: 15
+  g: 15
+  b: 17
+  a: 255
+hyperlink_color:
+  r: 143
+  g: 168
+  b: 51
+  a: 64
+text_color:
+  r: 244
+  g: 255
+  b: 244
+  a: 255
+disabled_text_color:
+  r: 138
+  g: 138
+  b: 138
+  a: 255
+icon_color:
+  r: 150
+  g: 150
+  b: 150
+  a: 255
+disabled_icon_color:
+  r: 84
+  g: 84
+  b: 84
+  a: 255
+place_holder_color:
+  r: 83
+  g: 83
+  b: 83
+  a: 255
+primary_color:
+  r: 48
+  g: 48
+  b: 48
+  a: 255
+hover_color:
+  r: 69
+  g: 69
+  b: 69
+  a: 255
+focus_color:
+  r: 99
+  g: 99
+  b: 99
+  a: 255
+scroll_bar_color:
+  r: 0
+  g: 0
+  b: 0
+  a: 255
+shadow_color:
+  r: 21
+  g: 21
+  b: 21
+  a: 32
+text_size: 14
+text_font: NotoSans-Regular.ttf
+text_bold_font: NotoSans-Bold.ttf
+text_italic_font: NotoSans-Italic.ttf
+text_bold_italic_font: NotoSans-BoldItalic.ttf
+text_monospace_font: NotoMono-Regular.ttf
+padding: 3
+icon_inline_size: 20
+scroll_bar_size: 10
+scroll_bar_small_size: 4
+`
