@@ -14,4 +14,18 @@ import (
 	"github.com/fioprotocol/fio-go"
 	"github.com/fioprotocol/fio-go/eos"
 	"gopkg.in/yaml.v3"
-	"io/io
+	"io/ioutil"
+	"log"
+	"math"
+	"regexp"
+	"runtime"
+	"sort"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+)
+
+var (
+	Results       = make([]TxResult, 0)
+	requestTex
