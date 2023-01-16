@@ -28,4 +28,10 @@ import (
 
 var (
 	Results       = make([]TxResult, 0)
-	requestTex
+	requestText   = widget.NewMultiLineEntry()
+	responseText  = widget.NewMultiLineEntry()
+	stopRequested = make(chan bool)
+)
+
+type TxResult struct {
+	FullR
