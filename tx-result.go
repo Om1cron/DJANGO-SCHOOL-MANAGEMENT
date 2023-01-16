@@ -34,4 +34,14 @@ var (
 )
 
 type TxResult struct {
-	FullR
+	FullResp []byte
+	FullReq  []byte
+	Resp     []byte
+	Req      []byte
+	Success  bool
+	Index    int
+	Summary  string
+}
+
+type TxSummary struct {
+	Tra
