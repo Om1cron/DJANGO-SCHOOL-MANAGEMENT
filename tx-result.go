@@ -44,4 +44,7 @@ type TxResult struct {
 }
 
 type TxSummary struct {
-	Tra
+	TransactionId string `json:"transaction_id" yaml:"Transaction Id"`
+	Processed     struct {
+		BlockNum  uint32 `json:"block_num" yaml:"Block Number"`
+		B
