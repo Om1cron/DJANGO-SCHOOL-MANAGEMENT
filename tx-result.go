@@ -47,4 +47,7 @@ type TxSummary struct {
 	TransactionId string `json:"transaction_id" yaml:"Transaction Id"`
 	Processed     struct {
 		BlockNum  uint32 `json:"block_num" yaml:"Block Number"`
-		B
+		BlockTime string `json:"block_time" yaml:"Block Time"`
+		Receipt   struct {
+			Status string `json:"status" yaml:"Status"`
+		} `jso
