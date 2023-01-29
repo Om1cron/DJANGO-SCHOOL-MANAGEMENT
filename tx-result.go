@@ -50,4 +50,6 @@ type TxSummary struct {
 		BlockTime string `json:"block_time" yaml:"Block Time"`
 		Receipt   struct {
 			Status string `json:"status" yaml:"Status"`
-		} `jso
+		} `json:"receipt" yaml:"Receipt,omitempty"`
+	} `json:"processed" yaml:"Processed,omitempty"`
+	ErrorCode  interface{} `json:"error_code" yaml
