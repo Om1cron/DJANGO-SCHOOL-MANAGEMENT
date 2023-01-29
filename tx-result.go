@@ -52,4 +52,5 @@ type TxSummary struct {
 			Status string `json:"status" yaml:"Status"`
 		} `json:"receipt" yaml:"Receipt,omitempty"`
 	} `json:"processed" yaml:"Processed,omitempty"`
-	ErrorCode  interface{} `json:"error_code" yaml
+	ErrorCode  interface{} `json:"error_code" yaml:"Error,omitempty"`                             // is this a string, int, varies on context?
+	TotalBytes int         `json:"total_bytes,omi
