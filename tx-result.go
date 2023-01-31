@@ -53,4 +53,7 @@ type TxSummary struct {
 		} `json:"receipt" yaml:"Receipt,omitempty"`
 	} `json:"processed" yaml:"Processed,omitempty"`
 	ErrorCode  interface{} `json:"error_code" yaml:"Error,omitempty"`                             // is this a string, int, varies on context?
-	TotalBytes int         `json:"total_bytes,omi
+	TotalBytes int         `json:"total_bytes,omitempty" yaml:"TX Size of All Actions,omitempty"` // this is field we calculate later
+}
+
+// to get the *real* size of what was t
