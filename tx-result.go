@@ -56,4 +56,5 @@ type TxSummary struct {
 	TotalBytes int         `json:"total_bytes,omitempty" yaml:"TX Size of All Actions,omitempty"` // this is field we calculate later
 }
 
-// to get the *real* size of what was t
+// to get the *real* size of what was transacted, we need to dig into the action traces and look at the length
+// of the hex_data field, which is buried in the response.
