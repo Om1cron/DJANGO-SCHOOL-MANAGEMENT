@@ -58,3 +58,10 @@ type TxSummary struct {
 
 // to get the *real* size of what was transacted, we need to dig into the action traces and look at the length
 // of the hex_data field, which is buried in the response.
+type txTraces struct {
+	Processed struct {
+		ActionTraces []struct {
+			Act struct {
+				HexData string `json:"hex_data"`
+			} `json:"act"`
+		
