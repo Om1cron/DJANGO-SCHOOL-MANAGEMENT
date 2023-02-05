@@ -72,4 +72,13 @@ func (tt txTraces) size() int {
 	if len(tt.Processed.ActionTraces) == 0 {
 		return 0
 	}
-	var sz i
+	var sz int
+	for _, t := range tt.Processed.ActionTraces {
+		sz = sz + (len(t.Act.HexData) / 2)
+	}
+	return sz
+}
+
+type txResultOpts struct {
+	repeat      int
+	loop       
