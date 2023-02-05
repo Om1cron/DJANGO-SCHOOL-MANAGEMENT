@@ -64,4 +64,12 @@ type txTraces struct {
 			Act struct {
 				HexData string `json:"hex_data"`
 			} `json:"act"`
-		
+		} `json:"action_traces"`
+	} `json:"processed"`
+}
+
+func (tt txTraces) size() int {
+	if len(tt.Processed.ActionTraces) == 0 {
+		return 0
+	}
+	var sz i
