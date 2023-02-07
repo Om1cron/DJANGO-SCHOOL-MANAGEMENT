@@ -89,3 +89,10 @@ type txResultOpts struct {
 	gone        bool
 	msig        bool
 	msigSigners string
+	msigAccount string
+	msigName    func() string
+	wrap        bool
+	wrapActor   string
+}
+
+func TxResultsWindow(win *txResultOpts, a
