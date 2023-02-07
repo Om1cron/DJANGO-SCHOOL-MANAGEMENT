@@ -81,4 +81,11 @@ func (tt txTraces) size() int {
 
 type txResultOpts struct {
 	repeat      int
-	loop       
+	loop        bool
+	threads     string
+	hideFail    bool
+	hideSucc    bool
+	window      fyne.Window
+	gone        bool
+	msig        bool
+	msigSigners string
