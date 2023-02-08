@@ -95,4 +95,7 @@ type txResultOpts struct {
 	wrapActor   string
 }
 
-func TxResultsWindow(win *txResultOpts, a
+func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, account *fio.Account) {
+	ResetTxResult()
+
+	// this is a workaround for fyne  sometimes showing blank bla
