@@ -98,4 +98,6 @@ type txResultOpts struct {
 func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, account *fio.Account) {
 	ResetTxResult()
 
-	// this is a workaround for fyne  sometimes showing blank bla
+	// this is a workaround for fyne  sometimes showing blank black windows, resizing fixes
+	// but when it happens the window still doesn't work correctly. It will show up, but does not
+	// refresh. B
