@@ -100,4 +100,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 
 	// this is a workaround for fyne  sometimes showing blank black windows, resizing fixes
 	// but when it happens the window still doesn't work correctly. It will show up, but does not
-	// refresh. B
+	// refresh. Beats a black window, and at least the close button works.
+	resizeTrigger := make(chan interface{})
+	go func() {
+		for {
+			select {
+			case
