@@ -110,4 +110,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					continue
 				}
 				win.window.Resize(fyne.NewSize(txW, txH))
-				
+				time.Sleep(100 * time.Millisecond)
+				win.window.Resize(win.window.Content().MinSize())
+			}
+		}
+	}()
+
+	workers, e := strcon
