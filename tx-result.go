@@ -105,4 +105,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	go func() {
 		for {
 			select {
-			case
+			case <-resizeTrigger:
+				if win.window == nil || !win.window.Content().Visible() {
+					continue
+				}
+				win.window.Resize(fyne.NewSize(txW, txH))
+				
