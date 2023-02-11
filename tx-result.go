@@ -116,4 +116,12 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		}
 	}()
 
-	workers, e := strcon
+	workers, e := strconv.Atoi(win.threads)
+	if e != nil {
+		workers = 1
+	}
+
+	var (
+		grid              *fyne.Container
+		b                 *widget.Button
+		st
