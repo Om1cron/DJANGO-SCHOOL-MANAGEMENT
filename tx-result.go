@@ -128,4 +128,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		closeRow          *widget.Group
 		running           bool
 		exit              bool
-		fu
+		fullResponseIndex int
+	)
+
+	successLabel := widget.NewLabel("")
+	failedLabel := widget.NewLabel("")
+	successChan := make(c
