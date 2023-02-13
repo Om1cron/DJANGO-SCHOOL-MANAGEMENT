@@ -124,4 +124,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	var (
 		grid              *fyne.Container
 		b                 *widget.Button
-		st
+		stopButton        *widget.Button
+		closeRow          *widget.Group
+		running           bool
+		exit              bool
+		fu
