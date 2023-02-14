@@ -133,4 +133,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 
 	successLabel := widget.NewLabel("")
 	failedLabel := widget.NewLabel("")
-	successChan := make(c
+	successChan := make(chan bool)
+	failedChan := make(chan bool)
+	go func(s chan bool, f chan bool) {
+		time.Sleep(100 * time.Millisecond)
+		BalanceChan <-
