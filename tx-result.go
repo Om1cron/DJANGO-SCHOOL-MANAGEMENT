@@ -137,4 +137,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	failedChan := make(chan bool)
 	go func(s chan bool, f chan bool) {
 		time.Sleep(100 * time.Millisecond)
-		BalanceChan <-
+		BalanceChan <- true
+		tick := time.NewTicker(time.Second)
+		update := false
+		updateBalance := false
+		successCount := 0
+		failedCount := 0
+		fo
