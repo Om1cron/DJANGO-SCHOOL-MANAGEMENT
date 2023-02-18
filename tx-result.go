@@ -143,4 +143,12 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		updateBalance := false
 		successCount := 0
 		failedCount := 0
-		fo
+		for {
+			select {
+			case <-tick.C:
+				if updateBalance {
+					BalanceChan <- true
+					updateBalance = false
+				}
+				if update {
+					s
