@@ -151,4 +151,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					updateBalance = false
 				}
 				if update {
-					s
+					successLabel.SetText(p.Sprintf("%d", successCount))
+					failedLabel.SetText(p.Sprintf("%d", failedCount))
+					successLabel.Refresh()
+					failedLabel.Refresh()
+					up
