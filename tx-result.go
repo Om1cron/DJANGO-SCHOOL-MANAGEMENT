@@ -155,4 +155,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					failedLabel.SetText(p.Sprintf("%d", failedCount))
 					successLabel.Refresh()
 					failedLabel.Refresh()
-					up
+					update = false
+				}
+			case <-f:
+				update = true
+				failedCount = failedCount + 1
+			case <-s:
+				update = true
+				
