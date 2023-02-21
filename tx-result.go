@@ -170,3 +170,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 
 	run := func() {}
 	mux := sync.Mutex{}
+	Results = make([]TxResult, 0)
+
+	summaryGroup := widget.NewGroupWithScroller("Transaction Result")
+	showFullResponseButton := widget.NewBu
