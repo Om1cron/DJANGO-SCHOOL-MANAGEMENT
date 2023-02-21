@@ -162,4 +162,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				failedCount = failedCount + 1
 			case <-s:
 				update = true
-				
+				updateBalance = true
+				successCount = successCount + 1
+			}
+		}
+	}(successChan, failedChan)
+
+	run := func() {}
+	mux := sync.Mutex{}
