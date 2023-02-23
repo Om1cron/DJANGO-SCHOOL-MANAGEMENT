@@ -173,4 +173,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	Results = make([]TxResult, 0)
 
 	summaryGroup := widget.NewGroupWithScroller("Transaction Result")
-	showFullResponseButton := widget.NewBu
+	showFullResponseButton := widget.NewButtonWithIcon("Show Response Details", theme.VisibilityIcon(), func() {
+		// avoid nil pointer
+		if len(Results) <= fullResponseIndex {
+			errs.ErrChan <
