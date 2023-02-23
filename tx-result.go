@@ -176,4 +176,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	showFullResponseButton := widget.NewButtonWithIcon("Show Response Details", theme.VisibilityIcon(), func() {
 		// avoid nil pointer
 		if len(Results) <= fullResponseIndex {
-			errs.ErrChan <
+			errs.ErrChan <- "could not show full response: invalid result index - this shouldn't happen!"
+			return
+		}
+		if len(Results[fullResponseIndex].FullResp) ==
