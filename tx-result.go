@@ -179,4 +179,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			errs.ErrChan <- "could not show full response: invalid result index - this shouldn't happen!"
 			return
 		}
-		if len(Results[fullResponseIndex].FullResp) ==
+		if len(Results[fullResponseIndex].FullResp) == 0 {
+			errs.ErrChan <- "could not show full response: empty string"
+			return
+		}
+		ShowFullResponse(Results
