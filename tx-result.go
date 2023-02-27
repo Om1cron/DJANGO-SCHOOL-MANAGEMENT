@@ -188,4 +188,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	showFullRequestButton := widget.NewButtonWithIcon("Show Request JSON", theme.VisibilityIcon(), func() {
 		// avoid nil pointer
 		if len(Results) <= fullResponseIndex {
-			errs.ErrChan <- "could not show full request: inval
+			errs.ErrChan <- "could not show full request: invalid result index - this shouldn't happen!"
+			return
+		}
+		if len(Results[fullResponseIndex].FullReq) == 0 {
+			errs.ErrChan <- "could not show f
