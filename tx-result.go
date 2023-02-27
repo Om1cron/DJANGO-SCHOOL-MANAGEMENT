@@ -183,4 +183,6 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			errs.ErrChan <- "could not show full response: empty string"
 			return
 		}
-		ShowFullResponse(Results
+		ShowFullResponse(Results[fullResponseIndex].FullResp, win.window)
+	})
+	showFullRequestButton := widget.NewButtonWithIcon("Show Request JSON", theme.VisibilityIco
