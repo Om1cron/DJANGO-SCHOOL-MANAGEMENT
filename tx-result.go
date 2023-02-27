@@ -192,4 +192,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			return
 		}
 		if len(Results[fullResponseIndex].FullReq) == 0 {
-			errs.ErrChan <- "could not show f
+			errs.ErrChan <- "could not show full request: empty string"
+			return
+		}
+		ShowFullRequest(Results[fullResponseIndex].FullReq, win.window)
+	})
+
+	textUpdateDone := make(ch
