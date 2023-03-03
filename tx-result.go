@@ -208,4 +208,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				return
 			case s := <-textUpdateReq:
 				requestText.OnChanged = func(string) {
-					requestText.SetText
+					requestText.SetText(s)
+				}
+				requestText.SetText(s)
+			case s := <-textUpdateResp:
+				responseText.OnChanged = func(string) {
+					resp
