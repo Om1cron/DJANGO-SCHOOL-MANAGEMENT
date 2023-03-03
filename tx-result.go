@@ -203,4 +203,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	textUpdateResp := make(chan string)
 	go func() {
 		for {
-			se
+			select {
+			case <-textUpdateDone:
+				return
+			case s := <-textUpdateReq:
+				requestText.OnChanged = func(string) {
+					requestText.SetText
