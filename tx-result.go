@@ -198,4 +198,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		ShowFullRequest(Results[fullResponseIndex].FullReq, win.window)
 	})
 
-	textUpdateDone := make(ch
+	textUpdateDone := make(chan interface{})
+	textUpdateReq := make(chan string)
+	textUpdateResp := make(chan string)
+	go func() {
+		for {
+			se
