@@ -213,4 +213,13 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				requestText.SetText(s)
 			case s := <-textUpdateResp:
 				responseText.OnChanged = func(string) {
-					resp
+					responseText.SetText(s)
+				}
+				responseText.SetText(s)
+			}
+		}
+	}()
+
+	setGrid := func() {
+		grid = fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
+	
