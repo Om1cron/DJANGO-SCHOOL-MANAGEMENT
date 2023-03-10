@@ -222,4 +222,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 
 	setGrid := func() {
 		grid = fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
-	
+			fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(1),
+				closeRow,
+				fyne.NewContainerWithLayout(layout.NewMaxLayout(),
+		
