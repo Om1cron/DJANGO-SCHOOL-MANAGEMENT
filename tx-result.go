@@ -225,4 +225,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(1),
 				closeRow,
 				fyne.NewContainerWithLayout(layout.NewMaxLayout(),
-		
+					summaryGroup,
+				),
+			),
+			widget.NewVBox(
+				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(txW, 30)),
