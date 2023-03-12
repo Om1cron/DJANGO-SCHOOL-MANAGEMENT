@@ -230,3 +230,6 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			),
 			widget.NewVBox(
 				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(txW, 30)),
+					fyne.NewContainerWithLayout(layout.NewGridLayout(2), showFullResponseButton, showFullRequestButton),
+				),
+				widget.NewLabel("Request:
