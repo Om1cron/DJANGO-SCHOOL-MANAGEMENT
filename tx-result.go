@@ -232,4 +232,12 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(txW, 30)),
 					fyne.NewContainerWithLayout(layout.NewGridLayout(2), showFullResponseButton, showFullRequestButton),
 				),
-				widget.NewLabel("Request:
+				widget.NewLabel("Request:"),
+				requestText,
+				widget.NewLabel("Response Summary:"),
+				responseText,
+			),
+		)
+
+		win.window.SetContent(grid)
+		win.window.Resize(win.window.Content(
