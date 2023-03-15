@@ -240,4 +240,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		)
 
 		win.window.SetContent(grid)
-		win.window.Resize(win.window.Content(
+		win.window.Resize(win.window.Content().MinSize())
+	}
+
+	clear := func() {
+		Results = make([]TxResult, 0)
+		summaryGroup = widget.NewGroupWithScroller("Transaction Result")
+		summaryGroup.R
