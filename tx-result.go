@@ -246,4 +246,13 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	clear := func() {
 		Results = make([]TxResult, 0)
 		summaryGroup = widget.NewGroupWithScroller("Transaction Result")
-		summaryGroup.R
+		summaryGroup.Refresh()
+		textUpdateResp <- ""
+		textUpdateReq <- ""
+		setGrid()
+	}
+
+	closeButton := widget.NewButtonWithIcon(
+		"close",
+		theme.DeleteIcon(),
+		func() 
