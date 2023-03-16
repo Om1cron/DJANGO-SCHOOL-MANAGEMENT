@@ -255,4 +255,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	closeButton := widget.NewButtonWithIcon(
 		"close",
 		theme.DeleteIcon(),
-		func() 
+		func() {
+			go func() {
+				if running {
+					stopRequested <- true
+				}
+				win.gone = true
+				win.window.Hide()
+				// this causes a segfault 
