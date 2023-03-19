@@ -262,4 +262,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				}
 				win.gone = true
 				win.window.Hide()
-				// this causes a segfault 
+				// this causes a segfault on linux, but on darwin if not closed it leaves a window hanging around.
+				if runtime.GOOS == "darwin" {
+					win.window.Close()
+				}
+			}()
+		},
+	)
+	re
