@@ -269,4 +269,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			}()
 		},
 	)
-	re
+	resendButton := widget.NewButtonWithIcon("resend", theme.ViewRefreshIcon(), func() {
+		if running {
+			return
+		}
+		exit = false
+		go run()
+	})
+	stopButton = wi
