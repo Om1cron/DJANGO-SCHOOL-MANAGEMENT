@@ -276,4 +276,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		exit = false
 		go run()
 	})
-	stopButton = wi
+	stopButton = widget.NewButtonWithIcon("stop", theme.CancelIcon(), func() {
+		if running {
+			stopRequested <- true
+		}
+	})
+
+	clearButton := widget
