@@ -282,4 +282,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		}
 	})
 
-	clearButton := widget
+	clearButton := widget.NewButtonWithIcon("clear results", theme.ContentRemoveIcon(), func() {
+		clear()
+	})
+	closeRow = widget.NewGroup(" Control ",
+		stopButton,
+		rese
