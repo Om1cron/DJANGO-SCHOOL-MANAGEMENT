@@ -287,4 +287,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	})
 	closeRow = widget.NewGroup(" Control ",
 		stopButton,
-		rese
+		resendButton,
+		clearButton,
+		closeButton,
+		layout.NewSpacer(),
+		BalanceLabel,
+		widget.NewLabel("Successful Requests:"),
+		successLabel,
+		widget.NewLa
