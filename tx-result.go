@@ -294,4 +294,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		BalanceLabel,
 		widget.NewLabel("Successful Requests:"),
 		successLabel,
-		widget.NewLa
+		widget.NewLabel("Failed Requests:"),
+		failedLabel,
+	)
+	closeRow.Show()
+
+	reqChan := make(chan string)
+	respChan := make(chan string)
+	fullRespCha
