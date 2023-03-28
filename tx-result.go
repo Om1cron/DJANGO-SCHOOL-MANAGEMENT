@@ -301,4 +301,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 
 	reqChan := make(chan string)
 	respChan := make(chan string)
-	fullRespCha
+	fullRespChan := make(chan int)
+
+	trimDisplayed := func(s string) string {
+		re := regexp.MustCompile(`[[^:ascii:]]`)
+		var displayed str
