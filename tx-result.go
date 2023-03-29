@@ -348,4 +348,12 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		closeRow.Refresh()
 		summaryGroup.Refresh()
 		responseText.Refresh()
-		request
+		requestText.Refresh()
+		if grid != nil {
+			grid.Refresh()
+		}
+		mux.Unlock()
+	}
+
+	newButton := func(title string, index int, failed bool) {
+		if f
