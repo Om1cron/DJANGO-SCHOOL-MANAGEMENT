@@ -312,4 +312,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		var lines int
 		for {
 			lines = lines + 1
-			l
+			line, err := buf.ReadString('\n')
+			if err != nil {
+				break
+			}
+			line, _ = strconv.Unquote(strconv.QuoteToASCII(line
