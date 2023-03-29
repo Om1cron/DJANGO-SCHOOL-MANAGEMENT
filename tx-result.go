@@ -305,4 +305,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 
 	trimDisplayed := func(s string) string {
 		re := regexp.MustCompile(`[[^:ascii:]]`)
-		var displayed str
+		var displayed string
+		s = s + "\n"
+		reader := strings.NewReader(s)
+		buf := bufio.NewReader(reader)
+		var lines int
+		for {
+			lines = lines + 1
+			l
