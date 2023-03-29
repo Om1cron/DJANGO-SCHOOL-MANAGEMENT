@@ -356,4 +356,12 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	}
 
 	newButton := func(title string, index int, failed bool) {
-		if f
+		if failed {
+			failedChan <- false
+		} else {
+			successChan <- true
+		}
+		if (!failed && win.hideSucc) || (failed && win.hideFail) {
+			return
+		}
+		// possible rac
