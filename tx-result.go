@@ -334,3 +334,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			select {
 			case q := <-rq:
 				textUpdateReq <- trimDisplayed(q)
+			case s := <-rs:
+				textUpdateResp <- trimDisplayed(s)
+			case fullResponseIndex = <-frs:
+			}
+		}
+	}(reqChan, respChan, fullRespChan)
+	reqChan <- ""
