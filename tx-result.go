@@ -326,4 +326,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				break
 			}
 		}
-		return re.ReplaceAllString(displayed
+		return re.ReplaceAllString(displayed, "?")
+	}
+
+	go func(rq chan string, rs chan string, frs chan int) {
+		for {
+			select {
+			case q := <-rq:
+				textUpdateReq <- trimDisplayed(q)
