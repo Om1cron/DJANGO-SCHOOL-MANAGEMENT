@@ -316,4 +316,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			if err != nil {
 				break
 			}
-			line, _ = strconv.Unquote(strconv.QuoteToASCII(line
+			line, _ = strconv.Unquote(strconv.QuoteToASCII(line))
+			if len(line) > 128+21 {
+				line = fmt.Sprintf("%s ... trimmed %d chars ...\n", line[:128], len(line)-128)
+			}
+			displayed = displayed + l
