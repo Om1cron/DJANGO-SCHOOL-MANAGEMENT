@@ -341,3 +341,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		}
 	}(reqChan, respChan, fullRespChan)
 	reqChan <- ""
+	respChan <- ""
+
+	repaint := func() {
+		mux.Lock()
+		closeRow.Refresh()
+		summaryGroup.Refresh()
+		responseText.Refresh()
+		request
