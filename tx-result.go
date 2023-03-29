@@ -320,4 +320,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			if len(line) > 128+21 {
 				line = fmt.Sprintf("%s ... trimmed %d chars ...\n", line[:128], len(line)-128)
 			}
-			displayed = displayed + l
+			displayed = displayed + line
+			if lines > 31 {
+				displayed = displayed + "\n ... too many lines to display ..."
+				break
+			}
+		}
+		return re.ReplaceAllString(displayed
