@@ -364,4 +364,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		if (!failed && win.hideSucc) || (failed && win.hideFail) {
 			return
 		}
-		// possible rac
+		// possible race while clearing the screen
+		if index > len(Results) {
+			return
+		}
+		deRef := &index
+		i := *deRef
+		if i-1 > len(Results) || len(Result
