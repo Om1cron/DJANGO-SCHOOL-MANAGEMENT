@@ -409,4 +409,12 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		workerApi.Header.Set("User-Agent", "fio-cryptonym-wallet")
 		running = true
 		stopButton.Enable()
-		bom
+		bombsAway.Disable()
+		resendButton.Disable()
+		closeButton.Disable()
+
+		defer func() {
+			running = false
+			stopButton.Disable()
+			bombsAway.Enable()
+			resendButton.E
