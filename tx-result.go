@@ -400,4 +400,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			}
 		}()
 		// give each thread it's own http client pool:
-		workerApi, workerOpts, err :
+		workerApi, workerOpts, err := fio.NewConnection(account.KeyBag, api.BaseURL)
+		if err != nil {
+			errs.ErrChan <- err.Error()
+			errs.ErrChan <- "ERROR: could not get
