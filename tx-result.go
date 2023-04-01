@@ -403,4 +403,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		workerApi, workerOpts, err := fio.NewConnection(account.KeyBag, api.BaseURL)
 		if err != nil {
 			errs.ErrChan <- err.Error()
-			errs.ErrChan <- "ERROR: could not get
+			errs.ErrChan <- "ERROR: could not get new client connection"
+			return
+		}
+		workerApi.Header.Set("User-Agent", "fio-cryptonym-wallet")
+		running = true
+		stopButton.Enable()
+		bom
