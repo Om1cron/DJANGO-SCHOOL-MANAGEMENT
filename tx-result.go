@@ -386,4 +386,12 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				return
 			}
 			reqChan <- string(Results[i].Req)
-	
+			respChan <- string(Results[i].Resp)
+			fullRespChan <- i
+		})
+		summaryGroup.Append(b)
+		repaint()
+	}
+
+	run = func() {
+		defer func()
