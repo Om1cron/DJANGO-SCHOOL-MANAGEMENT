@@ -381,4 +381,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			icon = theme.CancelIcon()
 		}
 
-		b = widget
+		b = widget.NewButtonWithIcon(title, icon, func() {
+			if i >= len(Results) {
+				return
+			}
+			reqChan <- string(Results[i].Req)
+	
