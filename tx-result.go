@@ -370,4 +370,15 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		}
 		deRef := &index
 		i := *deRef
-		if i-1 > len(Results) || len(Result
+		if i-1 > len(Results) || len(Results) == 0 {
+			return
+		}
+		if len(Results) > 256 {
+			clear()
+		}
+		icon := theme.ConfirmIcon()
+		if failed {
+			icon = theme.CancelIcon()
+		}
+
+		b = widget
