@@ -394,4 +394,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	}
 
 	run = func() {
-		defer func()
+		defer func() {
+			if running {
+				stopRequested <- true
+			}
+		}()
+		// give each thread it's own http client pool:
+		workerApi, workerOpts, err :
