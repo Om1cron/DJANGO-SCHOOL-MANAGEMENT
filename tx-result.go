@@ -426,4 +426,14 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		case win.loop:
 			end = math.MaxInt32
 		case win.repeat > 1:
-			end = win
+			end = win.repeat
+		default:
+			end = 1
+		}
+		finished := make(chan bool)
+		wg := sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			defer func() {
+				running = false
+				finis
