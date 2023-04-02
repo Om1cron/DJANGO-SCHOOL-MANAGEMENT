@@ -417,4 +417,13 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 			running = false
 			stopButton.Disable()
 			bombsAway.Enable()
-			resendButton.E
+			resendButton.Enable()
+			closeButton.Enable()
+		}()
+
+		var end int
+		switch {
+		case win.loop:
+			end = math.MaxInt32
+		case win.repeat > 1:
+			end = win
