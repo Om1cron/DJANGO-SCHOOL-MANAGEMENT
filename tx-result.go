@@ -436,4 +436,12 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		go func() {
 			defer func() {
 				running = false
-				finis
+				finished <- true
+				wg.Done()
+			}()
+			for i := 0; i < end; i++ {
+				if exit {
+					return
+				}
+				output := TxResult{
+					Summary: fmt.Spr
