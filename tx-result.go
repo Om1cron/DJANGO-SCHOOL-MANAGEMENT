@@ -448,4 +448,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					Index:   i,
 				}
 				e := FormState.GeneratePayloads(account)
-				if e != ni
+				if e != nil {
+					errs.ErrChan <- e.Error()
+					errs.ErrChan <- "there was a problem generating dynamic payloads"
+					output.Resp = []byte(e.Error()
