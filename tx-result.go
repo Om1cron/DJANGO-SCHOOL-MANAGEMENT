@@ -444,4 +444,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					return
 				}
 				output := TxResult{
-					Summary: fmt.Spr
+					Summary: fmt.Sprintf("%s", time.Now().Format("15:04:05.000")),
+					Index:   i,
+				}
+				e := FormState.GeneratePayloads(account)
+				if e != ni
