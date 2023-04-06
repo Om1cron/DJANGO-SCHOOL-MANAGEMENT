@@ -457,3 +457,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					continue
 				}
 				if exit {
+					return
+				}
+				raw, tx, err := FormState.PackAndSign(workerApi, workerOpts, account, win.msig)
+				if tx == nil || tx.PackedTransaction == nil {
+		
