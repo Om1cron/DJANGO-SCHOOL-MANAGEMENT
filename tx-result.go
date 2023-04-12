@@ -462,4 +462,5 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				raw, tx, err := FormState.PackAndSign(workerApi, workerOpts, account, win.msig)
 				if tx == nil || tx.PackedTransaction == nil {
 					errs.ErrChan <- "sending a signed transaction with null action data"
-					empty := fio.NewAction(eos.AccountName(F
+					empty := fio.NewAction(eos.AccountName(FormState.Contract), eos.ActionName(FormState.Action), account.Actor, nil)
+					_, tx, err = workerApi.SignTransaction(fio.NewTransaction([]*fi
