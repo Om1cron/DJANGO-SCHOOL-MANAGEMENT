@@ -467,4 +467,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					if err != nil {
 						errs.ErrChan <- err.Error()
 						continue
-			
+					}
+				}
+				if win.msig && err == nil {
+					if tx == nil || tx.PackedTransaction == nil {
+						errs.ErrChan <- "did not build a valid tran
