@@ -478,4 +478,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						continue
 					}
 					ntx, err := tx.Unpack()
-					if err != nil 
+					if err != nil {
+						errs.ErrChan <- "Problem repacking transaction to embed in msig propose " + err.Error()
+						output.Resp = []byte(err.Error())
+						Result
