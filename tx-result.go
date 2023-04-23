@@ -481,4 +481,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					if err != nil {
 						errs.ErrChan <- "Problem repacking transaction to embed in msig propose " + err.Error()
 						output.Resp = []byte(err.Error())
-						Result
+						Results = append(Results, output)
+						newButton(output.Summary, len(Results)-1, true)
+						continue
+					}
+					// convert to t
