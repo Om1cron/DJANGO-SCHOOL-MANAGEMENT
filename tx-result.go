@@ -485,4 +485,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						newButton(output.Summary, len(Results)-1, true)
 						continue
 					}
-					// convert to t
+					// convert to transaction, without signature:
+					untx := eos.Transaction{}
+					if win.wrap {
+						untx = eos.Transaction{
+							TransactionHeader:  ntx.
