@@ -489,4 +489,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					untx := eos.Transaction{}
 					if win.wrap {
 						untx = eos.Transaction{
-							TransactionHeader:  ntx.
+							TransactionHeader:  ntx.TransactionHeader,
+							ContextFreeActions: ntx.ContextFreeActions,
+							Actions:            ntx.Actions,
+							Extensions:         ntx.Extension
