@@ -492,4 +492,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 							TransactionHeader:  ntx.TransactionHeader,
 							ContextFreeActions: ntx.ContextFreeActions,
 							Actions:            ntx.Actions,
-							Extensions:         ntx.Extension
+							Extensions:         ntx.Extensions,
+						}
+						untx.Expiration = eos.JSONTime{Time: time.Unix(0, 0)}
+						untx.RefBlockNum = 0
+						untx.RefBlockPrefix = 0
+						for i := ra
