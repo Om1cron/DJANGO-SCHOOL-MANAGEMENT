@@ -505,4 +505,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					} else {
 						for i := range ntx.Actions {
 							ntx.Actions[i].Authorization = []eos.PermissionLevel{{
-			
+								Actor:      eos.AccountName(win.msigAccount),
+								Permission: "active",
+							}}
+						}
+					}
+					requested := make([]*fio.Permissi
