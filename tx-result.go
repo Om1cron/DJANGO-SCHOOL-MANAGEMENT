@@ -510,4 +510,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 							}}
 						}
 					}
-					requested := make([]*fio.Permissi
+					requested := make([]*fio.PermissionLevel, 0)
+					signers := strings.Split(win.msigSigners, ",")
+					sort.Strings(signers)
+					for _, s := range signers {
+						requested =
