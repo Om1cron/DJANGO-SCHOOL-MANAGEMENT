@@ -517,3 +517,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						requested = append(requested, &fio.PermissionLevel{
 							Actor:      eos.AccountName(strings.ReplaceAll(s, " ", "")),
 							Permission: "active",
+						})
+					}
+					packed, _ := ntx.Pack(fio.CompressionNone)
+					//propose := fio.MsigPropose{}
+					//wrapPropose := fio.MsigWrappedPropose
