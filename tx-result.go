@@ -499,4 +499,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						untx.RefBlockPrefix = 0
 						for i := range untx.Actions {
 							untx.Actions[i].Authorization = []eos.PermissionLevel{
-								{Actor: eos.AccountName(win.wrapActor), Permi
+								{Actor: eos.AccountName(win.wrapActor), Permission: "active"},
+							}
+						}
+					} else {
+						for i := range ntx.Actions {
+							ntx.Actions[i].Authorization = []eos.PermissionLevel{{
+			
