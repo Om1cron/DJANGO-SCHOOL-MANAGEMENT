@@ -514,4 +514,6 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					signers := strings.Split(win.msigSigners, ",")
 					sort.Strings(signers)
 					for _, s := range signers {
-						requested =
+						requested = append(requested, &fio.PermissionLevel{
+							Actor:      eos.AccountName(strings.ReplaceAll(s, " ", "")),
+							Permission: "active",
