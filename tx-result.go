@@ -521,4 +521,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					}
 					packed, _ := ntx.Pack(fio.CompressionNone)
 					//propose := fio.MsigPropose{}
-					//wrapPropose := fio.MsigWrappedPropose
+					//wrapPropose := fio.MsigWrappedPropose{}
+					var propose interface{}
+					if win.msig && !win.wrap {
+						ntx.Expiration = eos.JSONTime{Time: time.Now().Add(60 * time.Minute
