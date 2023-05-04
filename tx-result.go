@@ -497,4 +497,6 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						untx.Expiration = eos.JSONTime{Time: time.Unix(0, 0)}
 						untx.RefBlockNum = 0
 						untx.RefBlockPrefix = 0
-						for i := ra
+						for i := range untx.Actions {
+							untx.Actions[i].Authorization = []eos.PermissionLevel{
+								{Actor: eos.AccountName(win.wrapActor), Permi
