@@ -529,4 +529,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 							Proposer:     account.Actor,
 							ProposalName: eos.Name(win.msigName()),
 							Requested:    requested,
-							MaxFee:       fio.Tokens(fio.GetMaxFee(fio.FeeMsigPropose))*uint64(len(packed.PackedTransaction)/1000) + fio.Token
+							MaxFee:       fio.Tokens(fio.GetMaxFee(fio.FeeMsigPropose))*uint64(len(packed.PackedTransaction)/1000) + fio.Tokens(1.0),
+							Trx:          ntx,
+						}
+					} else if win.wrap {
+						//wrap := fio.NewWrapExecute(account.Actor, eos.AccountName(win.msigAccount), ntx)
+	
