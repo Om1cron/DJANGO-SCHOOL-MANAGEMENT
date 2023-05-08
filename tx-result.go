@@ -539,4 +539,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 							//{Actor: account.Actor, Permission: "active"},
 							{Actor: "eosio.wrap", Permission: "active"},
 						}
-						wTx := fio.NewTransaction
+						wTx := fio.NewTransaction([]*fio.Action{wrap}, opts)
+						wTx.Expiration = eos.JSONTime{Time: time.Now().Add(60 * time.Minute)}
+						wTx.RefBlockNum = 0
+		
