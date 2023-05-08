@@ -536,4 +536,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						//wrap := fio.NewWrapExecute(account.Actor, eos.AccountName(win.msigAccount), ntx)
 						wrap := fio.NewWrapExecute("eosio.wrap", account.Actor, &untx)
 						wrap.Authorization = []eos.PermissionLevel{
-							//{Act
+							//{Actor: account.Actor, Permission: "active"},
+							{Actor: "eosio.wrap", Permission: "active"},
+						}
+						wTx := fio.NewTransaction
