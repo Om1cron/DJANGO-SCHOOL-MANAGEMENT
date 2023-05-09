@@ -546,4 +546,5 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						propose = fio.MsigWrappedPropose{
 							Proposer:     account.Actor,
 							ProposalName: eos.Name(win.msigName()),
-			
+							Requested:    requested,
+							MaxFee:       fio.Tokens(fio.GetMaxFee(fio.FeeMsigPropose))*uint64(len(packed.PackedTransaction)/1000) + fio.Tokens(
