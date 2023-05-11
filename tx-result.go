@@ -562,3 +562,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 								),
 							},
 							workerOpts),
+						workerOpts.ChainID, fio.CompressionNone,
+					)
+					if err != nil {
+						errs.ErrChan <- "Problem signing msig prop
