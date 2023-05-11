@@ -554,4 +554,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					_, tx, err = workerApi.SignTransaction(
 						fio.NewTransaction(
 							[]*fio.Action{
-								
+								fio.NewAction(
+									"eosio.msig",
+									"propose",
+									account.Actor,
+									propose,
+								),
+							},
+							workerOpts),
