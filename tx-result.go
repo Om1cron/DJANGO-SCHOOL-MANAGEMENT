@@ -565,4 +565,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						workerOpts.ChainID, fio.CompressionNone,
 					)
 					if err != nil {
-						errs.ErrChan <- "Problem signing msig prop
+						errs.ErrChan <- "Problem signing msig propose " + err.Error()
+						output.Resp = []byte(err.Error())
+						Results = append(Results, output)
+						newButton(output.Summary, len(Results)-1, true)
+						continue
