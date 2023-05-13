@@ -570,3 +570,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						Results = append(Results, output)
 						newButton(output.Summary, len(Results)-1, true)
 						continue
+					}
+					raw, _ = json.Marshal(propose)
+				}
+				j, _ := json.MarshalIndent(raw, "", "  ")
+				packed, _ := json.MarshalIndent(tx, "", "
