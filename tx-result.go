@@ -580,4 +580,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					errs.ErrChan <- err.Error()
 					errs.ErrChan <- "could not marshall into a TX"
 					output.Resp = []byte(err.Error())
-					Results = append(Results,
+					Results = append(Results, output)
+					newButton(output.Summary, len(Results)-1, true)
+					continue
+				}
+				if tx == nil || tx.PackedTransaction == nil {
+					errs.ErrC
