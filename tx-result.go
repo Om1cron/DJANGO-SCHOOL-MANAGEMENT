@@ -574,4 +574,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					raw, _ = json.Marshal(propose)
 				}
 				j, _ := json.MarshalIndent(raw, "", "  ")
-				packed, _ := json.MarshalIndent(tx, "", "
+				packed, _ := json.MarshalIndent(tx, "", "  ")
+				output.Req = append(append(j, []byte("\n\nPacked Tx:\n\n")...), packed...)
+				if err != nil {
+					errs.ErrChan <- er
