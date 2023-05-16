@@ -586,4 +586,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				}
 				if tx == nil || tx.PackedTransaction == nil {
 					errs.ErrChan <- "did not build a valid transaction, refusing to continue."
-					output.Resp = []byte("could not build the transaction. Don't worry it's me,
+					output.Resp = []byte("could not build the transaction. Don't worry it's me, not you.")
+					Results = append(Results, output)
+					newButton(output.Summary, len(Results)-1, true)
+					continue
+				}
+				output.
