@@ -591,4 +591,6 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					newButton(output.Summary, len(Results)-1, true)
 					continue
 				}
-				output.
+				output.Req = append(output.Req, []byte(p.Sprintf("\n\nSize of Packed TX (bytes): %d", len(tx.PackedTransaction)))...)
+				reqBuf := bytes.Buffer{}
+				reqZWri
