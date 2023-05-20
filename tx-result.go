@@ -593,4 +593,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				}
 				output.Req = append(output.Req, []byte(p.Sprintf("\n\nSize of Packed TX (bytes): %d", len(tx.PackedTransaction)))...)
 				reqBuf := bytes.Buffer{}
-				reqZWri
+				reqZWriter, _ := zlib.NewWriterLevel(&reqBuf, zlib.BestCompression)
+				reqZWriter.Write(j)
+				reqZWriter.Close()
+				output.FullReq = reqBuf
