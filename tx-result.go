@@ -602,3 +602,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				}
 				result, err := workerApi.PushEndpointRaw(actionEndPointActive, tx)
 				if err != nil {
+					errs.ErrChan <- err.Error()
+					if win.hideFail {
+						failedChan <- true
+						continue
+					}
+					output.Resp = []byte(err.Error())
