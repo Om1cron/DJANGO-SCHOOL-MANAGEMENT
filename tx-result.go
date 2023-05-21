@@ -596,4 +596,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				reqZWriter, _ := zlib.NewWriterLevel(&reqBuf, zlib.BestCompression)
 				reqZWriter.Write(j)
 				reqZWriter.Close()
-				output.FullReq = reqBuf
+				output.FullReq = reqBuf.Bytes()
+				if exit {
+					return
+				}
+				result, err := workerApi.PushEndpointRaw(actionEndPointActive, tx)
+				if err != nil {
