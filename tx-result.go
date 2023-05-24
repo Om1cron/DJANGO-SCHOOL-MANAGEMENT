@@ -610,4 +610,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					output.Resp = []byte(err.Error())
 					output.Summary = fmt.Sprintf("%s", time.Now().Format("15:04:05.000"))
 					buf := bytes.Buffer{}
-					zWriter, _ := zlib.NewWriterLevel(&
+					zWriter, _ := zlib.NewWriterLevel(&buf, zlib.BestCompression)
+					if len(result) > 0 {
+						zWriter.Write(result)
+					} else {
+						zWriter.Write([]byte(fmt.Sprintf(`{"
