@@ -630,4 +630,7 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				summary := &TxSummary{}
 				err = json.Unmarshal(result, summary)
 				if err != nil {
-					errs.Err
+					errs.ErrChan <- err.Error()
+					output.Resp = []byte(err.Error())
+					output.Summary = fmt.Sprintf("%s", time.Now().Format("15:04:05.000"))
+					if
