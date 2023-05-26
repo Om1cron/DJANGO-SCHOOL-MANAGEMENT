@@ -625,4 +625,5 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				if exit {
 					return
 				}
-				// store two responses, the summary --
+				// store two responses, the summary -- displayed by default, and zlib compressed full response.
+				// the full response is huge, and will seriously screw up the dis
