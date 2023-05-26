@@ -614,4 +614,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					if len(result) > 0 {
 						zWriter.Write(result)
 					} else {
-						zWriter.Write([]byte(fmt.Sprintf(`{"
+						zWriter.Write([]byte(fmt.Sprintf(`{"error": "%s"}`, err.Error())))
+					}
+					zWriter.Close()
+					output.FullResp = buf.Bytes()
+					Results = append(Results, output)
+					new
