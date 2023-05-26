@@ -619,4 +619,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					zWriter.Close()
 					output.FullResp = buf.Bytes()
 					Results = append(Results, output)
-					new
+					newButton(output.Summary, len(Results)-1, true)
+					continue
+				}
+				if exit {
+					return
+				}
+				// store two responses, the summary --
