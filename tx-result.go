@@ -633,4 +633,9 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					errs.ErrChan <- err.Error()
 					output.Resp = []byte(err.Error())
 					output.Summary = fmt.Sprintf("%s", time.Now().Format("15:04:05.000"))
-					if
+					if win.hideFail {
+						failedChan <- true
+						continue
+					}
+					Results = append(Results, output)
+					newButton(output.Summary, len(R
