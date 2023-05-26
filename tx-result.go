@@ -638,4 +638,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 						continue
 					}
 					Results = append(Results, output)
-					newButton(output.Summary, len(R
+					newButton(output.Summary, len(Results)-1, true)
+					continue
+				}
+				// get the real tx size, since we got this far assume we have a valid tx result
+				sz := &txTra
