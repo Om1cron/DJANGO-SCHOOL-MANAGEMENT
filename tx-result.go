@@ -626,4 +626,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					return
 				}
 				// store two responses, the summary -- displayed by default, and zlib compressed full response.
-				// the full response is huge, and will seriously screw up the dis
+				// the full response is huge, and will seriously screw up the display and consume a lot of memory!
+				summary := &TxSummary{}
+				err = json.Unmarshal(result, summary)
+				if err != nil {
+					errs.Err
