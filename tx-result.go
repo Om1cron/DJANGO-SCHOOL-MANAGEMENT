@@ -648,4 +648,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 
 				if win.hideSucc {
 					successChan <- true
-					continu
+					continue
+				}
+				j, _ = yaml.Marshal(summary)
+				output.Resp = j
+				buf := bytes.Buffer{}
+				zWriter, _ := zlib.NewWriterLevel(&buf, zlib.BestCompression)
+				zWr
