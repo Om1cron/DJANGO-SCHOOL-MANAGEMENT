@@ -642,4 +642,10 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 					continue
 				}
 				// get the real tx size, since we got this far assume we have a valid tx result
-				sz := &txTra
+				sz := &txTraces{}
+				_ = json.Unmarshal(result, sz)
+				summary.TotalBytes = sz.size()
+
+				if win.hideSucc {
+					successChan <- true
+					continu
