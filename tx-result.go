@@ -695,4 +695,12 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	if win.gone && win != nil {
 		win.gone = false
 		win.window.Show()
-		resizeTr
+		resizeTrigger <- true
+	} else {
+		repaint()
+	}
+}
+
+func ShowFullResponse(b []byte, win fyne.Window) {
+	FullResponseText := widget.NewMultiLineEntry()
+	FullActionRespWin := App.NewWin
