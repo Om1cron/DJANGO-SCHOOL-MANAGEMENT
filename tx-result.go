@@ -659,3 +659,17 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				output.FullResp = buf.Bytes()
 				Results = append(Results, output)
 				newButton(output.Summary, len(Results)-1, false)
+			}
+		}()
+		for {
+			select {
+			case _ = <-stopRequested:
+				exit = true
+			case _ = <-finished:
+				wg.Wait()
+				return
+			}
+		}
+	}
+
+	for w := 
