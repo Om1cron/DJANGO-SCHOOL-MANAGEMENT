@@ -654,4 +654,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 				output.Resp = j
 				buf := bytes.Buffer{}
 				zWriter, _ := zlib.NewWriterLevel(&buf, zlib.BestCompression)
-				zWr
+				zWriter.Write(result)
+				zWriter.Close()
+				output.FullResp = buf.Bytes()
+				Results = append(Results, output)
+				newButton(output.Summary, len(Results)-1, false)
