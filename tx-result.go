@@ -680,4 +680,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 
 	if len(Results) > 0 && !win.hideFail && !win.hideSucc {
 		textUpdateResp <- trimDisplayed(string(Results[0].Resp))
-		textUpdateReq <- trimDisplayed(string(Results
+		textUpdateReq <- trimDisplayed(string(Results[0].Req))
+	}
+	if !running {
+		stopButton.Disable()
+	}
+	repaint()
+	win.window.SetOnClosed(func() {
+		Win.RequestFocus()
