@@ -703,4 +703,8 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 
 func ShowFullResponse(b []byte, win fyne.Window) {
 	FullResponseText := widget.NewMultiLineEntry()
-	FullActionRespWin := App.NewWin
+	FullActionRespWin := App.NewWindow("Full Response")
+	FullActionRespWin.Hide()
+	FullActionRespWin.Resize(fyne.NewSize(W, H))
+	FullActionRespWin.SetContent(
+		fyne.NewContai
