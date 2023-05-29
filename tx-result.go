@@ -707,4 +707,10 @@ func ShowFullResponse(b []byte, win fyne.Window) {
 	FullActionRespWin.Hide()
 	FullActionRespWin.Resize(fyne.NewSize(W, H))
 	FullActionRespWin.SetContent(
-		fyne.NewContai
+		fyne.NewContainerWithLayout(layout.NewMaxLayout(),
+			widget.NewScrollContainer(
+				FullResponseText,
+			),
+		),
+	)
+	FullActionRespWin.SetOnClosed(func() {
