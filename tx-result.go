@@ -672,4 +672,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 		}
 	}
 
-	for w := 
+	for w := 0; w < workers; w++ {
+		go run()
+	}
+	time.Sleep(250 * time.Millisecond)
+	setGrid()
+
+	if len(Results) > 0 && !win.hideFail && !win.hideSucc {
+	
