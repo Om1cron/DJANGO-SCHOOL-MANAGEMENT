@@ -679,4 +679,5 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	setGrid()
 
 	if len(Results) > 0 && !win.hideFail && !win.hideSucc {
-	
+		textUpdateResp <- trimDisplayed(string(Results[0].Resp))
+		textUpdateReq <- trimDisplayed(string(Results
