@@ -688,3 +688,11 @@ func TxResultsWindow(win *txResultOpts, api *fio.API, opts *fio.TxOptions, accou
 	repaint()
 	win.window.SetOnClosed(func() {
 		Win.RequestFocus()
+		win.gone = true
+		exit = true
+		close(textUpdateDone)
+	})
+	if win.gone && win != nil {
+		win.gone = false
+		win.window.Show()
+		resizeTr
