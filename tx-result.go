@@ -714,3 +714,7 @@ func ShowFullResponse(b []byte, win fyne.Window) {
 		),
 	)
 	FullActionRespWin.SetOnClosed(func() {
+		go func() {
+			// bug in fyne 1.3 where we need a very short wait to grab a child window
+			time.Sleep(100 * time.Millisecond)
+		
