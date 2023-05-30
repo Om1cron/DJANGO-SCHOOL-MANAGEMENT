@@ -749,4 +749,12 @@ func ShowFullResponse(b []byte, win fyne.Window) {
 	}
 	full, err := json.MarshalIndent(json.RawMessage(j), "", "  ")
 	if err != nil {
-		set(err.Error(
+		set(err.Error())
+		return
+	}
+	set(string(full))
+}
+
+func ShowFullRequest(b []byte, win fyne.Window) {
+	fullRequestText := widget.NewMultiLineEntry()
+	fullActionRespWin := App
