@@ -729,4 +729,11 @@ func ShowFullResponse(b []byte, win fyne.Window) {
 	})
 	set := func(s string) {
 		FullResponseText.OnChanged = func(string) {
-			FullResponseText.SetTex
+			FullResponseText.SetText(s)
+		}
+		FullResponseText.SetText(s)
+		FullResponseText.Refresh()
+		FullActionRespWin.Show()
+	}
+	reader := bufio.NewReader(bytes.NewReader(b))
+	zlReade
