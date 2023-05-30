@@ -743,4 +743,10 @@ func ShowFullResponse(b []byte, win fyne.Window) {
 	}
 	defer zlReader.Close()
 	j, err := ioutil.ReadAll(zlReader)
-	if e
+	if err != nil {
+		set(err.Error())
+		return
+	}
+	full, err := json.MarshalIndent(json.RawMessage(j), "", "  ")
+	if err != nil {
+		set(err.Error(
