@@ -717,4 +717,7 @@ func ShowFullResponse(b []byte, win fyne.Window) {
 		go func() {
 			// bug in fyne 1.3 where we need a very short wait to grab a child window
 			time.Sleep(100 * time.Millisecond)
-		
+			for _, w := range fyne.CurrentApp().Driver().AllWindows() {
+				if w.Title() == "Tx Results" {
+					w.RequestFocus()
+					log.Println("found paren
