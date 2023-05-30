@@ -720,4 +720,13 @@ func ShowFullResponse(b []byte, win fyne.Window) {
 			for _, w := range fyne.CurrentApp().Driver().AllWindows() {
 				if w.Title() == "Tx Results" {
 					w.RequestFocus()
-					log.Println("found paren
+					log.Println("found parent")
+					return
+				}
+			}
+			win.RequestFocus()
+		}()
+	})
+	set := func(s string) {
+		FullResponseText.OnChanged = func(string) {
+			FullResponseText.SetTex
