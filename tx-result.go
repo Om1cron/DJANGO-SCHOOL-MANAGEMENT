@@ -761,4 +761,10 @@ func ShowFullRequest(b []byte, win fyne.Window) {
 	fullActionRespWin.Hide()
 	fullActionRespWin.Resize(fyne.NewSize(W, H))
 	fullActionRespWin.SetContent(
-		fyne.Ne
+		fyne.NewContainerWithLayout(layout.NewMaxLayout(),
+			widget.NewScrollContainer(
+				fullRequestText,
+			),
+		),
+	)
+	fullActionRespWin.SetOnClosed(func() {
