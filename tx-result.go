@@ -757,4 +757,8 @@ func ShowFullResponse(b []byte, win fyne.Window) {
 
 func ShowFullRequest(b []byte, win fyne.Window) {
 	fullRequestText := widget.NewMultiLineEntry()
-	fullActionRespWin := App
+	fullActionRespWin := App.NewWindow("Full Request")
+	fullActionRespWin.Hide()
+	fullActionRespWin.Resize(fyne.NewSize(W, H))
+	fullActionRespWin.SetContent(
+		fyne.Ne
