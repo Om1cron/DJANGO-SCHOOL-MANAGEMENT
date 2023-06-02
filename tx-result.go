@@ -771,4 +771,13 @@ func ShowFullRequest(b []byte, win fyne.Window) {
 		go func() {
 			time.Sleep(100 * time.Millisecond)
 			for _, w := range fyne.CurrentApp().Driver().AllWindows() {
-				if w.Title() == "Tx Results" 
+				if w.Title() == "Tx Results" {
+					w.RequestFocus()
+					log.Println("found parent")
+					return
+				}
+			}
+			win.RequestFocus()
+		}()
+	})
+	set := f
