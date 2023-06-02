@@ -768,3 +768,7 @@ func ShowFullRequest(b []byte, win fyne.Window) {
 		),
 	)
 	fullActionRespWin.SetOnClosed(func() {
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			for _, w := range fyne.CurrentApp().Driver().AllWindows() {
+				if w.Title() == "Tx Results" 
