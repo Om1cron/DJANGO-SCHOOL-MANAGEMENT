@@ -780,4 +780,9 @@ func ShowFullRequest(b []byte, win fyne.Window) {
 			win.RequestFocus()
 		}()
 	})
-	set := f
+	set := func(s string) {
+		fullRequestText.OnChanged = func(string) {
+			fullRequestText.SetText(s)
+		}
+		fullRequestText.SetText(s)
+		fullRequestText.Ref
