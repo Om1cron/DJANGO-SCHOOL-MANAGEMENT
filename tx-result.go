@@ -791,4 +791,13 @@ func ShowFullRequest(b []byte, win fyne.Window) {
 	reader := bufio.NewReader(bytes.NewReader(b))
 	zlReader, err := zlib.NewReader(reader)
 	if err != nil {
-		s
+		set(err.Error())
+		return
+	}
+	defer zlReader.Close()
+	j, err := ioutil.ReadAll(zlReader)
+	if err != nil {
+		set(err.Error())
+		return
+	}
+	full, err := json.Ma
