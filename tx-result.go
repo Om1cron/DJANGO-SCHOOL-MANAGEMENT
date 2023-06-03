@@ -785,4 +785,10 @@ func ShowFullRequest(b []byte, win fyne.Window) {
 			fullRequestText.SetText(s)
 		}
 		fullRequestText.SetText(s)
-		fullRequestText.Ref
+		fullRequestText.Refresh()
+		fullActionRespWin.Show()
+	}
+	reader := bufio.NewReader(bytes.NewReader(b))
+	zlReader, err := zlib.NewReader(reader)
+	if err != nil {
+		s
