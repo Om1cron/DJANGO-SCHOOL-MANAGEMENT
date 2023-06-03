@@ -800,4 +800,10 @@ func ShowFullRequest(b []byte, win fyne.Window) {
 		set(err.Error())
 		return
 	}
-	full, err := json.Ma
+	full, err := json.MarshalIndent(json.RawMessage(j), "", "  ")
+	if err != nil {
+		set(err.Error())
+		return
+	}
+	set(string(full))
+}
