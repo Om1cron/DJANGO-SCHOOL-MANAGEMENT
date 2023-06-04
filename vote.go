@@ -310,3 +310,164 @@ func VoteContent(content chan fyne.CanvasObject, refresh chan bool) {
 		if len(myAddrs) > 0 {
 			addrsSelect.SetSelected(myAddrs[0])
 		}
+		performVoteBox := widget.NewHBox(
+			layout.NewSpacer(),
+			countLabel,
+			widget.NewLabel("vote as:"),
+			addrsSelect,
+			voteButton,
+			refreshButton,
+			layout.NewSpacer(),
+		)
+
+		refreshTopChan := make(chan map[string]bool)
+		go func() {
+			for _, gvc := range bpi {
+				if gvc.VoteFor {
+					origVotes[gvc.FioAddress] = true
+					curVotes[gvc.FioAddress] = true
+				}
+			}
+			for {
+				select {
+				case votee := <-refreshTopChan:
+					for k, v := range votee {
+						curVotes[k] = v
+					}
+					var votes, changed int
+					for k, v := range curVotes {
+						if origVotes[k] != v {
+							changed = changed + 1
+						}
+						if v {
+							votes = votes + 1
+						}
+					}
+					countLabel.SetText(fmt.Sprintf("%d of 30 votes selected", votes))
+					if changed != 0 && votes <= 30 && addrsSelect.Selected != "" && addrsSelect.Selected != "(Select one)" {
+						voteButton.Enable()
+						continue
+					}
+					voteButton.Disable()
+				}
+			}
+		}()
+
+		moreInfoSize := widget.NewButtonWithIcon("more info", theme.InfoIcon(), func() {}).MinSize()
+
+		for rank, bp := range bpi {
+			func(rank int, bp bpInfo) {
+				voteContent := fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(2))
+				var isTop string
+				if bp.Top21 {
+					isTop = "Top 21 "
+				}
+				boldName := widget.NewLabelWithStyle(bp.FioAddress, fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+				boldName.Hide()
+				softName := widget.NewLabel(bp.FioAddress)
+				//selected := canvas.NewImageFromImage(votedImg())
+				selected := canvas.NewImageFromResource(theme.NavigateNextIcon())
+				selected.Hide()
+				voteCheck := widget.NewCheck("Vote", func(b bool) {
+					bp.VoteFor = b
+					refreshTopChan <- map[string]bool{bp.FioAddress: b}
+					switch {
+					case bp.OrigVoteFor && bp.VoteFor:
+						selected.Resource = theme.NavigateNextIcon()
+						selected.Show()
+					case !bp.OrigVoteFor && bp.VoteFor:
+						selected.Resource = theme.ContentAddIcon()
+						selected.Show()
+					case bp.OrigVoteFor && !bp.VoteFor:
+						selected.Resource = theme.DeleteIcon()
+						selected.Show()
+					default:
+						selected.Hide()
+					}
+					selected.Refresh()
+					if b {
+						boldName.Show()
+						softName.Hide()
+						return
+					}
+					boldName.Hide()
+					softName.Show()
+				})
+				voteCheck.SetChecked(bp.VoteFor)
+				tied := widget.NewLabelWithStyle("   ", fyne.TextAlignLeading, fyne.TextStyle{Monospace: true})
+				if bp.Tied && bp.CurrentVotes > 0 {
+					tied.SetText(" * ")
+				}
+				voteContent.AddObject(widget.NewHBox(
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(40, 40)), selected),
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(60, 40)), widget.NewLabel(isTop)),
+					fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(40, 40)), bp.Img),
+					voteCheck, boldName, softName, layout.NewSpacer(),
+					widget.NewLabelWithStyle(
+						pp.Sprintf("%s %d voted - rank #%3d", fio.FioSymbol, int64(math.Round(bp.CurrentVotes))/1_000_000_000, rank+1),
+						fyne.TextAlignTrailing,
+						fyne.TextStyle{}),
+					tied,
+				))
+				moreInfo := widget.NewButtonWithIcon("more info", theme.InfoIcon(), func() {
+					var yContent string
+					y, err := yaml.Marshal(bp.BpJson)
+					if err != nil {
+						yContent = err.Error()
+					} else {
+						yContent = string(y)
+					}
+					mi := widget.NewMultiLineEntry() //yContent, fyne.TextAlignLeading, fyne.TextStyle{Monospace: true})
+					txt := r.ReplaceAllString(yContent, "\n-")
+					func(txt string) {
+						mi.OnChanged = func(string) {
+							mi.SetText(txt)
+						}
+					}(txt)
+					mi.SetText(txt)
+					content := fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(RWidth()/2, PctHeight()-250-performVoteBox.MinSize().Height/2)),
+						widget.NewScrollContainer(
+							mi,
+						))
+					dialog.ShowCustom(bp.FioAddress, "OK", content, Win)
+				})
+				if bp.BpJson == nil {
+					moreInfo.Hide()
+					bp.Img.Hide()
+				}
+
+				nameBox := widget.NewHBox()
+				if !strings.HasPrefix(bp.Url, "http") && bp.Url != "" {
+					bp.Url = "http://" + bp.Url
+				}
+				u, err := url.Parse(bp.Url)
+				nameBox.Append(fyne.NewContainerWithLayout(layout.NewFixedGridLayout(moreInfoSize), moreInfo))
+				if err == nil {
+					nameBox.Append(widget.NewHyperlinkWithStyle(u.Host, u, fyne.TextAlignLeading, fyne.TextStyle{Bold: true}))
+				}
+				nameBox.Append(layout.NewSpacer())
+				//nameBox.Append(widget.NewLabelWithStyle("     ", fyne.TextAlignTrailing, fyne.TextStyle{Monospace: true}))
+				voteContent.AddObject(nameBox)
+				voteRowsBox.Append(voteContent)
+			}(rank, bp)
+		}
+		voteRowsBox.Append(fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.Size{
+			Width:  20,
+			Height: 50,
+		})))
+		return widget.NewVBox(
+			performVoteBox,
+			fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(RWidth(), PctHeight()-250-performVoteBox.MinSize().Height)),
+				widget.NewGroupWithScroller("Producer Candidates", voteRowsBox),
+			))
+	}
+	content <- widget.NewLabel("Please wait, updating producer information ....")
+	content <- table()
+	for {
+		select {
+		case <-refresh:
+			content <- widget.NewLabel("Please wait, updating producer information ....")
+			content <- table()
+		}
+	}
+}
