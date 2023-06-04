@@ -149,3 +149,164 @@ func getBpInfo(actor string, api *fio.API) ([]bpInfo, error) {
 	voteTies := make(map[string]int)
 	for _, bp := range prods.Producers {
 		voteTies[bp.TotalVotes] += 1
+	}
+	bpiMux := sync.Mutex{}
+	wg := sync.WaitGroup{}
+	wg.Add(len(prods.Producers))
+	// temporarily set a very aggressive timeout, otherwise this can take up to a minute.
+	// sorry BPs, if your server is slow no icon and bp info will show up.
+	oldTimout := api.HttpClient.Timeout
+	api.HttpClient.Timeout = 2 * time.Second
+	for _, bp := range prods.Producers {
+		go func(bp fio.Producer) {
+			defer wg.Done()
+
+			if bp.IsActive == 0 {
+				return
+			}
+			votes, _ := strconv.ParseFloat(bp.TotalVotes, 64)
+			bpiMux.Lock()
+			var tied bool
+			if voteTies[bp.TotalVotes] > 1 {
+				tied = true
+			}
+
+			if bpInfoCache[string(bp.FioAddress)] != nil {
+				bpInfoCache[string(bp.FioAddress)].VoteFor = hasVoted(string(bp.FioAddress))
+				bpInfoCache[string(bp.FioAddress)].OrigVoteFor = hasVoted(string(bp.FioAddress))
+				bpInfoCache[string(bp.FioAddress)].Tied = tied
+				bpInfoCache[string(bp.FioAddress)].CurrentVotes = votes
+				bpInfoCache[string(bp.FioAddress)].Top21 = isTopProd[string(bp.Owner)]
+				bpi = append(bpi, *bpInfoCache[string(bp.FioAddress)])
+				bpiMux.Unlock()
+				return
+			}
+
+			bpiMux.Unlock()
+			bpj, err := api.GetBpJson(bp.Owner)
+			if err != nil {
+				log.Printf("could not get bp.json for %s, %s\n", bp.Owner, err.Error())
+			}
+			img := canvas.NewImageFromResource(theme.QuestionIcon())
+			if bpj != nil && bpj.Org.Branding.Logo256 != "" {
+				resp, err := api.HttpClient.Get(bpj.Org.Branding.Logo256)
+				if err == nil {
+					defer resp.Body.Close()
+					body, err := ioutil.ReadAll(resp.Body)
+					if err == nil {
+						decoded, _, err := image.Decode(bytes.NewReader(body))
+						if err == nil {
+							img = canvas.NewImageFromImage(decoded)
+						}
+					}
+				}
+			}
+			info := bpInfo{
+				CurrentVotes: votes,
+				FioAddress:   string(bp.FioAddress),
+				Actor:        string(bp.Owner),
+				Url:          bp.Url,
+				BpJson:       bpj,
+				VoteFor:      hasVoted(string(bp.FioAddress)),
+				OrigVoteFor:  hasVoted(string(bp.FioAddress)),
+				Img:          img,
+				Top21:        isTopProd[string(bp.Owner)],
+				Tied:         tied,
+			}
+			bpiMux.Lock()
+			bpi = append(bpi, info)
+			bpInfoCache[string(bp.FioAddress)] = &info
+			bpiMux.Unlock()
+		}(bp)
+	}
+	wg.Wait()
+	api.HttpClient.Timeout = oldTimout
+	sort.Slice(bpi, func(i, j int) bool {
+		if bpi[i].CurrentVotes == bpi[j].CurrentVotes {
+			iName, _ := eos.StringToName(bpi[i].Actor)
+			jName, _ := eos.StringToName(bpi[j].Actor)
+			return iName < jName
+		}
+		return bpi[i].CurrentVotes > bpi[j].CurrentVotes
+	})
+	return bpi, nil
+}
+
+var RefreshVotesChan = make(chan bool)
+
+func VoteContent(content chan fyne.CanvasObject, refresh chan bool) {
+	pp := message.NewPrinter(language.AmericanEnglish)
+	r := regexp.MustCompile("(?m)^-")
+	table := func() fyne.CanvasObject {
+		bpi, err := getBpInfo(string(Account.Actor), Api)
+		if err != nil {
+			return widget.NewLabel(err.Error())
+		}
+
+		voteRowsBox := widget.NewVBox()
+
+		origVotes := make(map[string]bool)
+		curVotes := make(map[string]bool)
+		voteButton := &widget.Button{}
+		countLabel := widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+
+		myAddrs := func() []string {
+			names := make([]string, 0)
+			_, _, _ = Account.GetNames(Api)
+			for _, n := range Account.Addresses {
+				names = append(names, n.FioAddress)
+			}
+			return names
+		}()
+		addrsSelect := widget.NewSelect(myAddrs, func(s string) {
+			fee := fio.GetMaxFee(`vote_producer`)
+			if err == nil {
+				voteButton.SetText(pp.Sprintf("Vote! %s %g", fio.FioSymbol, fee))
+			}
+		})
+		voteButton = widget.NewButtonWithIcon("Vote!", fioassets.NewFioLogoResource(), func() {
+			go func() {
+				prods := make([]string, 0)
+				for k, v := range curVotes {
+					if v {
+						prods = append(prods, k)
+					}
+				}
+				vp := fio.NewVoteProducer(prods, Account.Actor, addrsSelect.Selected)
+				var result string
+				resp, err := Api.SignPushTransaction(fio.NewTransaction(
+					[]*fio.Action{vp},
+					Opts,
+				),
+					Opts.ChainID,
+					fio.CompressionNone,
+				)
+				if err != nil {
+					result = err.Error()
+					errs.ErrChan <- err.Error()
+				} else {
+					j, err := json.MarshalIndent(resp, "", "  ")
+					if err != nil {
+						errs.ErrChan <- err.Error()
+						return
+					}
+					result = string(j)
+				}
+				content := fyne.NewContainerWithLayout(layout.NewFixedGridLayout(fyne.NewSize(RWidth()/2, PctHeight()-250/2)),
+					widget.NewScrollContainer(
+						widget.NewLabelWithStyle(result, fyne.TextAlignLeading, fyne.TextStyle{Monospace: true}),
+					))
+				dialog.ShowCustom("voteproducer result", "OK", content, Win)
+				go func() {
+					time.Sleep(100 * time.Millisecond)
+					RefreshVotesChan <- true
+				}()
+			}()
+		})
+		refreshButton := widget.NewButtonWithIcon("Refresh", theme.ViewRefreshIcon(), func() {
+			RefreshVotesChan <- true
+		})
+
+		if len(myAddrs) > 0 {
+			addrsSelect.SetSelected(myAddrs[0])
+		}
